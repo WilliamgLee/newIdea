@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Office</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- M0: tampilan status sederhana. Kantor 2D (Canvas) dibuat di M7. -->
+  <h1>AI Office</h1>
+  <p id="conn" class="muted">menghubungkan…</p>
+
+  <h2>Agent</h2>
+  <ul id="agents"></ul>
+
+  <h2>Ringkasan</h2>
+  <ul id="summary"></ul>
+
+  <h2>Job terbaru</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th></tr></thead>
+    <tbody id="jobs"></tbody>
+  </table>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

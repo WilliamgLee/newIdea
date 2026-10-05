@@ -1,0 +1,15 @@
+# Profil konten channel. Niche belum final, jadi isi belakangan.
+# Penulis Naskah akan memakai profil ini sebagai konteks tambahan (mulai M1).
+
+channel_name: ""            # mis. "Dunia Ceria"
+niche: ""                   # mis. "pengenalan dasar untuk balita"
+target_age_group: "3-6"
+language: id
+tone: "ceria, hangat, sabar"
+recurring_phrases: []       # mis. ["Ayo kita belajar!", "Hebat sekali!"]
+avoid_topics: []            # topik tambahan yang ingin dihindari
+
+# Contoh topik untuk testing
+example_topics:
+  - mengenal warna
+  - hewan dan suaranya

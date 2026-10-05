@@ -1,0 +1,56 @@
+# Konfigurasi utama AI Office.
+# Path relatif dihitung dari folder tempat file ini berada.
+
+server:
+  host: 127.0.0.1        # default HANYA localhost. Jangan ganti ke 0.0.0.0 kecuali paham risikonya.
+  port: 8000
+
+paths:
+  data_dir: data         # database, aset, cache (di-gitignore)
+  output_dir: output     # hasil render sementara per job
+  db_file: ai_office.db
+
+pipeline:
+  # semi_auto  = ada 2 gerbang persetujuan admin (naskah & video final)
+  # full_auto  = gerbang dilewati HANYA jika review keamanan lulus
+  mode: semi_auto
+  max_safety_rounds: 2     # maksimal putaran revisi naskah dari Penasihat Keamanan
+  max_llm_retries: 2       # maksimal retry bila output LLM tidak lolos validasi
+  poll_interval_sec: 2.0   # seberapa sering worker mengecek antrean
+  just_done_display_sec: 15  # berapa lama status "baru selesai" tampil di dashboard
+
+content:
+  age_group: "3-6"
+  language: id
+  style: ceria
+  profile_file: content_profile.yaml
+
+llm:
+  provider: ollama         # ollama (default, lokal) | gemini (opsional, free tier)
+  model: qwen2.5:7b        # muat di VRAM 6 GB (RTX 4050)
+  base_url: http://127.0.0.1:11434
+  timeout_sec: 180
+  gemini_model: gemini-2.0-flash
+
+voice:
+  engine: edge-tts
+  voice: id-ID-GadisNeural   # alternatif: id-ID-ArdiNeural
+  rate: "+0%"
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  target_duration_sec: 30
+  min_duration_sec: 25
+  max_duration_sec: 35
+  encoder: auto            # auto | h264_nvenc | libx264
+
+delivery:
+  dest_dir: ~/Videos/AI-Office
+  open_folder: true
+
+agents:
+  # M0: semua agent masih "palsu" (simulasi). Akan diganti agent asli per milestone.
+  use_fake: true
+  fake_delay_sec: 1.0

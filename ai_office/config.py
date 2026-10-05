@@ -7,6 +7,7 @@ Validasi kontrak data antar-agent memakai pydantic (lihat `ai_office/schemas.py`
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import Any, Literal, TypeVar, get_type_hints
@@ -73,7 +74,14 @@ class SafetyConfig:
 class VoiceConfig:
     engine: str = "edge-tts"
     voice: str = "id-ID-GadisNeural"
-    rate: str = "+0%"
+    rate: str = "-5%"            # kecepatan bicara, mis. "-10%" lebih lambat
+    pitch: str = "+0Hz"
+    pause_after_sec: float = 0.6  # jeda setelah narasi tiap scene (animasi tetap berjalan)
+    min_scene_sec: float = 2.0
+    loudness_lufs: float = -16.0  # target normalisasi volume (standar platform video)
+    sample_rate: int = 48000
+    max_retries: int = 2          # retry bila TTS gagal (mis. koneksi putus)
+    speedup_percent: int = 15     # dipakai bila total durasi melebihi video.max_duration_sec
 
 
 @dataclass
@@ -99,7 +107,7 @@ AGENT_NAMES: tuple[str, ...] = ("writer", "safety", "voice", "animator", "editor
 @dataclass
 class AgentsConfig:
     # Agent yang masih memakai versi palsu (simulasi). Agent asli ditambahkan per milestone.
-    fake: list[str] = field(default_factory=lambda: ["voice", "animator", "editor", "delivery"])
+    fake: list[str] = field(default_factory=lambda: ["animator", "editor", "delivery"])
     fake_delay_sec: float = 1.0
 
 
@@ -160,6 +168,12 @@ class AppConfig:
             raise ConfigError(f"llm.provider harus salah satu dari {LLM_PROVIDERS}")
         if self.llm.think is not None and not isinstance(self.llm.think, bool):
             raise ConfigError("llm.think harus true, false, atau null")
+        if not re.fullmatch(r"[+-]\d{1,3}%", self.voice.rate):
+            raise ConfigError("voice.rate harus berformat seperti '+0%' atau '-10%'")
+        if not re.fullmatch(r"[+-]\d{1,3}Hz", self.voice.pitch):
+            raise ConfigError("voice.pitch harus berformat seperti '+0Hz' atau '-5Hz'")
+        if self.voice.pause_after_sec < 0 or self.voice.min_scene_sec <= 0:
+            raise ConfigError("voice.pause_after_sec >= 0 dan voice.min_scene_sec > 0")
 
     def resolve(self, p: str) -> Path:
         """Path dari config (relatif terhadap folder config.yaml)."""

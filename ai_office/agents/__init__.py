@@ -11,7 +11,8 @@ from .fake import build_fake_agents
 __all__ = ["Agent", "AgentContext", "AgentError", "build_agents"]
 
 # Agent asli yang sudah tersedia (bertambah per milestone)
-IMPLEMENTED: frozenset[AgentName] = frozenset({AgentName.WRITER, AgentName.SAFETY})
+IMPLEMENTED: frozenset[AgentName] = frozenset(
+    {AgentName.WRITER, AgentName.SAFETY, AgentName.VOICE})
 
 
 def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict[AgentName, Agent]:
@@ -39,4 +40,9 @@ def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict
             from .safety import SafetyAgent
 
             agents[AgentName.SAFETY] = SafetyAgent(config, provider)
+    if AgentName.VOICE in real:
+        from ..tts import build_engine
+        from .voice import VoiceAgent
+
+        agents[AgentName.VOICE] = VoiceAgent(config, build_engine(config.voice))
     return agents

@@ -13,10 +13,12 @@ python-dotenv>=1.1
 # --- Klien HTTP (Ollama / Gemini) ---
 httpx>=0.28
 
+# --- Suara (TTS gratis; butuh internet) ---
+edge-tts>=7.0
+
 # --- Testing ---
 pytest>=8.4
 
 # Dependensi milestone berikutnya (ditambahkan saat milestone-nya dikerjakan):
-#   M2: edge-tts
 #   M3: playwright
 #   M6: argon2-cffi, itsdangerous

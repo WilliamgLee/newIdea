@@ -3,8 +3,8 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M1.** Penulis Naskah dan Penasihat Keamanan Anak sudah **asli** (memakai LLM lokal).
-> Pengisi Suara, Animator, Editor, dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
+> **Status: M2.** Penulis Naskah, Penasihat Keamanan Anak, dan Pengisi Suara sudah **asli**.
+> Animator, Editor, dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
@@ -38,6 +38,21 @@ mengubah `llm.model` di `config.yaml`.
 **Opsional – Gemini free tier:** isi `GEMINI_API_KEY` di `.env`, lalu ubah `llm.provider: gemini`.
 
 **Mencoba tanpa Ollama:** tambahkan `writer` dan `safety` ke `agents.fake` di `config.yaml`.
+
+### ffmpeg + suara (M2)
+
+1. Pasang ffmpeg: `winget install Gyan.FFmpeg`, lalu buka PowerShell baru dan cek `ffmpeg -version`.
+2. Suara memakai **edge-tts** (gratis, sudah ada di `requirements.txt`, butuh internet).
+3. Coba suara dari naskah buatan tangan, tanpa LLM:
+   ```powershell
+   python -m ai_office.cli voice-file examples/mengenal_warna.json
+   ```
+   Hasil: `output/manual_mengenal_warna/audio/scene_*.wav` + `voice.json` (timing per kata).
+
+Pengaturan suara ada di bagian `voice:` pada `config.yaml` (suara `id-ID-GadisNeural` /
+`id-ID-ArdiNeural`, kecepatan, jeda antar-scene, target loudness). Durasi tiap scene mengikuti
+panjang suara sebenarnya + jeda. Jika total < 25 detik, jeda ditambah; jika > 35 detik, suara
+dipercepat sekali; jika tetap > 60 detik, job gagal dengan pesan "perpendek narasi".
 
 ## Menjalankan test
 
@@ -73,7 +88,8 @@ Perintah CLI lain:
 | `reject <id> --reason "..."` | tolak di gerbang |
 | `retry <id>` | ulangi job gagal dari tahap yang gagal |
 | `mode semi_auto` / `mode full_auto` | ganti mode tanpa restart |
-| `doctor` | cek koneksi LLM & status agent |
+| `doctor` | cek koneksi LLM, edge-tts, ffmpeg & status agent |
+| `voice-file <naskah.json>` | buat suara + timing dari naskah buatan tangan (tanpa LLM) |
 
 ## Alur naskah
 

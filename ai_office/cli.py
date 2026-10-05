@@ -48,6 +48,9 @@ def cmd_review(orch: Orchestrator, job_id: int) -> None:
             print(f"       \"{s['narration']}\"  | layar: {s['on_screen_text']}")
         print(f"\nTUJUAN BELAJAR: {script['learning_goal']}")
         print(f"HASHTAG: {' '.join(script['hashtags'])}")
+    voice = job.artifacts.get("voice")
+    if voice and "sentences" in str(voice):
+        print_voice(voice)
     for r in orch.db.get_safety_reviews(job.id):
         rev = r["review"]
         print(f"\n--- Review keamanan putaran {r['round']}: {r['verdict'].upper()} ---")
@@ -58,6 +61,40 @@ def cmd_review(orch: Orchestrator, job_id: int) -> None:
             print(f"  saran: {sug}")
     if job.error:
         print(f"\nERROR: {job.error}")
+
+
+def print_voice(voice: dict) -> None:
+    print(f"\n--- Suara ({voice['engine']} {voice['voice']}, rate {voice['rate']}): "
+          f"total {voice['total_duration_sec']:.1f} detik ---")
+    for s in voice["scenes"]:
+        print(f"  [{s['scene_id']}] suara {s['audio_duration_sec']:.2f}s -> scene "
+              f"{s['duration_sec']:.2f}s  timing={s['timing_source']} "
+              f"({s['word_coverage']:.0%})  {s['audio_file']}")
+        for sent in s["sentences"]:
+            words = " ".join(f"{w['text']}@{w['start']:.2f}" for w in sent["words"])
+            print(f"       {sent['start']:5.2f}-{sent['end']:5.2f}  {words}")
+
+
+def cmd_voice_file(orch: Orchestrator, path: Path) -> int:
+    from .agents.voice import VoiceAgent
+    from .bootstrap import make_script_validator
+    from .schemas import Script
+    from .tts import build_engine
+
+    data = make_script_validator(orch.config)(json.loads(path.read_text(encoding="utf-8")))
+    agent = VoiceAgent(orch.config, build_engine(orch.config.voice))
+    if not agent.is_available():
+        print("Error: edge-tts atau ffmpeg/ffprobe belum terpasang.", file=sys.stderr)
+        return 1
+    workdir = orch.config.output_dir / f"manual_{path.stem}"
+    workdir.mkdir(parents=True, exist_ok=True)
+    result = agent.voice_script(Script.model_validate(data), workdir, log=print)
+    (workdir / "voice.json").write_text(
+        json.dumps(result.model_dump(mode="json"), ensure_ascii=False, indent=2),
+        encoding="utf-8")
+    print_voice(result.model_dump(mode="json"))
+    print(f"\nFile audio ada di: {workdir / 'audio'}")
+    return 0
 
 
 def cmd_doctor(orch: Orchestrator) -> int:
@@ -71,8 +108,12 @@ def cmd_doctor(orch: Orchestrator) -> int:
         ok_all &= ok
         print(f"  {name.value:<9} {'palsu' if fake else 'asli ':<5}  "
               f"{'siap' if ok else 'TIDAK TERSEDIA'}")
-    if not ok_all and cfg.provider == "ollama":
+    unavailable = {n.value for n, a in orch.agents.items() if not a.is_available()}
+    if unavailable & {"writer", "safety"} and cfg.provider == "ollama":
         print(f"\nPastikan Ollama berjalan dan model sudah di-pull:  ollama pull {cfg.model}")
+    if "voice" in unavailable:
+        print("\nPengisi Suara butuh: pip install -r requirements.txt (edge-tts) dan ffmpeg "
+              "(winget install Gyan.FFmpeg, lalu buka terminal baru).")
     return 0 if ok_all else 1
 
 
@@ -111,6 +152,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("job_id", type=int)
     p.add_argument("--file", default=None, help="path script.json hasil edit")
     sub.add_parser("doctor", help="cek koneksi LLM & status agent")
+    p = sub.add_parser("voice-file", help="buat suara dari script.json buatan tangan (tanpa LLM)")
+    p.add_argument("script_file")
     p = sub.add_parser("reject")
     p.add_argument("job_id", type=int)
     p.add_argument("--reason", default="")
@@ -144,6 +187,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"Status: {orch.approve_script(args.job_id, edited).status.value}")
             case "doctor":
                 return cmd_doctor(orch)
+            case "voice-file":
+                return cmd_voice_file(orch, Path(args.script_file))
             case "approve-final":
                 print(f"Status: {orch.approve_final(args.job_id).status.value}")
             case "reject":

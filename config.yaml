@@ -40,9 +40,16 @@ safety:
   temperature: 0.2
 
 voice:
-  engine: edge-tts
+  engine: edge-tts           # gratis, butuh koneksi internet (layanan suara Microsoft Edge)
   voice: id-ID-GadisNeural   # alternatif: id-ID-ArdiNeural
-  rate: "+0%"
+  rate: "-5%"                # sedikit lebih lambat agar mudah diikuti anak
+  pitch: "+0Hz"
+  pause_after_sec: 0.6       # jeda setelah narasi tiap scene
+  min_scene_sec: 2.0
+  loudness_lufs: -16.0       # normalisasi volume
+  sample_rate: 48000
+  max_retries: 2
+  speedup_percent: 15        # bila total > video.max_duration_sec, suara dipercepat sekali
 
 video:
   width: 1080
@@ -61,5 +68,5 @@ agents:
   # Agent yang masih "palsu" (simulasi). Agent asli ditambahkan per milestone.
   # Pilihan: writer, safety, voice, animator, editor, delivery
   # Tips: tambahkan writer & safety ke daftar ini untuk mencoba tanpa Ollama.
-  fake: [voice, animator, editor, delivery]
+  fake: [animator, editor, delivery]
   fake_delay_sec: 1.0

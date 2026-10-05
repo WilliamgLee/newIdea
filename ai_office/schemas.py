@@ -316,16 +316,24 @@ class SentenceTiming(_Model):
 
 class SceneAudio(_Model):
     scene_id: int = Field(ge=1)
-    audio_file: str                  # nama file relatif terhadap folder job
-    duration_sec: float = Field(gt=0)
+    audio_file: str                  # path relatif terhadap folder job, mis. audio/scene_1.wav
+    audio_duration_sec: float = Field(gt=0)   # panjang suara sebenarnya
+    duration_sec: float = Field(gt=0)         # panjang scene di video (suara + jeda)
     sentences: list[SentenceTiming]
+    timing_source: Literal["word", "estimated"]  # word = dari TTS, estimated = perkiraan
+    word_coverage: float = Field(ge=0, le=1)     # porsi kata yang timing-nya dari TTS
+
+    @property
+    def words(self) -> list[WordTiming]:
+        return [w for s in self.sentences for w in s.words]
 
 
 class VoiceResult(_Model):
     engine: str
     voice: str
+    rate: str
     scenes: list[SceneAudio]
-    total_duration_sec: float = Field(gt=0)
+    total_duration_sec: float = Field(gt=0, le=60)
 
 
 # ======================================================== metadata (M4)

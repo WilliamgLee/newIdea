@@ -107,7 +107,7 @@ AGENT_NAMES: tuple[str, ...] = ("writer", "safety", "voice", "animator", "editor
 @dataclass
 class AgentsConfig:
     # Agent yang masih memakai versi palsu (simulasi). Agent asli ditambahkan per milestone.
-    fake: list[str] = field(default_factory=lambda: ["animator", "editor", "delivery"])
+    fake: list[str] = field(default_factory=lambda: ["editor", "delivery"])
     fake_delay_sec: float = 1.0
 
 

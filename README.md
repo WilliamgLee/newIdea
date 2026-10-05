@@ -3,8 +3,8 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M2.** Penulis Naskah, Penasihat Keamanan Anak, dan Pengisi Suara sudah **asli**.
-> Animator, Editor, dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
+> **Status: M3.** Penulis Naskah, Penasihat Keamanan Anak, Pengisi Suara, dan Pembuat Animasi
+> sudah **asli**. Editor dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
@@ -54,6 +54,28 @@ Pengaturan suara ada di bagian `voice:` pada `config.yaml` (suara `id-ID-GadisNe
 panjang suara sebenarnya + jeda. Jika total < 25 detik, jeda ditambah; jika > 35 detik, suara
 dipercepat sekali; jika tetap > 60 detik, job gagal dengan pesan "perpendek narasi".
 
+### Animasi (M3)
+
+1. Pasang browser untuk render (sekali saja, setelah `pip install`):
+   ```powershell
+   python -m playwright install chromium
+   ```
+2. Coba buat klip animasi dari naskah buatan tangan (tanpa LLM):
+   ```powershell
+   python -m ai_office.cli render-file examples/mengenal_warna.json            # dengan suara
+   python -m ai_office.cli render-file examples/mengenal_warna.json --no-voice  # tanpa suara (cepat)
+   ```
+   Hasil: `output/manual_mengenal_warna/animation.mp4` (1080x1920, 30 fps, H.264, tanpa audio) +
+   `plan.json`. Audio/subtitle/musik digabung Editor di M4.
+
+Pustaka animasi ada di `ai_office/animation/`:
+- `renderer/core.js` — inti (SVG, lip-sync, timeline); `characters/characters.js` — Kiki & Bubu;
+  `scenes/backgrounds.js`, `scenes/objects.js`, `scenes/templates.js` — latar, 29 objek, 6 template.
+- `style_guide.md` — aturan warna, font, dan gerak. `catalog.yaml` — daftar nama valid (yang
+  dilihat Penulis). Test memastikan `catalog.yaml` selalu cocok dengan pustaka JS.
+- Render **deterministik**: tiap frame = `renderFrame(plan, t)`, 30 fps, 1080x1920, lalu ffmpeg
+  menyusun PNG jadi MP4 (NVENC bila GPU NVIDIA ada, jika tidak `libx264`).
+
 ## Menjalankan test
 
 ```powershell
@@ -90,6 +112,7 @@ Perintah CLI lain:
 | `mode semi_auto` / `mode full_auto` | ganti mode tanpa restart |
 | `doctor` | cek koneksi LLM, edge-tts, ffmpeg & status agent |
 | `voice-file <naskah.json>` | buat suara + timing dari naskah buatan tangan (tanpa LLM) |
+| `render-file <naskah.json> [--no-voice]` | buat klip animasi dari naskah buatan tangan (tanpa LLM) |
 
 ## Alur naskah
 

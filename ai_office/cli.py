@@ -97,6 +97,51 @@ def cmd_voice_file(orch: Orchestrator, path: Path) -> int:
     return 0
 
 
+def cmd_render_file(orch: Orchestrator, path: Path, no_voice: bool) -> int:
+    from .agents.animator import AnimatorAgent
+    from .agents.voice import VoiceAgent, align_words
+    from .animation.plan import build_plan
+    from .animation.renderer.render import render_plan_to_mp4
+    from .bootstrap import make_script_validator
+    from .schemas import SceneAudio, Script, VoiceResult
+    from .tts import build_engine
+
+    cfg = orch.config
+    data = make_script_validator(cfg)(json.loads(path.read_text(encoding="utf-8")))
+    script = Script.model_validate(data)
+    workdir = cfg.output_dir / f"manual_{path.stem}"
+    workdir.mkdir(parents=True, exist_ok=True)
+
+    animator = AnimatorAgent(cfg)
+    if not animator.is_available():
+        print("Error: Playwright/Chromium atau ffmpeg belum siap. Lihat 'doctor'.", file=sys.stderr)
+        return 1
+
+    if no_voice:
+        scenes = []
+        for s in script.scenes:
+            sent, _ = align_words(s.narration, [], s.duration_sec)
+            scenes.append(SceneAudio(scene_id=s.id, audio_file=f"audio/scene_{s.id}.wav",
+                                     audio_duration_sec=s.duration_sec, duration_sec=s.duration_sec,
+                                     sentences=sent, timing_source="estimated", word_coverage=0.0))
+        voice = VoiceResult(engine="none", voice="", rate="+0%", scenes=scenes,
+                            total_duration_sec=sum(s.duration_sec for s in scenes))
+    else:
+        va = VoiceAgent(cfg, build_engine(cfg.voice))
+        if not va.is_available():
+            print("Error: edge-tts/ffmpeg belum siap (pakai --no-voice untuk melewati suara).",
+                  file=sys.stderr)
+            return 1
+        voice = va.voice_script(script, workdir, log=print)
+
+    plan = build_plan(script, voice, cfg.video.fps)
+    (workdir / "plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2),
+                                       encoding="utf-8")
+    mp4 = render_plan_to_mp4(plan, workdir, cfg.video.fps, cfg.video.encoder, log_fn=print)
+    print(f"\nKlip animasi: {mp4}  ({plan['total_duration']:.1f} detik, tanpa audio)")
+    return 0
+
+
 def cmd_doctor(orch: Orchestrator) -> int:
     cfg = orch.config.llm
     model = cfg.model if cfg.provider == "ollama" else cfg.gemini_model
@@ -114,6 +159,9 @@ def cmd_doctor(orch: Orchestrator) -> int:
     if "voice" in unavailable:
         print("\nPengisi Suara butuh: pip install -r requirements.txt (edge-tts) dan ffmpeg "
               "(winget install Gyan.FFmpeg, lalu buka terminal baru).")
+    if "animator" in unavailable:
+        print("\nPembuat Animasi butuh: pip install -r requirements.txt lalu "
+              "python -m playwright install chromium, plus ffmpeg.")
     return 0 if ok_all else 1
 
 
@@ -154,6 +202,11 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("doctor", help="cek koneksi LLM & status agent")
     p = sub.add_parser("voice-file", help="buat suara dari script.json buatan tangan (tanpa LLM)")
     p.add_argument("script_file")
+    p = sub.add_parser("render-file",
+                       help="buat klip animasi dari script.json buatan tangan (tanpa LLM)")
+    p.add_argument("script_file")
+    p.add_argument("--no-voice", action="store_true",
+                   help="tanpa edge-tts: pakai durasi scene dari naskah (lip-sync perkiraan)")
     p = sub.add_parser("reject")
     p.add_argument("job_id", type=int)
     p.add_argument("--reason", default="")
@@ -189,6 +242,8 @@ def main(argv: list[str] | None = None) -> int:
                 return cmd_doctor(orch)
             case "voice-file":
                 return cmd_voice_file(orch, Path(args.script_file))
+            case "render-file":
+                return cmd_render_file(orch, Path(args.script_file), args.no_voice)
             case "approve-final":
                 print(f"Status: {orch.approve_final(args.job_id).status.value}")
             case "reject":

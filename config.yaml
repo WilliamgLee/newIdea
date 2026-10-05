@@ -68,5 +68,5 @@ agents:
   # Agent yang masih "palsu" (simulasi). Agent asli ditambahkan per milestone.
   # Pilihan: writer, safety, voice, animator, editor, delivery
   # Tips: tambahkan writer & safety ke daftar ini untuk mencoba tanpa Ollama.
-  fake: [animator, editor, delivery]
+  fake: [editor, delivery]
   fake_delay_sec: 1.0

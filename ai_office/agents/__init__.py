@@ -12,7 +12,7 @@ __all__ = ["Agent", "AgentContext", "AgentError", "build_agents"]
 
 # Agent asli yang sudah tersedia (bertambah per milestone)
 IMPLEMENTED: frozenset[AgentName] = frozenset(
-    {AgentName.WRITER, AgentName.SAFETY, AgentName.VOICE})
+    {AgentName.WRITER, AgentName.SAFETY, AgentName.VOICE, AgentName.ANIMATOR})
 
 
 def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict[AgentName, Agent]:
@@ -45,4 +45,8 @@ def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict
         from .voice import VoiceAgent
 
         agents[AgentName.VOICE] = VoiceAgent(config, build_engine(config.voice))
+    if AgentName.ANIMATOR in real:
+        from .animator import AnimatorAgent
+
+        agents[AgentName.ANIMATOR] = AnimatorAgent(config)
     return agents

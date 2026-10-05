@@ -213,12 +213,21 @@ def test_voice_in_pipeline(config: AppConfig) -> None:
     from test_m1_pipeline import review
 
     from ai_office.agents import build_agents
+    from ai_office.agents.base import Agent
     from ai_office.events import EventBus
     from ai_office.models import AgentName, JobStatus
     from ai_office.orchestrator import Orchestrator
 
+    class StubAnimator(Agent):
+        name = AgentName.ANIMATOR
+
+        def run(self, ctx):
+            return {"clip_file": "animation.mp4", "frames": 1, "fps": 30,
+                    "total_duration_sec": 30.0}
+
     agents = build_agents(config, provider=RoutedLLM(writer=[EXAMPLE], safety=[review()]))
     agents[AgentName.VOICE] = VoiceAgent(config, FakeEngine(), FakeMedia())
+    agents[AgentName.ANIMATOR] = StubAnimator()
     db = Database(config.db_path)
     db.init()
     orch = Orchestrator(config, db, EventBus(), agents)

@@ -30,12 +30,26 @@ llm:
   model: qwen2.5:7b        # muat di VRAM 6 GB (RTX 4050)
   base_url: http://127.0.0.1:11434
   timeout_sec: 180
-  gemini_model: gemini-2.0-flash
+  temperature: 0.7
+  num_ctx: 8192
+  think: null              # untuk model "thinking" (mis. qwen3) isi false agar lebih cepat
+  gemini_model: gemini-flash-latest   # hanya dipakai jika provider: gemini (butuh GEMINI_API_KEY)
+
+safety:
+  rubric_file: safety_rubric.yaml     # rubrik Penasihat Keamanan Anak (boleh diubah)
+  temperature: 0.2
 
 voice:
-  engine: edge-tts
+  engine: edge-tts           # gratis, butuh koneksi internet (layanan suara Microsoft Edge)
   voice: id-ID-GadisNeural   # alternatif: id-ID-ArdiNeural
-  rate: "+0%"
+  rate: "-5%"                # sedikit lebih lambat agar mudah diikuti anak
+  pitch: "+0Hz"
+  pause_after_sec: 0.6       # jeda setelah narasi tiap scene
+  min_scene_sec: 2.0
+  loudness_lufs: -16.0       # normalisasi volume
+  sample_rate: 48000
+  max_retries: 2
+  speedup_percent: 15        # bila total > video.max_duration_sec, suara dipercepat sekali
 
 video:
   width: 1080
@@ -51,6 +65,8 @@ delivery:
   open_folder: true
 
 agents:
-  # M0: semua agent masih "palsu" (simulasi). Akan diganti agent asli per milestone.
-  use_fake: true
+  # Agent yang masih "palsu" (simulasi). Agent asli ditambahkan per milestone.
+  # Pilihan: writer, safety, voice, animator, editor, delivery
+  # Tips: tambahkan writer & safety ke daftar ini untuk mencoba tanpa Ollama.
+  fake: [editor, delivery]
   fake_delay_sec: 1.0

@@ -10,12 +10,13 @@ pydantic>=2.12
 PyYAML>=6.0.3
 python-dotenv>=1.1
 
-# --- Testing ---
-pytest>=8.4
+# --- Klien HTTP (Ollama / Gemini) ---
 httpx>=0.28
 
+# --- Testing ---
+pytest>=8.4
+
 # Dependensi milestone berikutnya (ditambahkan saat milestone-nya dikerjakan):
-#   M1: (klien HTTP Ollama/Gemini memakai httpx di atas)
 #   M2: edge-tts
 #   M3: playwright
 #   M6: argon2-cffi, itsdangerous

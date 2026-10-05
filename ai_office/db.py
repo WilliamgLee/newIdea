@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     created_at    REAL    NOT NULL,
     updated_at    REAL    NOT NULL,
     started_at    REAL,
-    finished_at   REAL
+    finished_at   REAL,
+    processing_sec REAL NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
 
@@ -91,6 +92,14 @@ class Database:
         with self.connect() as conn:
             conn.execute("PRAGMA journal_mode = WAL")
             conn.executescript(SCHEMA)
+            self._migrate(conn)
+
+    @staticmethod
+    def _migrate(conn: sqlite3.Connection) -> None:
+        """Tambah kolom baru pada database lama (dibuat versi sebelumnya)."""
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(jobs)").fetchall()}
+        if "processing_sec" not in cols:  # M1
+            conn.execute("ALTER TABLE jobs ADD COLUMN processing_sec REAL NOT NULL DEFAULT 0")
 
     # ---------- jobs ----------
     def create_job(self, topic: str, age_group: str, style: str, language: str) -> Job:
@@ -201,6 +210,12 @@ class Database:
             except BaseException:
                 conn.execute("ROLLBACK")
                 raise
+
+    def add_processing_time(self, job_id: int, seconds: float) -> None:
+        """Akumulasi waktu kerja agent (tidak termasuk waktu menunggu admin)."""
+        with self.connect() as conn:
+            conn.execute("UPDATE jobs SET processing_sec = processing_sec + ? WHERE id = ?",
+                         (seconds, job_id))
 
     def count_by_status(self) -> dict[str, int]:
         with self.connect() as conn:

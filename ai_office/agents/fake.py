@@ -14,6 +14,39 @@ from ..models import AgentName
 from .base import Agent, AgentContext
 
 
+def fake_script(topic: str, age_group: str = "3-6", language: str = "id") -> dict[str, Any]:
+    """Naskah contoh yang valid terhadap skema & katalog animasi."""
+
+    def scene(i: int, narration: str, text: str, dur: float, template: str,
+              pose: str, emotion: str, **extra: Any) -> dict[str, Any]:
+        params = {"character": "kiki", "pose": pose, "emotion": emotion,
+                  "background": "garden", "items": [], **extra}
+        return {"id": i, "narration": narration, "on_screen_text": text,
+                "duration_sec": dur, "template": template, "params": params}
+
+    return {
+        "title": f"Ayo Belajar: {topic.title()}!",
+        "age_group": age_group,
+        "language": language,
+        "total_duration_sec": 30,
+        "hook": "Hai teman, ayo belajar!",
+        "scenes": [
+            scene(1, f"Hai teman, ayo belajar! Hari ini kita belajar {topic}.", "Halo!", 6,
+                  "intro", "wave", "excited"),
+            scene(2, "Lihat, ini apel. Apel warnanya merah.", "Apel", 6, "show_object",
+                  "point", "happy", items=["apel"], color="merah"),
+            scene(3, "Ayo hitung apel. Satu, dua, tiga!", "3 apel", 6, "count_objects",
+                  "clap", "excited", items=["apel"], count=3, color="merah"),
+            scene(4, "Coba tebak, apa ini? Ya, pisang!", "Tebak!", 6, "guess",
+                  "think", "thinking", items=["pisang"]),
+            scene(5, "Hebat! Kamu pintar sekali. Sampai jumpa!", "Hebat!", 6, "outro",
+                  "jump", "happy"),
+        ],
+        "learning_goal": f"Anak mengenal {topic}.",
+        "hashtags": ["#Shorts", "#BelajarAnak"],
+    }
+
+
 class _FakeBase(Agent):
     def __init__(self, delay_sec: float = 0.0) -> None:
         self.delay_sec = delay_sec
@@ -35,23 +68,7 @@ class FakeWriter(_FakeBase):
     def run(self, ctx: AgentContext) -> dict[str, Any]:
         rev = " (revisi)" if ctx.feedback else ""
         self._work(ctx, f"menulis naskah untuk topik '{ctx.job.topic}'{rev}")
-        topic = ctx.job.topic
-        script = {
-            "title": f"Ayo Belajar: {topic.title()}!",
-            "age_group": ctx.job.age_group,
-            "language": ctx.job.language,
-            "total_duration_sec": 30,
-            "hook": f"Hai teman! Tahukah kamu tentang {topic}?",
-            "scenes": [
-                {"id": i, "narration": f"Adegan {i} tentang {topic}.", "on_screen_text": "",
-                 "duration_sec": 6, "template": "intro" if i == 1 else "point_object",
-                 "params": {"character": "kiki", "pose": "wave", "emotion": "happy",
-                            "background": "sky"}}
-                for i in range(1, 6)
-            ],
-            "learning_goal": f"Anak mengenal {topic}",
-            "hashtags": ["#Shorts", "#BelajarAnak"],
-        }
+        script = fake_script(ctx.job.topic, ctx.job.age_group, ctx.job.language)
         self._write_json(ctx.workdir / "script.json", script)
         return {"script": script}
 

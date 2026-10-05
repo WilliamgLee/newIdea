@@ -1,0 +1,9 @@
+body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+.muted { color: #888; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid #eee; }
+.state { display: inline-block; min-width: 7rem; padding: 0 .4rem; border-radius: 4px; }
+.state-working { background: #ffe08a; }
+.state-just_done { background: #b7f0b1; }
+.state-idle { background: #e6eefc; }
+.state-offline { background: #ddd; color: #666; }

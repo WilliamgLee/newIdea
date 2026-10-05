@@ -1,0 +1,21 @@
+# AI Office - dependensi (semua gratis / open source)
+# Versi minimum dipilih agar mendukung Python 3.11 s.d. 3.14.
+
+# --- Web / API ---
+fastapi>=0.118
+uvicorn>=0.37
+
+# --- Validasi & config ---
+pydantic>=2.12
+PyYAML>=6.0.3
+python-dotenv>=1.1
+
+# --- Testing ---
+pytest>=8.4
+httpx>=0.28
+
+# Dependensi milestone berikutnya (ditambahkan saat milestone-nya dikerjakan):
+#   M1: (klien HTTP Ollama/Gemini memakai httpx di atas)
+#   M2: edge-tts
+#   M3: playwright
+#   M6: argon2-cffi, itsdangerous

@@ -143,8 +143,36 @@ def parse_script(data: Any, catalog: Catalog, video: VideoConfig | None = None) 
         raise OutputInvalid(format_validation_error(exc)) from exc
 
     errors: list[str] = []
+    if script.scenes[0].template != "intro":
+        errors.append("scene 1 wajib memakai template 'intro'")
+    if script.scenes[-1].template != "outro":
+        errors.append(f"scene terakhir (scene {script.scenes[-1].id}) wajib memakai "
+                      "template 'outro' sebagai penutup")
+    for scene in script.scenes[1:-1]:
+        if scene.template in ("intro", "outro"):
+            errors.append(f"scene {scene.id}: template '{scene.template}' hanya boleh di "
+                          "scene pertama/terakhir")
+
+    seen_items: dict[str, int] = {}
     for scene in script.scenes:
         errors.extend(catalog.scene_errors(scene.id, scene.template, scene.params))
+        if not scene.on_screen_text:
+            errors.append(f"scene {scene.id}: on_screen_text wajib diisi (1-3 kata kunci)")
+        if scene.template == "guess":
+            for item in scene.params.items:
+                if item in seen_items:
+                    errors.append(f"scene {scene.id}: tebak-tebakan harus memakai objek BARU, "
+                                  f"'{item}' sudah muncul di scene {seen_items[item]}")
+        for item in scene.params.items:
+            seen_items.setdefault(item, scene.id)
+    usage: dict[str, int] = {}
+    for scene in script.scenes:
+        for item in set(scene.params.items):
+            usage[item] = usage.get(item, 0) + 1
+    for item, n in usage.items():
+        if n > 2:
+            errors.append(f"objek '{item}' dipakai di {n} scene (maks 2). Variasikan objeknya")
+    for scene in script.scenes:
         words = word_count(scene.narration)
         if words > scene.duration_sec * MAX_WORDS_PER_SEC:
             errors.append(

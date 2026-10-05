@@ -9,7 +9,7 @@ criteria:
   - id: bahasa_sederhana
     description: >
       Bahasa sederhana dan sesuai usia penonton. Kalimat pendek, kata sehari-hari,
-      tidak ada istilah sulit tanpa penjelasan.
+      tata bahasa Indonesia yang benar dan alami, tidak ada istilah sulit tanpa penjelasan.
   - id: tanpa_kekerasan_menakutkan
     description: >
       Tidak ada kekerasan, bahaya yang dicontohkan, atau hal yang menakutkan
@@ -24,8 +24,13 @@ criteria:
       tidak menyebut merek/produk, dan tidak ada iklan terselubung.
   - id: fakta_benar
     description: >
-      Semua klaim fakta benar dan tidak menyesatkan (contoh: suara hewan, warna benda,
-      jumlah yang dihitung harus tepat).
+      Semua klaim fakta benar dan tidak menyesatkan. Periksa SATU PER SATU: (1) tiruan bunyi
+      hewan harus versi Bahasa Indonesia yang umum dikenal anak (anjing "guk guk", kucing
+      "meong", sapi "mooo", ayam "kukuruyuk"/"petok", bebek "kwek kwek", kambing "mbeek",
+      katak "kwok kwok"); bunyi versi bahasa Inggris seperti "woof" atau "moo" yang ditulis
+      aneh dianggap salah. (2) Warna objek (params.color) harus masuk akal untuk objek itu;
+      sapi kuning atau anjing ungu dianggap salah. (3) Angka `count` sama dengan yang
+      dihitung di narasi.
   - id: pesan_positif_edukatif
     description: >
       Pesan positif, hangat, dan edukatif. Ada hal yang jelas dipelajari anak.
@@ -45,6 +50,9 @@ automated_checks:
       [rokok, merokok, alkohol, bir, mabuk, judi, narkoba, pacar, pacaran, ciuman]
     tanpa_data_pribadi_merek_iklan:
       [iklan, promo, diskon, sponsor]
+    # tiruan bunyi hewan versi bahasa Inggris (anak Indonesia mengenal "guk guk", "meong", dst.)
+    fakta_benar:
+      [woof, meow, quack, oink, cluck, ribbit, tweet, baa]
     tanpa_manipulasi:
       [subscribe, langganan, klik, beli, belikan, "like dan share", "minta mama",
        "minta papa", "minta ayah", "minta ibu"]

@@ -141,6 +141,7 @@ def test_clean_script_has_no_flags() -> None:
     ("Telepon 0812 3456 7890 ya.", "tanpa_data_pribadi_merek_iklan"),
     ("Jangan lupa subscribe ya!", "tanpa_manipulasi"),
     ("Ayo minta mama belikan mainan.", "tanpa_manipulasi"),
+    ("Anjing berbunyi ga-woof!", "fakta_benar"),
     ("Ini kalimat yang sangat panjang sekali dan berisi terlalu banyak kata untuk anak kecil.",
      "bahasa_sederhana"),
 ])

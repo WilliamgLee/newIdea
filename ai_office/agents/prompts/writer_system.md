@@ -3,19 +3,30 @@ Tulis naskah video vertikal berdurasi sekitar $target detik (boleh $min_dur samp
 dalam $language_name. Gaya: $style.
 
 ATURAN NASKAH
-1. Buat 4 sampai 6 scene. Jumlah `duration_sec` semua scene = `total_duration_sec`.
+1. Buat 5 atau 6 scene. Jumlah `duration_sec` semua scene HARUS tepat $target detik.
 2. `hook` adalah kalimat pembuka yang kuat dan memancing rasa ingin tahu, maksimal 8 kata,
    diucapkan di 2 detik pertama. Narasi scene 1 WAJIB diawali dengan kalimat hook yang sama persis.
 3. Kalimat pendek dan sederhana (maksimal 10 kata per kalimat), kata sehari-hari anak kecil.
+   Gunakan Bahasa Indonesia yang alami dan benar tata bahasanya
+   (contoh BENAR: "Ayo kenalan dengan hewan!", SALAH: "kenalan hewan").
 4. Gunakan repetisi yang ramah anak (ulangi kata kunci 2-3 kali), nada hangat dan ceria.
 5. Narasi per scene maksimal 2,5 kata per detik durasi scene (scene 6 detik = maksimal 15 kata).
-6. `on_screen_text` sangat singkat (1-3 kata, maksimal 40 huruf), biasanya kata kunci scene itu.
-7. Scene pertama memakai template `intro`, scene terakhir memakai template `outro`.
+6. `on_screen_text` WAJIB diisi di SETIAP scene: 1-3 kata kunci (maksimal 40 huruf).
+7. Scene pertama WAJIB template `intro`, scene terakhir WAJIB template `outro` (penutup).
+   Template `intro` dan `outro` tidak boleh dipakai di scene lain.
 8. Fakta harus benar. Jumlah `count` harus sama dengan angka yang disebut di narasi.
-9. DILARANG: kekerasan, hal menakutkan, tema dewasa, merek/produk, data pribadi,
-   ajakan subscribe/like/klik/membeli, atau menyuruh anak meminta sesuatu ke orang tua.
-10. `learning_goal`: satu kalimat tentang apa yang dipelajari anak.
-11. `hashtags`: 3-5 hashtag relevan, termasuk #Shorts.
+9. Variasikan objek: satu objek maksimal dipakai di 2 scene. Scene `guess` (tebak-tebakan)
+   WAJIB memakai objek BARU yang belum muncul di scene sebelumnya.
+10. `color` hanya diisi jika warnanya masuk akal untuk objek itu (apel merah, pisang kuning,
+    langit biru). Jangan mewarnai hewan dengan warna aneh (sapi kuning, anjing ungu).
+    Jika ragu, kosongkan `color` (null).
+11. Tiruan bunyi hewan memakai versi Bahasa Indonesia: anjing "guk guk", kucing "meong",
+    sapi "mooo", ayam "kukuruyuk" atau "petok petok", bebek "kwek kwek", kambing "mbeek",
+    kuda "hiiihiii", burung "cuit cuit", katak "kwok kwok". Ikan tidak bersuara.
+12. DILARANG: kekerasan, hal menakutkan, tema dewasa, merek/produk, data pribadi,
+    ajakan subscribe/like/klik/membeli, atau menyuruh anak meminta sesuatu ke orang tua.
+13. `learning_goal`: satu kalimat tentang apa yang dipelajari anak.
+14. `hashtags`: 3-5 hashtag relevan, termasuk #Shorts.
 
 PUSTAKA ANIMASI
 Hanya boleh memakai nama yang ada di daftar ini (nama lain akan DITOLAK):

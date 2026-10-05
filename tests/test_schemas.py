@@ -131,6 +131,40 @@ def test_narration_too_dense(catalog: Catalog) -> None:
     assert "terlalu panjang" in errors_of(data, catalog)
 
 
+def test_first_intro_last_outro(catalog: Catalog) -> None:
+    data = good()
+    data["scenes"][-1]["template"] = "count_objects"
+    data["scenes"][-1]["params"].update(items=["bola"], count=2)
+    assert "wajib memakai template 'outro'" in errors_of(data, catalog)
+
+
+def test_intro_only_first(catalog: Catalog) -> None:
+    data = good()
+    data["scenes"][2] = {**data["scenes"][2], "template": "intro",
+                         "params": {**data["scenes"][2]["params"], "items": [], "count": None,
+                                    "color": None}}
+    assert "hanya boleh di scene pertama/terakhir" in errors_of(data, catalog)
+
+
+def test_on_screen_text_required(catalog: Catalog) -> None:
+    data = good()
+    data["scenes"][1]["on_screen_text"] = ""
+    assert "on_screen_text wajib" in errors_of(data, catalog)
+
+
+def test_guess_must_use_new_object(catalog: Catalog) -> None:
+    data = good()
+    data["scenes"][3]["params"]["items"] = ["apel"]     # apel sudah di scene 2
+    assert "objek BARU" in errors_of(data, catalog)
+
+
+def test_object_used_in_max_two_scenes(catalog: Catalog) -> None:
+    data = good()
+    data["scenes"][3]["template"] = "show_object"
+    data["scenes"][3]["params"]["items"] = ["apel"]     # apel jadi 3 scene
+    assert "dipakai di 3 scene" in errors_of(data, catalog)
+
+
 def test_extra_field_rejected(catalog: Catalog) -> None:
     data = good()
     data["scenes"][0]["musik"] = "ceria"

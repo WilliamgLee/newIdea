@@ -3,18 +3,18 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M0 (kerangka).** Semua agent masih **palsu** (simulasi). Agent asli, dashboard
-> lengkap, dan login admin menyusul di milestone berikutnya. README lengkap ditulis di M7.
+> **Status: M1.** Penulis Naskah dan Penasihat Keamanan Anak sudah **asli** (memakai LLM lokal).
+> Pengisi Suara, Animator, Editor, dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
-Prasyarat: Python 3.11+ (sudah dites dengan 3.11 dan 3.14) dan Git.
+Prasyarat: Python 3.11+ (dites dengan 3.11 dan 3.14) dan Git.
 
 ```powershell
 git clone https://github.com/WilliamgLee/newIdea.git
 cd newIdea
 py -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.example .env
@@ -23,7 +23,21 @@ copy .env.example .env
 > Kalau PowerShell menolak menjalankan `Activate.ps1`, jalankan dulu sekali:
 > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
-Ollama dan ffmpeg **belum** diperlukan di M0.
+### Ollama (LLM lokal, gratis)
+
+1. Pasang Ollama: `winget install Ollama.Ollama` (atau unduh dari https://ollama.com/download).
+2. Tutup lalu buka PowerShell baru, unduh model default (±4,7 GB, muat di VRAM 6 GB):
+   ```powershell
+   ollama pull qwen2.5:7b
+   ```
+3. Cek: `python -m ai_office.cli doctor` → writer & safety harus `siap`.
+
+Ollama berjalan otomatis di latar (ikon di system tray). Model lain bisa dipakai dengan
+mengubah `llm.model` di `config.yaml`.
+
+**Opsional – Gemini free tier:** isi `GEMINI_API_KEY` di `.env`, lalu ubah `llm.provider: gemini`.
+
+**Mencoba tanpa Ollama:** tambahkan `writer` dan `safety` ke `agents.fake` di `config.yaml`.
 
 ## Menjalankan test
 
@@ -31,17 +45,9 @@ Ollama dan ffmpeg **belum** diperlukan di M0.
 pytest -q
 ```
 
-## Mencoba M0
+Semua test LLM memakai mock, jadi tidak butuh Ollama.
 
-**Cara 1 – tanpa server (paling cepat):**
-
-```powershell
-python -m ai_office.cli demo "mengenal warna"
-```
-
-Satu job palsu dibuat, diproses semua agent, kedua gerbang disetujui otomatis, sampai `done`.
-
-**Cara 2 – dengan server + API:**
+## Cara pakai (M1)
 
 ```powershell
 # terminal 1
@@ -49,18 +55,45 @@ python run.py
 
 # terminal 2
 python -m ai_office.cli create "hewan dan suaranya"
-python -m ai_office.cli list                 # tunggu status awaiting_script_approval
+python -m ai_office.cli list            # tunggu status awaiting_script_approval
+python -m ai_office.cli review 1        # baca naskah + hasil review keamanan
 python -m ai_office.cli approve-script 1
-python -m ai_office.cli approve-final 1      # setelah status awaiting_final_approval
-Invoke-RestMethod http://127.0.0.1:8000/api/jobs/1
+python -m ai_office.cli approve-final 1 # setelah status awaiting_final_approval
 ```
 
-Buka http://127.0.0.1:8000 di browser untuk melihat status agent berubah secara real-time (SSE).
+Atau tanpa server: `python -m ai_office.cli demo "mengenal warna"` (gerbang disetujui otomatis).
 
-Perintah CLI lainnya: `show <id>` (detail + log + review keamanan), `reject <id> --reason "..."`,
-`retry <id>`, `mode semi_auto|full_auto`.
+Perintah CLI lain:
 
-## Endpoint API (M0, publik & hanya-baca)
+| Perintah | Fungsi |
+|---|---|
+| `review <id>` | naskah + hasil review keamanan per kriteria |
+| `show <id>` | detail lengkap (JSON) + log |
+| `approve-script <id> --file naskah.json` | setujui dengan naskah hasil editan (divalidasi) |
+| `reject <id> --reason "..."` | tolak di gerbang |
+| `retry <id>` | ulangi job gagal dari tahap yang gagal |
+| `mode semi_auto` / `mode full_auto` | ganti mode tanpa restart |
+| `doctor` | cek koneksi LLM & status agent |
+
+## Alur naskah
+
+1. **Penulis** meminta LLM membuat `script.json`. Hanya nama template/karakter/pose/objek dari
+   `ai_office/animation/catalog.yaml` yang diterima. Output yang tidak valid dikirim balik ke LLM
+   beserta pesan error (maks. `pipeline.max_llm_retries` = 2 kali).
+2. **Penasihat Keamanan** menilai naskah per kriteria di `safety_rubric.yaml` (LLM) **ditambah**
+   pemeriksaan otomatis (kata terlarang, link, email, nomor telepon, kalimat terlalu panjang).
+   Lulus hanya jika keduanya ok.
+3. Jika `revise`, naskah + alasan + saran dikirim balik ke Penulis (maks. 2 revisi). Jika masih
+   gagal, job berhenti di Gerbang 1 menunggu admin — juga di mode `full_auto`.
+
+## Konfigurasi
+
+- `config.yaml` – semua pengaturan (mode, durasi, LLM, suara, folder tujuan, dll.).
+- `safety_rubric.yaml` – rubrik keamanan anak + daftar kata terlarang (boleh diubah).
+- `content_profile.yaml` – profil konten channel (boleh diisi belakangan).
+- `.env` – rahasia (API key opsional, secret key sesi). Jangan di-commit.
+
+## Endpoint API (publik & hanya-baca)
 
 | Endpoint | Isi |
 |---|---|
@@ -70,13 +103,4 @@ Perintah CLI lainnya: `show <id>` (detail + log + review keamanan), `reject <id>
 | `GET /api/jobs/{id}` | status satu job |
 | `GET /api/events` | stream SSE: `snapshot`, `job_created`, `job_status`, `agent_state` |
 
-Belum ada endpoint yang mengubah data. Aksi admin lewat web baru tersedia di M6, dengan login.
-
-## Konfigurasi
-
-- `config.yaml` – semua pengaturan (mode, durasi, suara, LLM, folder tujuan, dll.).
-- `.env` – rahasia (API key opsional, secret key sesi). Jangan di-commit.
-- `content_profile.yaml` – profil konten channel (boleh diisi belakangan).
-
-Ubah `pipeline.mode` ke `full_auto` (atau `python -m ai_office.cli mode full_auto`) untuk
-melewati gerbang persetujuan. Gerbang hanya dilewati **jika review keamanan lulus**.
+Endpoint yang mengubah data (aksi admin lewat web) baru tersedia di M6, dengan login.

@@ -13,6 +13,7 @@ from typing import Any, Literal, TypeVar, get_type_hints
 
 PipelineMode = Literal["semi_auto", "full_auto"]
 VALID_MODES: tuple[str, ...] = ("semi_auto", "full_auto")
+LLM_PROVIDERS: tuple[str, ...] = ("ollama", "gemini")
 
 
 class ConfigError(ValueError):
@@ -55,7 +56,17 @@ class LLMConfig:
     model: str = "qwen2.5:7b"
     base_url: str = "http://127.0.0.1:11434"
     timeout_sec: float = 180.0
-    gemini_model: str = "gemini-2.0-flash"
+    temperature: float = 0.7
+    num_ctx: int = 8192
+    # Untuk model "thinking" (mis. qwen3): false = matikan mode berpikir. null = tidak dikirim.
+    think: bool | None = None
+    gemini_model: str = "gemini-flash-latest"
+
+
+@dataclass
+class SafetyConfig:
+    rubric_file: str = "safety_rubric.yaml"
+    temperature: float = 0.2
 
 
 @dataclass
@@ -82,9 +93,13 @@ class DeliveryConfig:
     open_folder: bool = True
 
 
+AGENT_NAMES: tuple[str, ...] = ("writer", "safety", "voice", "animator", "editor", "delivery")
+
+
 @dataclass
 class AgentsConfig:
-    use_fake: bool = True
+    # Agent yang masih memakai versi palsu (simulasi). Agent asli ditambahkan per milestone.
+    fake: list[str] = field(default_factory=lambda: ["voice", "animator", "editor", "delivery"])
     fake_delay_sec: float = 1.0
 
 
@@ -95,6 +110,7 @@ class AppConfig:
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
     content: ContentConfig = field(default_factory=ContentConfig)
     llm: LLMConfig = field(default_factory=LLMConfig)
+    safety: SafetyConfig = field(default_factory=SafetyConfig)
     voice: VoiceConfig = field(default_factory=VoiceConfig)
     video: VideoConfig = field(default_factory=VideoConfig)
     delivery: DeliveryConfig = field(default_factory=DeliveryConfig)
@@ -137,6 +153,17 @@ class AppConfig:
         if not (0 < self.video.min_duration_sec <= self.video.target_duration_sec
                 <= self.video.max_duration_sec <= 60):
             raise ConfigError("durasi video harus: 0 < min <= target <= max <= 60")
+        if not isinstance(self.agents.fake, list) or any(
+                a not in AGENT_NAMES for a in self.agents.fake):
+            raise ConfigError(f"agents.fake hanya boleh berisi: {AGENT_NAMES}")
+        if self.llm.provider not in LLM_PROVIDERS:
+            raise ConfigError(f"llm.provider harus salah satu dari {LLM_PROVIDERS}")
+        if self.llm.think is not None and not isinstance(self.llm.think, bool):
+            raise ConfigError("llm.think harus true, false, atau null")
+
+    def resolve(self, p: str) -> Path:
+        """Path dari config (relatif terhadap folder config.yaml)."""
+        return self._resolve(p)
 
     @property
     def full_auto(self) -> bool:

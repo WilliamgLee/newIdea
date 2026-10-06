@@ -63,32 +63,37 @@ def test_build_engine_selects_xtts() -> None:
     assert isinstance(build_engine(cfg.voice), XTTSEngine)
 
 
-def test_stub_matplotlib_installs_fake_when_absent(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Stub matplotlib dipasang hanya bila matplotlib asli tak bisa di-import (mis. diblokir)."""
-    import builtins
+def test_stub_matplotlib_installs_fake_and_hides_from_transformers(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stub matplotlib dipasang bila matplotlib diblokir, DAN disembunyikan dari transformers."""
+    import importlib.metadata as im
 
-    from ai_office.tts.xtts import _stub_matplotlib
+    from ai_office.tts import xtts
 
-    for mod in ("matplotlib", "matplotlib.pyplot"):
+    for mod in ("matplotlib", "matplotlib.pyplot", "matplotlib.cm", "matplotlib.colors"):
         monkeypatch.delitem(sys.modules, mod, raising=False)
+    monkeypatch.setattr(xtts, "_matplotlib_importable", lambda: False)
 
-    real_import = builtins.__import__
+    xtts._stub_matplotlib()
 
-    def blocked(name, *a, **k):
-        if name == "matplotlib" or name.startswith("matplotlib."):
-            raise ImportError("Application Control policy has blocked this file")
-        return real_import(name, *a, **k)
-
-    monkeypatch.setattr(builtins, "__import__", blocked)
-    _stub_matplotlib()
-    monkeypatch.setattr(builtins, "__import__", real_import)
-
-    assert sys.modules["matplotlib"].__version__ == "0.0.0-stub"
+    assert sys.modules["matplotlib"].__aioffice_stub__ is True
     import matplotlib.pyplot as plt
 
     assert plt.plot([1, 2], [3, 4]) is None   # no-op, tidak error
-    for mod in ("matplotlib", "matplotlib.pyplot"):
+    with pytest.raises(im.PackageNotFoundError):
+        im.version("matplotlib")              # transformers menganggapnya tak terpasang
+    xtts._stub_matplotlib()                   # idempoten
+    for mod in ("matplotlib", "matplotlib.pyplot", "matplotlib.cm", "matplotlib.colors"):
         monkeypatch.delitem(sys.modules, mod, raising=False)
+
+
+def test_stub_skipped_when_matplotlib_works(monkeypatch: pytest.MonkeyPatch) -> None:
+    from ai_office.tts import xtts
+
+    monkeypatch.setattr(xtts, "_matplotlib_importable", lambda: True)
+    monkeypatch.delitem(sys.modules, "matplotlib", raising=False)
+    xtts._stub_matplotlib()
+    assert not getattr(sys.modules.get("matplotlib"), "__aioffice_stub__", False)
 
 
 def test_load_reports_real_import_error(monkeypatch: pytest.MonkeyPatch) -> None:

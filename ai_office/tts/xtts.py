@@ -23,43 +23,70 @@ from .base import SynthResult, TTSEngine, TTSError
 log = logging.getLogger(__name__)
 
 
+def _matplotlib_importable() -> bool:
+    try:
+        import matplotlib.pyplot  # noqa: F401
+
+        return True
+    except Exception:  # noqa: BLE001 - diblokir Smart App Control / DLL gagal
+        return False
+
+
 def _stub_matplotlib() -> None:
-    """Pasang modul matplotlib tiruan agar XTTS tidak mengimpor matplotlib asli.
+    """Cegah XTTS *dan transformers* mengimpor matplotlib asli.
 
     XTTS-v2 menarik matplotlib lewat modul vocoder yang TIDAK dipakai saat membuat suara.
-    Di sebagian Windows (Smart App Control), DLL matplotlib (ft2font) diblokir dan menggagalkan
-    impor TTS. Stub ini hanya aktif bila matplotlib belum ter-load, dan hanya menyediakan API
-    minimal yang disentuh XTTS (pyplot.*). Tidak memengaruhi grafik apa pun di runtime kita.
+    `transformers` juga mengecek matplotlib (_is_package_available). Di sebagian Windows
+    (Smart App Control), DLL matplotlib (ft2font) diblokir dan menggagalkan impor. Fungsi ini:
+      1) memasang modul `matplotlib` + submodul tiruan (API minimal yang disentuh), DAN
+      2) menyembunyikan metadata matplotlib dari transformers agar transformers menganggapnya
+         tidak terpasang (sehingga tidak mencoba mengimpornya).
+    Hanya aktif bila matplotlib asli memang tidak bisa di-import. Tidak memengaruhi grafik apa pun
+    di runtime kita (kita tidak membuat grafik).
     """
+    import importlib.metadata as im
     import sys
     import types
 
-    if "matplotlib" in sys.modules:
+    if getattr(sys.modules.get("matplotlib"), "__aioffice_stub__", False):
         return
-    try:
-        import matplotlib  # noqa: F401
-
-        return  # matplotlib asli bisa di-import, tidak perlu stub
-    except Exception:  # noqa: BLE001
-        log.info("matplotlib tidak bisa di-import (mungkin diblokir); memakai stub untuk XTTS")
-
-    mpl = types.ModuleType("matplotlib")
-    mpl.__version__ = "0.0.0-stub"
-    mpl.use = lambda *a, **k: None
+    if _matplotlib_importable():
+        return  # matplotlib asli jalan, tidak perlu stub
+    log.info("matplotlib diblokir/gagal di-import; memasang stub agar XTTS tetap jalan")
 
     def _noop(*a, **k):
         return None
 
+    mpl = types.ModuleType("matplotlib")
+    mpl.__version__ = "0.0.0-stub"
+    mpl.__aioffice_stub__ = True
+    mpl.use = _noop
+    mpl.get_backend = lambda: "Agg"
     pyplot = types.ModuleType("matplotlib.pyplot")
     for fn in ("plot", "figure", "subplots", "close", "savefig", "imshow", "colorbar",
                "title", "xlabel", "ylabel", "tight_layout", "clf", "cla", "legend",
-               "scatter", "bar", "xticks", "yticks", "pcolor", "pcolormesh"):
+               "scatter", "bar", "xticks", "yticks", "pcolor", "pcolormesh", "show", "axis"):
         setattr(pyplot, fn, _noop)
-    pyplot.gcf = lambda *a, **k: types.SimpleNamespace(canvas=types.SimpleNamespace(
-        draw=_noop, tostring_rgb=lambda: b""))
+    pyplot.gcf = lambda *a, **k: types.SimpleNamespace(
+        canvas=types.SimpleNamespace(draw=_noop, tostring_rgb=lambda: b""))
+    cm = types.ModuleType("matplotlib.cm")
+    colors = types.ModuleType("matplotlib.colors")
     mpl.pyplot = pyplot
-    sys.modules["matplotlib"] = mpl
-    sys.modules["matplotlib.pyplot"] = pyplot
+    mpl.cm = cm
+    mpl.colors = colors
+    sys.modules.update({"matplotlib": mpl, "matplotlib.pyplot": pyplot,
+                        "matplotlib.cm": cm, "matplotlib.colors": colors})
+
+    # Buat transformers menganggap matplotlib TIDAK terpasang (hindari pengecekan yang memicu
+    # import DLL yang diblokir).
+    _orig_version = im.version
+
+    def _patched_version(name: str):
+        if name == "matplotlib":
+            raise im.PackageNotFoundError(name)
+        return _orig_version(name)
+
+    im.version = _patched_version
 
 
 def _resolve_device(pref: str) -> str:

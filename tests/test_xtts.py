@@ -77,6 +77,8 @@ def test_stub_matplotlib_installs_fake_and_hides_from_transformers(
     xtts._stub_matplotlib()
 
     assert sys.modules["matplotlib"].__aioffice_stub__ is True
+    assert sys.modules["matplotlib"].__spec__ is not None     # transformers mengecek __spec__
+    assert sys.modules["matplotlib.pyplot"].__spec__ is not None
     import matplotlib.pyplot as plt
 
     assert plt.plot([1, 2], [3, 4]) is None   # no-op, tidak error

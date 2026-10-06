@@ -47,6 +47,7 @@ def _stub_matplotlib() -> None:
     import importlib.metadata as im
     import sys
     import types
+    from importlib import machinery
 
     if getattr(sys.modules.get("matplotlib"), "__aioffice_stub__", False):
         return
@@ -57,20 +58,28 @@ def _stub_matplotlib() -> None:
     def _noop(*a, **k):
         return None
 
-    mpl = types.ModuleType("matplotlib")
+    def _make_module(name: str) -> types.ModuleType:
+        mod = types.ModuleType(name)
+        # transformers & lib lain mengecek __spec__; beri spec minimal agar tidak None.
+        mod.__spec__ = machinery.ModuleSpec(name, loader=None)
+        mod.__loader__ = None
+        return mod
+
+    mpl = _make_module("matplotlib")
     mpl.__version__ = "0.0.0-stub"
     mpl.__aioffice_stub__ = True
+    mpl.__path__ = []  # tandai sebagai package agar submodul bisa diimpor
     mpl.use = _noop
     mpl.get_backend = lambda: "Agg"
-    pyplot = types.ModuleType("matplotlib.pyplot")
+    pyplot = _make_module("matplotlib.pyplot")
     for fn in ("plot", "figure", "subplots", "close", "savefig", "imshow", "colorbar",
                "title", "xlabel", "ylabel", "tight_layout", "clf", "cla", "legend",
                "scatter", "bar", "xticks", "yticks", "pcolor", "pcolormesh", "show", "axis"):
         setattr(pyplot, fn, _noop)
     pyplot.gcf = lambda *a, **k: types.SimpleNamespace(
         canvas=types.SimpleNamespace(draw=_noop, tostring_rgb=lambda: b""))
-    cm = types.ModuleType("matplotlib.cm")
-    colors = types.ModuleType("matplotlib.colors")
+    cm = _make_module("matplotlib.cm")
+    colors = _make_module("matplotlib.colors")
     mpl.pyplot = pyplot
     mpl.cm = cm
     mpl.colors = colors

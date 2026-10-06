@@ -3,8 +3,8 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M3.** Penulis Naskah, Penasihat Keamanan Anak, Pengisi Suara, dan Pembuat Animasi
-> sudah **asli**. Editor dan Pengirim masih **palsu** (simulasi). README lengkap di M7.
+> **Status: M4.** Penulis Naskah, Penasihat Keamanan Anak, Pengisi Suara, Pembuat Animasi, dan
+> Editor sudah **asli**. Hanya Pengirim yang masih **palsu** (simulasi). README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
@@ -76,6 +76,25 @@ Pustaka animasi ada di `ai_office/animation/`:
 - Render **deterministik**: tiap frame = `renderFrame(plan, t)`, 30 fps, 1080x1920, lalu ffmpeg
   menyusun PNG jadi MP4 (NVENC bila GPU NVIDIA ada, jika tidak `libx264`).
 
+### Video final (M4 - Editor)
+
+Menggabungkan klip animasi + suara + subtitle + musik jadi `video.mp4`, plus thumbnail & metadata:
+
+```powershell
+python -m ai_office.cli build-file examples/mengenal_warna.json
+```
+
+Hasil di `output/manual_mengenal_warna/`: `video.mp4` (vertikal, ±30 detik, dengan suara & subtitle
+sinkron), `thumbnail.png`, `metadata.txt`, `metadata.json`.
+
+- **Subtitle**: besar, outline tebal, **kata yang sedang diucapkan di-highlight** (pakai timing
+  per kata dari Pengisi Suara). Atur di bagian `subtitle:` pada `config.yaml`.
+- **Musik latar**: taruh file di `data/bgm/` (lihat `data/bgm/README.md`). Satu lagu dipilih
+  otomatis dan **volumenya turun saat ada narasi** (ducking). Atur di bagian `music:`.
+  Jika `data/bgm/` kosong, video dibuat tanpa musik.
+- **metadata.txt** memuat judul, deskripsi, hashtag, dan **pengingat menandai video "Made for
+  kids"** saat upload.
+
 ## Menjalankan test
 
 ```powershell
@@ -113,6 +132,7 @@ Perintah CLI lain:
 | `doctor` | cek koneksi LLM, edge-tts, ffmpeg & status agent |
 | `voice-file <naskah.json>` | buat suara + timing dari naskah buatan tangan (tanpa LLM) |
 | `render-file <naskah.json> [--no-voice]` | buat klip animasi dari naskah buatan tangan (tanpa LLM) |
+| `build-file <naskah.json>` | video final lengkap (suara+animasi+subtitle+musik) tanpa LLM |
 
 ## Alur naskah
 

@@ -96,6 +96,27 @@ class VideoConfig:
 
 
 @dataclass
+class SubtitleConfig:
+    enabled: bool = True
+    font: str = "Fredoka,Baloo 2,Comic Sans MS,Arial"
+    font_size: int = 74
+    y_offset: int = 300          # jarak subtitle dari bawah layar (px)
+    text_color: str = "FFFFFF"   # heksa RRGGBB
+    outline_color: str = "3D2C4F"
+    highlight_color: str = "FFD43B"  # warna kata yang sedang diucapkan
+    max_chars_per_line: int = 22
+
+
+@dataclass
+class MusicConfig:
+    enabled: bool = True
+    bgm_dir: str = "data/bgm"    # isi sendiri musik bebas hak cipta (.mp3/.wav/.m4a/.ogg)
+    volume: float = 0.18         # volume dasar musik (0..1)
+    duck_volume: float = 0.07    # volume musik saat ada narasi (ducking)
+    fade_sec: float = 1.0
+
+
+@dataclass
 class DeliveryConfig:
     dest_dir: str = "~/Videos/AI-Office"
     open_folder: bool = True
@@ -107,7 +128,7 @@ AGENT_NAMES: tuple[str, ...] = ("writer", "safety", "voice", "animator", "editor
 @dataclass
 class AgentsConfig:
     # Agent yang masih memakai versi palsu (simulasi). Agent asli ditambahkan per milestone.
-    fake: list[str] = field(default_factory=lambda: ["editor", "delivery"])
+    fake: list[str] = field(default_factory=lambda: ["delivery"])
     fake_delay_sec: float = 1.0
 
 
@@ -121,6 +142,8 @@ class AppConfig:
     safety: SafetyConfig = field(default_factory=SafetyConfig)
     voice: VoiceConfig = field(default_factory=VoiceConfig)
     video: VideoConfig = field(default_factory=VideoConfig)
+    subtitle: SubtitleConfig = field(default_factory=SubtitleConfig)
+    music: MusicConfig = field(default_factory=MusicConfig)
     delivery: DeliveryConfig = field(default_factory=DeliveryConfig)
     agents: AgentsConfig = field(default_factory=AgentsConfig)
     # Folder dasar untuk path relatif (folder tempat config.yaml berada)

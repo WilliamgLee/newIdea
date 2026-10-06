@@ -70,7 +70,7 @@ def test_build_agents_uses_real_writer_and_safety(config: AppConfig) -> None:
 
 def test_build_agents_refuses_unimplemented_real_agent(config: AppConfig) -> None:
     config.agents.fake = []
-    with pytest.raises(NotImplementedError, match="editor"):
+    with pytest.raises(NotImplementedError, match="delivery"):
         build_agents(config, provider=RoutedLLM([], []))
 
 

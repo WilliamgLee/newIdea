@@ -60,6 +60,23 @@ video:
   max_duration_sec: 35
   encoder: auto            # auto | h264_nvenc | libx264
 
+subtitle:
+  enabled: true
+  font: "Fredoka,Baloo 2,Comic Sans MS,Arial"
+  font_size: 74
+  y_offset: 300            # jarak subtitle dari bawah (px)
+  text_color: "FFFFFF"
+  outline_color: "3D2C4F"
+  highlight_color: "FFD43B"  # warna kata yang sedang diucapkan
+  max_chars_per_line: 22
+
+music:
+  enabled: true
+  bgm_dir: data/bgm        # isi sendiri musik bebas hak cipta (.mp3/.wav/.m4a/.ogg)
+  volume: 0.18             # volume dasar musik
+  duck_volume: 0.07        # volume musik saat ada narasi
+  fade_sec: 1.0
+
 delivery:
   dest_dir: ~/Videos/AI-Office
   open_folder: true
@@ -68,5 +85,5 @@ agents:
   # Agent yang masih "palsu" (simulasi). Agent asli ditambahkan per milestone.
   # Pilihan: writer, safety, voice, animator, editor, delivery
   # Tips: tambahkan writer & safety ke daftar ini untuk mencoba tanpa Ollama.
-  fake: [editor, delivery]
+  fake: [delivery]
   fake_delay_sec: 1.0

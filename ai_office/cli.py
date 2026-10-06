@@ -142,6 +142,51 @@ def cmd_render_file(orch: Orchestrator, path: Path, no_voice: bool) -> int:
     return 0
 
 
+def cmd_build_file(orch: Orchestrator, path: Path) -> int:
+    """Jalankan Suara -> Animasi -> Editor dari naskah buatan tangan (tanpa LLM)."""
+    from .agents.animator import AnimatorAgent
+    from .agents.voice import VoiceAgent
+    from .bootstrap import make_script_validator
+    from .editor.editor import EditorAgent
+    from .schemas import Script, VoiceResult
+    from .tts import build_engine
+
+    cfg = orch.config
+    data = make_script_validator(cfg)(json.loads(path.read_text(encoding="utf-8")))
+    script = Script.model_validate(data)
+    workdir = cfg.output_dir / f"manual_{path.stem}"
+    workdir.mkdir(parents=True, exist_ok=True)
+
+    va = VoiceAgent(cfg, build_engine(cfg.voice))
+    animator = AnimatorAgent(cfg)
+    editor = EditorAgent(cfg)
+    for name, agent in (("suara", va), ("animasi", animator), ("editor", editor)):
+        if not agent.is_available():
+            print(f"Error: dependensi untuk {name} belum siap. Lihat 'doctor'.", file=sys.stderr)
+            return 1
+
+    print("[1/3] membuat suara...")
+    voice = va.voice_script(script, workdir, log=print)
+    (workdir / "voice.json").write_text(
+        json.dumps(voice.model_dump(mode="json"), ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print("[2/3] merender animasi...")
+    from .animation.plan import build_plan
+    from .animation.renderer.render import render_plan_to_mp4
+    plan = build_plan(script, voice, cfg.video.fps)
+    clip = render_plan_to_mp4(plan, workdir, cfg.video.fps, cfg.video.encoder, log_fn=print)
+
+    print("[3/3] menggabungkan video final...")
+    result = editor.assemble(script, VoiceResult.model_validate(voice.model_dump(mode="json")),
+                             clip, workdir, job_id=0, log=print)
+    print(f"\nVideo final: {workdir / result['video_file']}")
+    print(f"Thumbnail  : {workdir / result['thumbnail_file']}")
+    print(f"Metadata   : {workdir / result['metadata_file']}")
+    print(f"Durasi {result['duration_sec']} detik | encoder {result['encoder']} | "
+          f"audio={result['has_audio']} subtitle={result['has_subtitle']} musik={result['has_music']}")
+    return 0
+
+
 def cmd_doctor(orch: Orchestrator) -> int:
     cfg = orch.config.llm
     model = cfg.model if cfg.provider == "ollama" else cfg.gemini_model
@@ -162,6 +207,8 @@ def cmd_doctor(orch: Orchestrator) -> int:
     if "animator" in unavailable:
         print("\nPembuat Animasi butuh: pip install -r requirements.txt lalu "
               "python -m playwright install chromium, plus ffmpeg.")
+    if "editor" in unavailable:
+        print("\nEditor butuh ffmpeg (winget install Gyan.FFmpeg, lalu buka terminal baru).")
     return 0 if ok_all else 1
 
 
@@ -207,6 +254,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("script_file")
     p.add_argument("--no-voice", action="store_true",
                    help="tanpa edge-tts: pakai durasi scene dari naskah (lip-sync perkiraan)")
+    p = sub.add_parser("build-file",
+                       help="video final (suara+animasi+subtitle+musik) dari naskah, tanpa LLM")
+    p.add_argument("script_file")
     p = sub.add_parser("reject")
     p.add_argument("job_id", type=int)
     p.add_argument("--reason", default="")
@@ -244,6 +294,8 @@ def main(argv: list[str] | None = None) -> int:
                 return cmd_voice_file(orch, Path(args.script_file))
             case "render-file":
                 return cmd_render_file(orch, Path(args.script_file), args.no_voice)
+            case "build-file":
+                return cmd_build_file(orch, Path(args.script_file))
             case "approve-final":
                 print(f"Status: {orch.approve_final(args.job_id).status.value}")
             case "reject":

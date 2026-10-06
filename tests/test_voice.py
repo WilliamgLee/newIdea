@@ -225,9 +225,16 @@ def test_voice_in_pipeline(config: AppConfig) -> None:
             return {"clip_file": "animation.mp4", "frames": 1, "fps": 30,
                     "total_duration_sec": 30.0}
 
+    class StubEditor(Agent):
+        name = AgentName.EDITOR
+
+        def run(self, ctx):
+            return {"video_file": "video.mp4", "duration_sec": 30.0, "encoder": "libx264"}
+
     agents = build_agents(config, provider=RoutedLLM(writer=[EXAMPLE], safety=[review()]))
     agents[AgentName.VOICE] = VoiceAgent(config, FakeEngine(), FakeMedia())
     agents[AgentName.ANIMATOR] = StubAnimator()
+    agents[AgentName.EDITOR] = StubEditor()
     db = Database(config.db_path)
     db.init()
     orch = Orchestrator(config, db, EventBus(), agents)

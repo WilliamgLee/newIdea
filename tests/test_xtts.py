@@ -142,14 +142,14 @@ def test_is_available_reflects_package(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_synthesize_with_builtin_speaker(mods: dict, tmp_path: Path) -> None:
-    eng = XTTSEngine(XTTSConfig(speaker="Ana Florence", device="cuda", language="id"))
+    eng = XTTSEngine(XTTSConfig(speaker="Ana Florence", device="cuda", language="en"))
     out = tmp_path / "a.wav"
-    res = eng.synthesize("Halo teman", out, "+0%")
+    res = eng.synthesize("Hello friend", out, "+0%")
     assert res.audio_path == out and out.exists()
     assert res.words == []                          # XTTS tak beri timing per kata
     call = mods["calls"][0]
     assert call["speaker"] == "Ana Florence" and "speaker_wav" not in call
-    assert call["language"] == "id"
+    assert call["language"] == "en"
     assert mods["device"] == "cuda"
     assert eng.audio_ext == ".wav"
 
@@ -176,6 +176,18 @@ def test_device_auto_falls_back_to_cpu(monkeypatch: pytest.MonkeyPatch, tmp_path
     eng = XTTSEngine(XTTSConfig(device="auto"))
     eng.synthesize("Halo", tmp_path / "o.wav", "+0%")
     assert rec["device"] == "cpu"
+
+
+def test_unsupported_language_errors_clearly(mods: dict, tmp_path: Path) -> None:
+    eng = XTTSEngine(XTTSConfig(language="id"))   # Indonesia tidak didukung XTTS
+    with pytest.raises(TTSError, match="tidak mendukung bahasa 'id'"):
+        eng.synthesize("Halo", tmp_path / "o.wav", "+0%")
+
+
+def test_supported_language_ok(mods: dict, tmp_path: Path) -> None:
+    eng = XTTSEngine(XTTSConfig(language="en"))
+    res = eng.synthesize("Hello friend", tmp_path / "o.wav", "+0%")
+    assert res.audio_path.exists()
 
 
 def test_synthesize_wraps_errors(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

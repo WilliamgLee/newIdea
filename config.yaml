@@ -21,8 +21,8 @@ pipeline:
 
 content:
   age_group: "3-6"
-  language: id
-  style: ceria
+  language: en             # id = Bahasa Indonesia (pakai edge-tts) | en = English (bisa XTTS)
+  style: cheerful
   profile_file: content_profile.yaml
 
 llm:
@@ -40,7 +40,7 @@ safety:
   temperature: 0.2
 
 voice:
-  engine: edge-tts           # gratis, butuh koneksi internet (layanan suara Microsoft Edge)
+  engine: xtts               # edge-tts (gratis, online) | xtts (lokal, English) | piper
   voice: id-ID-GadisNeural   # alternatif: id-ID-ArdiNeural
   rate: "-5%"                # sedikit lebih lambat agar mudah diikuti anak
   pitch: "+0Hz"
@@ -52,7 +52,7 @@ voice:
   speedup_percent: 15        # bila total > video.max_duration_sec, suara dipercepat sekali
   xtts:                      # dipakai hanya jika engine: xtts (lihat requirements-xtts.txt)
     model: tts_models/multilingual/multi-dataset/xtts_v2
-    language: id
+    language: en             # XTTS TIDAK mendukung 'id'. Didukung: en, es, fr, de, dst.
     speaker_wav: ""          # path WAV contoh suara (6-15 dtk) untuk voice cloning; kosong = bawaan
     speaker: "Ana Florence"  # suara bawaan bila speaker_wav kosong
     device: auto             # auto | cuda | cpu

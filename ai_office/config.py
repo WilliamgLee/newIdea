@@ -73,7 +73,7 @@ class SafetyConfig:
 @dataclass
 class XTTSConfig:
     model: str = "tts_models/multilingual/multi-dataset/xtts_v2"
-    language: str = "id"
+    language: str = "en"     # XTTS tidak mendukung 'id'; untuk Indonesia pakai edge-tts
     # Contoh suara (6-15 detik, WAV mono) untuk meniru warna suara. Kosong = suara bawaan.
     speaker_wav: str = ""
     speaker: str = "Ana Florence"   # dipakai bila speaker_wav kosong

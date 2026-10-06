@@ -209,6 +209,13 @@ def cmd_doctor(orch: Orchestrator) -> int:
               "python -m playwright install chromium, plus ffmpeg.")
     if "editor" in unavailable:
         print("\nEditor butuh ffmpeg (winget install Gyan.FFmpeg, lalu buka terminal baru).")
+    v = orch.config.voice
+    if v.engine == "xtts":
+        from .tts.xtts import XTTS_LANGUAGES
+
+        if v.xtts.language not in XTTS_LANGUAGES:
+            print(f"\nPERINGATAN: voice.engine=xtts tapi voice.xtts.language='{v.xtts.language}' "
+                  "tidak didukung XTTS. Untuk Bahasa Indonesia pakai engine: edge-tts.")
     return 0 if ok_all else 1
 
 

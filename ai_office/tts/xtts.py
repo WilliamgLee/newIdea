@@ -22,6 +22,12 @@ from .base import SynthResult, TTSEngine, TTSError
 
 log = logging.getLogger(__name__)
 
+# Bahasa yang didukung XTTS-v2. Bahasa Indonesia (id) TIDAK ada di daftar ini.
+XTTS_LANGUAGES = frozenset({
+    "en", "es", "fr", "de", "it", "pt", "pl", "tr", "ru", "nl", "cs", "ar",
+    "zh-cn", "hu", "ko", "ja", "hi",
+})
+
 
 def _matplotlib_importable() -> bool:
     try:
@@ -201,6 +207,12 @@ class XTTSEngine(TTSEngine):
         return {"speaker": self.cfg.speaker}
 
     def synthesize(self, text: str, out_path: Path, rate: str) -> SynthResult:
+        if self.cfg.language not in XTTS_LANGUAGES:
+            raise TTSError(
+                f"XTTS-v2 tidak mendukung bahasa '{self.cfg.language}'. "
+                f"Bahasa yang didukung: {', '.join(sorted(XTTS_LANGUAGES))}. "
+                "Untuk Bahasa Indonesia, pakai voice.engine: edge-tts."
+            )
         tts = self._load()
         try:
             tts.tts_to_file(

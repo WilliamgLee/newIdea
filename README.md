@@ -39,8 +39,12 @@ mengubah `llm.model` di `config.yaml`.
 
 ### Opsional: suara Coqui XTTS-v2 (lokal, kualitas tinggi)
 
+> **Bahasa:** XTTS-v2 **tidak mendukung Bahasa Indonesia**. Bahasa yang didukung: en, es, fr,
+> de, it, pt, pl, tr, ru, nl, cs, ar, zh-cn, hu, ko, ja, hi. Untuk konten **English**, XTTS bagus;
+> untuk **Indonesia**, pakai edge-tts.
+>
 > **Lisensi:** XTTS-v2 (CPML) **melarang penggunaan komersial**. Untuk channel yang
-> dimonetisasi, pakai edge-tts (default). XTTS cocok untuk pemakaian pribadi/belajar.
+> dimonetisasi, pakai edge-tts. XTTS cocok untuk pemakaian pribadi/belajar.
 
 XTTS berjalan lokal tanpa internet dan bisa meniru suara (voice cloning), tapi berat
 (~2 GB model, ~4 GB VRAM) dan belum mendukung Python 3.14. Pakai venv Python 3.11 terpisah:
@@ -55,8 +59,13 @@ pip install -r requirements-xtts.txt
 python -m playwright install chromium
 ```
 
-Lalu di `config.yaml` set `voice.engine: xtts`. Pengaturan ada di `voice.xtts` (bahasa,
-`speaker` bawaan, atau `speaker_wav` berisi contoh suara 6-15 detik untuk cloning, device).
+Lalu di `config.yaml` set `voice.engine: xtts` dan pastikan `content.language` serta
+`voice.xtts.language` **bukan `id`** (mis. `en`). Coba dengan naskah Inggris:
+```powershell
+python -m ai_office.cli build-file examples/colors_en.json
+```
+Pengaturan XTTS ada di `voice.xtts` (bahasa, `speaker` bawaan, atau `speaker_wav` berisi contoh
+suara 6-15 detik untuk voice cloning, device).
 
 **Windows + Smart App Control:** DLL matplotlib (`ft2font`) kadang diblokir dan menggagalkan
 impor XTTS. Kode otomatis memasang matplotlib tiruan (`voice.xtts.stub_matplotlib: true`);

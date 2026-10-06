@@ -97,6 +97,7 @@ def test_ollama_chat_sends_schema_and_returns_content() -> None:
     body = seen["body"]
     assert body["format"] == schema and body["stream"] is False
     assert body["options"]["temperature"] == 0.1 and body["think"] is False
+    assert body["keep_alive"] == LLMConfig().keep_alive
     assert body["messages"][0] == {"role": "system", "content": "s"}
 
 
@@ -114,6 +115,24 @@ def test_ollama_not_running() -> None:
     with pytest.raises(LLMError, match="Pastikan aplikasi Ollama berjalan"):
         p.chat([Message("user", "u")])
     assert p.is_available() is False
+
+
+def test_ollama_release_unloads_model() -> None:
+    seen: dict[str, Any] = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        seen.update(path=req.url.path, body=json.loads(req.content))
+        return httpx.Response(200, json={})
+
+    ollama_with(handler).release()
+    assert seen["path"] == "/api/generate" and seen["body"]["keep_alive"] == 0
+
+
+def test_ollama_release_is_best_effort() -> None:
+    def handler(req: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("down", request=req)
+
+    ollama_with(handler).release()  # tidak melempar
 
 
 def test_ollama_is_available_checks_model() -> None:

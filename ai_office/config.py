@@ -54,9 +54,10 @@ class ContentConfig:
 @dataclass
 class LLMConfig:
     provider: str = "ollama"
-    model: str = "qwen2.5:7b"
+    model: str = "qwen2.5:3b"   # muat penuh di VRAM 6 GB (berbagi dengan XTTS). 7b bisa jatuh ke CPU.
     base_url: str = "http://127.0.0.1:11434"
-    timeout_sec: float = 180.0
+    timeout_sec: float = 300.0   # longgar: model bisa perlu load ulang ke VRAM saat berbagi GPU
+    keep_alive: str = "5m"       # berapa lama model tetap di VRAM antar panggilan (hindari reload)
     temperature: float = 0.7
     num_ctx: int = 8192
     # Untuk model "thinking" (mis. qwen3): false = matikan mode berpikir. null = tidak dikirim.

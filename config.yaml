@@ -27,11 +27,12 @@ content:
 
 llm:
   provider: ollama         # ollama (default, lokal) | gemini (opsional, free tier)
-  model: qwen2.5:7b        # muat di VRAM 6 GB (RTX 4050)
+  model: qwen2.5:3b        # muat PENUH di VRAM 6 GB. qwen2.5:7b bisa jatuh ke CPU (lambat/timeout)
   base_url: http://127.0.0.1:11434
-  timeout_sec: 180
+  timeout_sec: 300
   temperature: 0.7
   num_ctx: 8192
+  keep_alive: "5m"         # model tetap di VRAM antar panggilan (hindari reload saat loop revisi)
   think: null              # untuk model "thinking" (mis. qwen3) isi false agar lebih cepat
   gemini_model: gemini-flash-latest   # hanya dipakai jika provider: gemini (butuh GEMINI_API_KEY)
 

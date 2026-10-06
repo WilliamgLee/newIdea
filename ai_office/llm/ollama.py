@@ -33,6 +33,7 @@ class OllamaProvider(LLMProvider):
             "stream": False,
             # structured output: JSON schema membatasi model agar hanya memakai nama valid
             "format": json_schema if json_schema is not None else "json",
+            "keep_alive": self.cfg.keep_alive,
             "options": {
                 "temperature": self.cfg.temperature if temperature is None else temperature,
                 "num_ctx": self.cfg.num_ctx,

@@ -27,11 +27,15 @@ copy .env.example .env
 ### Ollama (LLM lokal, gratis)
 
 1. Pasang Ollama: `winget install Ollama.Ollama` (atau unduh dari https://ollama.com/download).
-2. Tutup lalu buka PowerShell baru, unduh model default (±4,7 GB, muat di VRAM 6 GB):
+2. Tutup lalu buka PowerShell baru, unduh model default (±2 GB):
    ```powershell
-   ollama pull qwen2.5:7b
+   ollama pull qwen2.5:3b
    ```
 3. Cek: `python -m ai_office.cli doctor` → writer & safety harus `siap`.
+
+> **VRAM 6 GB (RTX 4050):** `qwen2.5:3b` muat PENUH di GPU dan cepat. Hindari `qwen2.5:7b`
+> (5.4 GB) saat juga memakai XTTS: model bisa jatuh sebagian ke CPU dan membuat generate
+> lambat/timeout. Cek beban dengan `ollama ps` (idealnya `100% GPU`).
 
 Ollama berjalan otomatis di latar (ikon di system tray). Model lain bisa dipakai dengan
 mengubah `llm.model` di `config.yaml`.

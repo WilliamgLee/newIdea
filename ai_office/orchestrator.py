@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+from collections.abc import Callable
 from typing import Any
 
 from .agents.base import Agent, AgentContext
@@ -57,7 +58,10 @@ class Orchestrator:
         bus: EventBus,
         agents: dict[AgentName, Agent],
         tracker: AgentTracker | None = None,
+        script_validator: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
     ) -> None:
+        """`script_validator`: validasi naskah hasil edit admin di Gerbang 1.
+        Menerima dict, mengembalikan dict yang sudah dinormalisasi, atau raise ValueError."""
         missing = set(AgentName) - set(agents)
         if missing:
             raise ValueError(f"Agent belum terdaftar: {sorted(m.value for m in missing)}")
@@ -66,6 +70,7 @@ class Orchestrator:
         self.bus = bus
         self.agents = agents
         self.tracker = tracker or AgentTracker(bus, config.pipeline.just_done_display_sec)
+        self.script_validator = script_validator
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._last_availability_check = 0.0
@@ -104,7 +109,8 @@ class Orchestrator:
         """Gerbang 1: setujui naskah (opsional dengan naskah hasil edit admin)."""
         self._require_status(job_id, S.AWAITING_SCRIPT_APPROVAL)
         if edited_script is not None:
-            # Validasi skema naskah ditambahkan di M1.
+            if self.script_validator is not None:
+                edited_script = self.script_validator(edited_script)  # raise ValueError
             self.db.set_artifact(job_id, "writer", {"script": edited_script,
                                                     "edited_by_admin": True})
             self.db.add_log(job_id, "Naskah diedit oleh admin")
@@ -182,14 +188,19 @@ class Orchestrator:
             job=job, config=self.config, workdir=workdir, feedback=feedback,
             log=lambda msg: self.db.add_log(job.id, msg, agent=agent_name.value),
         )
+        # Di GPU kecil + XTTS: lepaskan model LLM dari VRAM sebelum tahap suara.
+        if stage == S.VOICING and self.config.voice.engine == "xtts":
+            self._release_llm()
+
         self.tracker.set_working(agent_name, job.id)
         started = time.monotonic()
         try:
             result = agent.run(ctx)
             if not isinstance(result, dict):
                 raise TypeError(f"Agent {agent_name.value} harus mengembalikan dict")
-        except Exception as exc:
+        except Exception as exc:  # error agent tidak boleh menjatuhkan worker
             log.exception("Agent %s gagal pada job %s", agent_name.value, job.id)
+            self.db.add_processing_time(job.id, time.monotonic() - started)
             self.tracker.set_idle(agent_name)
             self.db.add_log(job.id, f"Gagal: {type(exc).__name__}: {exc}", level="ERROR",
                             agent=agent_name.value)
@@ -199,6 +210,7 @@ class Orchestrator:
             return
 
         elapsed = time.monotonic() - started
+        self.db.add_processing_time(job.id, elapsed)
         self.db.set_artifact(job.id, agent_name.value, result)
         self.db.add_log(job.id, f"Selesai dalam {elapsed:.1f} detik", agent=agent_name.value)
         self.tracker.set_done(agent_name, job.id)
@@ -271,6 +283,19 @@ class Orchestrator:
                 log.exception("Error tak terduga di worker")
                 self._stop.wait(poll)
 
+    def _release_llm(self) -> None:
+        """Best-effort: minta provider LLM (Ollama) melepas model dari VRAM."""
+        seen: set[int] = set()
+        for agent in self.agents.values():
+            provider = getattr(agent, "provider", None)
+            release = getattr(provider, "release", None)
+            if callable(release) and id(provider) not in seen:
+                seen.add(id(provider))
+                try:
+                    release()
+                except Exception:
+                    log.debug("Gagal melepas LLM", exc_info=True)
+
     def refresh_availability(self, force: bool = False) -> None:
         now = time.monotonic()
         if not force and now - self._last_availability_check < AVAILABILITY_CHECK_SEC:
@@ -290,9 +315,7 @@ class Orchestrator:
         waiting = counts.get(S.AWAITING_SCRIPT_APPROVAL.value, 0) + counts.get(
             S.AWAITING_FINAL_APPROVAL.value, 0)
         last = self.db.last_finished_job()
-        last_duration = None
-        if last and last.started_at and last.finished_at:
-            last_duration = round(last.finished_at - last.started_at, 1)
+        last_duration = round(last.processing_sec, 1) if last else None
         return {
             "mode": self.mode,
             "active_jobs": active,

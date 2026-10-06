@@ -1,0 +1,55 @@
+# Katalog pustaka animasi: SATU-SATUNYA sumber nama yang boleh dipakai di script.json.
+# Penulis Naskah (LLM) hanya boleh memilih nama dari sini; validator menolak nama lain.
+# Pustaka SVG/scene di M3 wajib menyediakan semua entri ini.
+
+characters:
+  kiki:
+    description: kucing kecil berwarna kuning, ceria, pemandu utama
+    poses: [idle, wave, point, jump, think, clap]
+    emotions: [happy, excited, surprised, thinking, calm]
+  bubu:
+    description: beruang kecil cokelat, lembut dan suka bertanya
+    poses: [idle, wave, point, jump, think, clap]
+    emotions: [happy, excited, surprised, thinking, calm]
+
+backgrounds:
+  sky: langit biru cerah dengan awan
+  garden: taman hijau dengan bunga
+  room: kamar bermain yang hangat
+  farm: peternakan dengan pagar kayu
+  beach: pantai berpasir dan laut tenang
+  classroom: ruang kelas ceria
+
+colors: [merah, kuning, biru, hijau, oranye, ungu, merah_muda, cokelat, hitam, putih]
+
+objects:
+  hewan: [kucing, anjing, sapi, ayam, bebek, kambing, kuda, burung, ikan, katak]
+  buah: [apel, pisang, jeruk, semangka, anggur, stroberi]
+  bentuk: [lingkaran, segitiga, persegi, bintang, hati]
+  benda: [bola, mobil, balon, bunga, matahari, bulan, payung, topi]
+
+# Template scene. Aturan `items`: jumlah objek yang wajib diisi (nama dari `objects`).
+templates:
+  intro:
+    description: karakter menyapa penonton dan menyebut topik
+    items: [0, 0]
+  show_object:
+    description: menampilkan satu objek besar di tengah, karakter menunjuk ke objek
+    items: [1, 1]
+    color: optional       # warnai objek (cocok untuk topik warna)
+  count_objects:
+    description: objek yang sama muncul satu per satu lalu dihitung
+    items: [1, 1]
+    count: [1, 10]        # wajib: berapa banyak objek
+    color: optional
+  compare:
+    description: dua objek berdampingan untuk dibandingkan (besar/kecil, warna, dll.)
+    items: [2, 2]
+    color: optional       # bila diisi, berlaku untuk objek pertama
+  guess:
+    description: objek tersembunyi di balik tanda tanya, lalu terungkap (tebak-tebakan)
+    items: [1, 1]
+    color: optional
+  outro:
+    description: karakter memuji penonton dan mengajak menonton lagi
+    items: [0, 0]

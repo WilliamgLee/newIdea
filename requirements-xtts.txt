@@ -1,0 +1,25 @@
+# Dependensi OPSIONAL untuk mesin suara Coqui XTTS-v2 (voice.engine: xtts).
+# JANGAN campur dengan requirements.txt utama (install besar: PyTorch + model ~2 GB).
+#
+# PERINGATAN LISENSI: XTTS-v2 memakai Coqui Public Model License (CPML) yang MELARANG
+# penggunaan komersial. Untuk channel yang dimonetisasi, pakai edge-tts atau Piper.
+#
+# PENTING: paket ini butuh Python 3.11 (belum mendukung 3.14). Pakai venv terpisah:
+#   py -3.11 -m venv .venv-xtts
+#   .venv-xtts\Scripts\Activate.ps1
+#   pip install -r requirements.txt
+#   # GPU (disarankan untuk RTX 4050) - torch DAN torchaudio versi CUDA:
+#   pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements-xtts.txt
+#
+# Catatan versi (kombinasi yang terbukti jalan):
+# - torch + torchaudio HARUS versi yang cocok (install bersama dari index cu124 di atas).
+# - transformers 4.56.x: versi 5.x menghapus 'isin_mps_friendly' yang masih dipakai XTTS;
+#   versi < 4.56 ditolak coqui-tts. 4.56.2 adalah titik aman.
+# - matplotlib: XTTS menariknya lewat modul vocoder yang TIDAK dipakai saat inference.
+#   Di Windows dengan Smart App Control, DLL matplotlib (ft2font) bisa diblokir. Kode kita
+#   memasang matplotlib tiruan otomatis (voice.xtts.stub_matplotlib: true), jadi blokir ini
+#   tidak menggagalkan pembuatan suara.
+
+coqui-tts==0.27.5
+transformers==4.56.2

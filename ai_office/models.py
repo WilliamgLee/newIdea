@@ -114,6 +114,7 @@ class Job:
     artifacts: dict[str, Any] = field(default_factory=dict)
     started_at: float | None = None
     finished_at: float | None = None
+    processing_sec: float = 0.0
 
     @classmethod
     def from_row(cls, row: Any) -> Job:
@@ -134,13 +135,13 @@ class Job:
             artifacts=json.loads(row["artifacts"] or "{}"),
             started_at=row["started_at"],
             finished_at=row["finished_at"],
+            processing_sec=row["processing_sec"] or 0.0,
         )
 
     def public_dict(self) -> dict[str, Any]:
         """Data aman untuk dashboard publik: tanpa path lokal, error internal, atau log."""
-        duration = None
-        if self.started_at and self.finished_at:
-            duration = round(self.finished_at - self.started_at, 1)
+        # waktu kerja agent saja (tanpa waktu menunggu persetujuan admin)
+        duration = round(self.processing_sec, 1) if self.processing_sec else None
         return {
             "id": self.id,
             "title": self.title,

@@ -58,9 +58,32 @@ def _stub_matplotlib() -> None:
     def _noop(*a, **k):
         return None
 
-    def _make_module(name: str) -> types.ModuleType:
-        mod = types.ModuleType(name)
-        # transformers & lib lain mengecek __spec__; beri spec minimal agar tidak None.
+    class _Dummy:
+        """Objek serba-bisa: dipanggil, di-subscript, atau diakses atributnya -> no-op aman.
+        Dipakai agar simbol apa pun yang diminta XTTS (LogNorm, Normalize, cmap, dll.) ada."""
+
+        def __init__(self, *a, **k):
+            pass
+
+        def __call__(self, *a, **k):
+            return self
+
+        def __getattr__(self, name):
+            return _Dummy()
+
+        def __getitem__(self, k):
+            return _Dummy()
+
+    class _StubModule(types.ModuleType):
+        """Modul tiruan: atribut apa pun yang belum diset dikembalikan sebagai _Dummy."""
+
+        def __getattr__(self, name):
+            if name.startswith("__") and name.endswith("__"):
+                raise AttributeError(name)
+            return _Dummy()
+
+    def _make_module(name: str) -> _StubModule:
+        mod = _StubModule(name)
         mod.__spec__ = machinery.ModuleSpec(name, loader=None)
         mod.__loader__ = None
         return mod
@@ -72,14 +95,10 @@ def _stub_matplotlib() -> None:
     mpl.use = _noop
     mpl.get_backend = lambda: "Agg"
     pyplot = _make_module("matplotlib.pyplot")
-    for fn in ("plot", "figure", "subplots", "close", "savefig", "imshow", "colorbar",
-               "title", "xlabel", "ylabel", "tight_layout", "clf", "cla", "legend",
-               "scatter", "bar", "xticks", "yticks", "pcolor", "pcolormesh", "show", "axis"):
-        setattr(pyplot, fn, _noop)
     pyplot.gcf = lambda *a, **k: types.SimpleNamespace(
         canvas=types.SimpleNamespace(draw=_noop, tostring_rgb=lambda: b""))
     cm = _make_module("matplotlib.cm")
-    colors = _make_module("matplotlib.colors")
+    colors = _make_module("matplotlib.colors")  # LogNorm, Normalize, dll. -> _Dummy
     mpl.pyplot = pyplot
     mpl.cm = cm
     mpl.colors = colors

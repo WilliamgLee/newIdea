@@ -80,8 +80,10 @@ def test_stub_matplotlib_installs_fake_and_hides_from_transformers(
     assert sys.modules["matplotlib"].__spec__ is not None     # transformers mengecek __spec__
     assert sys.modules["matplotlib.pyplot"].__spec__ is not None
     import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm, Normalize  # simbol spesifik XTTS -> dummy
 
-    assert plt.plot([1, 2], [3, 4]) is None   # no-op, tidak error
+    plt.plot([1, 2], [3, 4])                 # no-op, tidak error
+    assert LogNorm() is not None and Normalize(0, 1) is not None  # dummy, tidak meledak
     with pytest.raises(im.PackageNotFoundError):
         im.version("matplotlib")              # transformers menganggapnya tak terpasang
     xtts._stub_matplotlib()                   # idempoten

@@ -148,11 +148,21 @@ class VoiceAgent(Agent):
         if not raw:
             raise AgentError("Naskah belum ada")
         script = Script.model_validate(raw)
-        result = self.voice_script(script, ctx.workdir, ctx.log)
+        try:
+            result = self.voice_script(script, ctx.workdir, ctx.log)
+        finally:
+            self._maybe_unload(ctx.log)
         (ctx.workdir / "voice.json").write_text(
             json.dumps(result.model_dump(mode="json"), ensure_ascii=False, indent=2),
             encoding="utf-8")
         return result.model_dump(mode="json")
+
+    def _maybe_unload(self, log: Any) -> None:
+        """Lepaskan model TTS dari VRAM setelah job (mis. XTTS), agar bergantian dengan Ollama."""
+        unload = getattr(self.engine, "unload", None)
+        if callable(unload) and getattr(self.config.voice.xtts, "unload_after_job", False):
+            unload()
+            log("Model suara dilepas dari VRAM")
 
     def voice_script(self, script: Script, workdir: Path, log: Any = print) -> VoiceResult:
         """Bisa dipanggil tanpa job (CLI `voice-file`)."""

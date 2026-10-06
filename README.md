@@ -37,6 +37,30 @@ mengubah `llm.model` di `config.yaml`.
 
 **Opsional – Gemini free tier:** isi `GEMINI_API_KEY` di `.env`, lalu ubah `llm.provider: gemini`.
 
+### Opsional: suara Coqui XTTS-v2 (lokal, kualitas tinggi)
+
+> **Lisensi:** XTTS-v2 (CPML) **melarang penggunaan komersial**. Untuk channel yang
+> dimonetisasi, pakai edge-tts (default). XTTS cocok untuk pemakaian pribadi/belajar.
+
+XTTS berjalan lokal tanpa internet dan bisa meniru suara (voice cloning), tapi berat
+(~2 GB model, ~4 GB VRAM) dan belum mendukung Python 3.14. Pakai venv Python 3.11 terpisah:
+
+```powershell
+py -3.11 -m venv .venv-xtts
+.venv-xtts\Scripts\Activate.ps1
+pip install -r requirements.txt -r requirements-xtts.txt
+# GPU (disarankan): pasang PyTorch CUDA dulu
+pip install torch --index-url https://download.pytorch.org/whl/cu124
+```
+
+Lalu di `config.yaml` set `voice.engine: xtts`. Pengaturan ada di `voice.xtts` (bahasa,
+`speaker` bawaan, atau `speaker_wav` berisi contoh suara 6-15 detik untuk cloning, device).
+
+**VRAM 6 GB (RTX 4050):** Ollama (LLM) dan XTTS tidak muat bersamaan. Sistem otomatis
+melepas Ollama dari VRAM sebelum tahap suara (`keep_alive=0`), dan melepas XTTS setelah
+tiap job (`voice.xtts.unload_after_job: true`), sehingga keduanya bergantian memakai GPU.
+Jika tetap kehabisan VRAM, set `voice.xtts.device: cpu` (lebih lambat).
+
 **Mencoba tanpa Ollama:** tambahkan `writer` dan `safety` ke `agents.fake` di `config.yaml`.
 
 ### ffmpeg + suara (M2)

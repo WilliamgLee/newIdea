@@ -82,7 +82,7 @@ def cmd_voice_file(orch: Orchestrator, path: Path) -> int:
     from .tts import build_engine
 
     data = make_script_validator(orch.config)(json.loads(path.read_text(encoding="utf-8")))
-    agent = VoiceAgent(orch.config, build_engine(orch.config.voice))
+    agent = VoiceAgent(orch.config, build_engine(orch.config.voice, orch.config.base_dir))
     if not agent.is_available():
         print("Error: edge-tts atau ffmpeg/ffprobe belum terpasang.", file=sys.stderr)
         return 1
@@ -127,7 +127,7 @@ def cmd_render_file(orch: Orchestrator, path: Path, no_voice: bool) -> int:
         voice = VoiceResult(engine="none", voice="", rate="+0%", scenes=scenes,
                             total_duration_sec=sum(s.duration_sec for s in scenes))
     else:
-        va = VoiceAgent(cfg, build_engine(cfg.voice))
+        va = VoiceAgent(cfg, build_engine(cfg.voice, cfg.base_dir))
         if not va.is_available():
             print("Error: edge-tts/ffmpeg belum siap (pakai --no-voice untuk melewati suara).",
                   file=sys.stderr)
@@ -157,7 +157,7 @@ def cmd_build_file(orch: Orchestrator, path: Path) -> int:
     workdir = cfg.output_dir / f"manual_{path.stem}"
     workdir.mkdir(parents=True, exist_ok=True)
 
-    va = VoiceAgent(cfg, build_engine(cfg.voice))
+    va = VoiceAgent(cfg, build_engine(cfg.voice, cfg.base_dir))
     animator = AnimatorAgent(cfg)
     editor = EditorAgent(cfg)
     for name, agent in (("suara", va), ("animasi", animator), ("editor", editor)):

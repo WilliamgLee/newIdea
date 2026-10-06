@@ -188,6 +188,10 @@ class Orchestrator:
             job=job, config=self.config, workdir=workdir, feedback=feedback,
             log=lambda msg: self.db.add_log(job.id, msg, agent=agent_name.value),
         )
+        # Di GPU kecil + XTTS: lepaskan model LLM dari VRAM sebelum tahap suara.
+        if stage == S.VOICING and self.config.voice.engine == "xtts":
+            self._release_llm()
+
         self.tracker.set_working(agent_name, job.id)
         started = time.monotonic()
         try:
@@ -278,6 +282,19 @@ class Orchestrator:
             except Exception:
                 log.exception("Error tak terduga di worker")
                 self._stop.wait(poll)
+
+    def _release_llm(self) -> None:
+        """Best-effort: minta provider LLM (Ollama) melepas model dari VRAM."""
+        seen: set[int] = set()
+        for agent in self.agents.values():
+            provider = getattr(agent, "provider", None)
+            release = getattr(provider, "release", None)
+            if callable(release) and id(provider) not in seen:
+                seen.add(id(provider))
+                try:
+                    release()
+                except Exception:
+                    log.debug("Gagal melepas LLM", exc_info=True)
 
     def refresh_availability(self, force: bool = False) -> None:
         now = time.monotonic()

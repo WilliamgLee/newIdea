@@ -71,10 +71,23 @@ class SafetyConfig:
 
 
 @dataclass
+class XTTSConfig:
+    model: str = "tts_models/multilingual/multi-dataset/xtts_v2"
+    language: str = "id"
+    # Contoh suara (6-15 detik, WAV mono) untuk meniru warna suara. Kosong = suara bawaan.
+    speaker_wav: str = ""
+    speaker: str = "Ana Florence"   # dipakai bila speaker_wav kosong
+    device: str = "auto"            # auto | cuda | cpu
+    temperature: float = 0.7
+    # Lepaskan model dari VRAM setelah tiap job agar bisa bergantian dengan Ollama di GPU 6 GB.
+    unload_after_job: bool = True
+
+
+@dataclass
 class VoiceConfig:
-    engine: str = "edge-tts"
+    engine: str = "edge-tts"     # edge-tts (default, online) | xtts (lokal, berat) | piper
     voice: str = "id-ID-GadisNeural"
-    rate: str = "-5%"            # kecepatan bicara, mis. "-10%" lebih lambat
+    rate: str = "-5%"            # kecepatan bicara, mis. "-10%" lebih lambat (hanya edge-tts)
     pitch: str = "+0Hz"
     pause_after_sec: float = 0.6  # jeda setelah narasi tiap scene (animasi tetap berjalan)
     min_scene_sec: float = 2.0
@@ -82,6 +95,7 @@ class VoiceConfig:
     sample_rate: int = 48000
     max_retries: int = 2          # retry bila TTS gagal (mis. koneksi putus)
     speedup_percent: int = 15     # dipakai bila total durasi melebihi video.max_duration_sec
+    xtts: XTTSConfig = field(default_factory=XTTSConfig)
 
 
 @dataclass
@@ -191,6 +205,10 @@ class AppConfig:
             raise ConfigError(f"llm.provider harus salah satu dari {LLM_PROVIDERS}")
         if self.llm.think is not None and not isinstance(self.llm.think, bool):
             raise ConfigError("llm.think harus true, false, atau null")
+        if self.voice.engine not in ("edge-tts", "xtts", "piper"):
+            raise ConfigError("voice.engine harus edge-tts, xtts, atau piper")
+        if self.voice.xtts.device not in ("auto", "cuda", "cpu"):
+            raise ConfigError("voice.xtts.device harus auto, cuda, atau cpu")
         if not re.fullmatch(r"[+-]\d{1,3}%", self.voice.rate):
             raise ConfigError("voice.rate harus berformat seperti '+0%' atau '-10%'")
         if not re.fullmatch(r"[+-]\d{1,3}Hz", self.voice.pitch):

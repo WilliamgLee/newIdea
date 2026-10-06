@@ -1,0 +1,17 @@
+# Dependensi OPSIONAL untuk mesin suara Coqui XTTS-v2 (voice.engine: xtts).
+# JANGAN campur dengan requirements.txt utama (install besar: PyTorch + model ~2 GB).
+#
+# PERINGATAN LISENSI: XTTS-v2 memakai Coqui Public Model License (CPML) yang MELARANG
+# penggunaan komersial. Untuk channel yang dimonetisasi, pakai edge-tts atau Piper.
+#
+# PENTING: paket ini butuh Python 3.11 (belum mendukung 3.14). Pakai venv terpisah:
+#   py -3.11 -m venv .venv-xtts
+#   .venv-xtts\Scripts\Activate.ps1
+#   pip install -r requirements.txt -r requirements-xtts.txt
+#
+# GPU (opsional, disarankan untuk RTX 4050): pasang PyTorch versi CUDA lebih dulu, mis.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+# baru kemudian baris di bawah.
+
+# Fork yang aktif dipelihara dari Coqui TTS (impor tetap `from TTS.api import TTS`).
+coqui-tts>=0.24

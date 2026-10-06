@@ -61,6 +61,17 @@ class OllamaProvider(LLMProvider):
             raise LLMError("Respons Ollama tidak berisi teks")
         return content
 
+    def release(self) -> None:
+        """Minta Ollama melepas model dari VRAM (keep_alive=0), agar GPU bisa dipakai TTS.
+
+        Berguna di GPU kecil (mis. 6 GB) saat memakai XTTS yang juga butuh VRAM.
+        """
+        try:
+            self._client.post("/api/generate",
+                              json={"model": self.model, "keep_alive": 0})
+        except httpx.HTTPError:
+            pass  # best-effort
+
     def is_available(self) -> bool:
         try:
             resp = self._client.get("/api/tags", timeout=3.0)

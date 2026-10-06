@@ -44,7 +44,7 @@ def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict
         from ..tts import build_engine
         from .voice import VoiceAgent
 
-        agents[AgentName.VOICE] = VoiceAgent(config, build_engine(config.voice))
+        agents[AgentName.VOICE] = VoiceAgent(config, build_engine(config.voice, config.base_dir))
     if AgentName.ANIMATOR in real:
         from .animator import AnimatorAgent
 

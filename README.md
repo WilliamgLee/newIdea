@@ -3,8 +3,8 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M5.** Keenam agent (Penulis, Penasihat Keamanan, Pengisi Suara, Animator, Editor,
-> Pengirim) sudah **asli**. Tersisa M6 (dashboard + login) dan M7 (kantor 2.5D + poles).
+> **Status: M6.** Keenam agent asli, plus dashboard web dengan **panel admin berpassword**
+> (buat job, approve/tolak dua gerbang, lihat log & review). Tersisa M7 (kantor 2.5D + poles).
 > README lengkap di M7.
 
 ## Instalasi (Windows 11)
@@ -205,6 +205,47 @@ Perintah CLI lain:
 | `GET /api/events` | stream SSE: `snapshot`, `job_created`, `job_status`, `agent_state` |
 
 Endpoint yang mengubah data (aksi admin lewat web) baru tersedia di M6, dengan login.
+
+## Panel admin & keamanan (M6)
+
+Buat kredensial admin dulu (interaktif, password tidak tampil, hanya HASH argon2id disimpan):
+```powershell
+python scripts/set_admin.py
+```
+Lalu jalankan server dan buka panel admin:
+```powershell
+python run.py
+```
+- Dashboard publik (hanya-baca, tanpa login): http://127.0.0.1:8000
+- Panel admin (wajib login): http://127.0.0.1:8000/admin
+
+Di panel admin kamu bisa: buat job (topik/usia/gaya), approve/edit/tolak di Gerbang 1 & 2,
+lihat log + hasil review keamanan, ubah mode semi/full-auto, dan retry job gagal. CLI lama
+(`python -m ai_office.cli ...`) tetap berfungsi.
+
+**Keamanan yang diterapkan:**
+- Password di-hash **argon2id**; `data/admin.json` di-gitignore, izin file 600. Password tidak
+  pernah ditulis ke kode/log/repo.
+- Verifikasi login **hanya di server**. Sesi lewat cookie **HttpOnly + SameSite=Strict**
+  (+`Secure` saat HTTPS), session id acak **ditandatangani (HMAC)**, dengan kedaluwarsa.
+- **Proteksi CSRF** (double-submit token) untuk semua aksi yang mengubah data.
+- **Rate-limit + lockout** sementara setelah beberapa kali gagal login; pesan error generik;
+  perbandingan password **waktu-konstan**.
+- Semua endpoint `/api/admin/*` mengecek sesi di server (bukan sekadar menyembunyikan tombol).
+- Header keamanan (CSP, X-Frame-Options, dll.). Server **hanya bind ke localhost** secara default.
+
+### Membuka ke publik dengan aman (opsional) — Cloudflare Tunnel
+
+Server sengaja hanya di `127.0.0.1`. Untuk mengaksesnya dari luar **tanpa membuka port router**
+dan **dengan HTTPS gratis**, pakai Cloudflare Tunnel:
+```powershell
+winget install Cloudflare.cloudflared
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+Cloudflare memberi URL `https://...trycloudflare.com` yang meneruskan ke laptopmu lewat HTTPS.
+Catatan: **laptop harus tetap menyala** selama tunnel aktif. Untuk URL tetap + kontrol akses,
+buat named tunnel dan tambahkan Cloudflare Access di dashboard Cloudflare. Jangan set
+`server.host: 0.0.0.0` kecuali kamu paham risikonya.
 
 ## Pengiriman hasil (M5)
 

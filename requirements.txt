@@ -16,6 +16,9 @@ httpx>=0.28
 # --- Suara (TTS gratis; butuh internet) ---
 edge-tts>=7.0
 
+# --- Autentikasi admin (M6) ---
+argon2-cffi>=23.1
+
 # --- Testing ---
 pytest>=8.4
 
@@ -24,4 +27,4 @@ pytest>=8.4
 playwright>=1.49
 
 # Dependensi milestone berikutnya (ditambahkan saat milestone-nya dikerjakan):
-#   M6: argon2-cffi, itsdangerous
+#   (tidak ada lagi; semua milestone inti sudah tercakup di atas)

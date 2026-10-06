@@ -3,8 +3,9 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M4.** Penulis Naskah, Penasihat Keamanan Anak, Pengisi Suara, Pembuat Animasi, dan
-> Editor sudah **asli**. Hanya Pengirim yang masih **palsu** (simulasi). README lengkap di M7.
+> **Status: M5.** Keenam agent (Penulis, Penasihat Keamanan, Pengisi Suara, Animator, Editor,
+> Pengirim) sudah **asli**. Tersisa M6 (dashboard + login) dan M7 (kantor 2.5D + poles).
+> README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
@@ -204,3 +205,12 @@ Perintah CLI lain:
 | `GET /api/events` | stream SSE: `snapshot`, `job_created`, `job_status`, `agent_state` |
 
 Endpoint yang mengubah data (aksi admin lewat web) baru tersedia di M6, dengan login.
+
+## Pengiriman hasil (M5)
+
+Setelah video final disetujui (Gerbang 2) atau di mode `full_auto`, Pengirim menyalin hasil ke
+`delivery.dest_dir` (default `~/Videos/AI-Office/<tanggal>_<judul-slug>/`): `video.mp4`,
+`thumbnail.png`, `script.json`, `metadata.txt`. Lalu folder itu **dibuka otomatis** di file
+explorer (bisa dimatikan dengan `delivery.open_folder: false`). Semua agent kini asli; untuk
+mencoba sebagian tanpa Ollama/ffmpeg, isi `agents.fake` di `config.yaml` (mis. `[voice, animator,
+editor]`).

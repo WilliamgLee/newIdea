@@ -11,8 +11,7 @@ from .fake import build_fake_agents
 __all__ = ["Agent", "AgentContext", "AgentError", "build_agents"]
 
 # Agent asli yang sudah tersedia (bertambah per milestone)
-IMPLEMENTED: frozenset[AgentName] = frozenset(
-    {AgentName.WRITER, AgentName.SAFETY, AgentName.VOICE, AgentName.ANIMATOR, AgentName.EDITOR})
+IMPLEMENTED: frozenset[AgentName] = frozenset(AgentName)  # semua agent sudah asli (M5)
 
 
 def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict[AgentName, Agent]:
@@ -53,4 +52,8 @@ def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict
         from ..editor.editor import EditorAgent
 
         agents[AgentName.EDITOR] = EditorAgent(config)
+    if AgentName.DELIVERY in real:
+        from .delivery import DeliveryAgent
+
+        agents[AgentName.DELIVERY] = DeliveryAgent(config)
     return agents

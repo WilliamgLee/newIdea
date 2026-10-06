@@ -68,10 +68,19 @@ def test_build_agents_uses_real_writer_and_safety(config: AppConfig) -> None:
     assert isinstance(agents[AgentName.SAFETY], SafetyAgent)
 
 
-def test_build_agents_refuses_unimplemented_real_agent(config: AppConfig) -> None:
+def test_build_agents_all_real_by_default(config: AppConfig) -> None:
+    """Semua 6 agent sudah asli (M5): tidak ada yang NotImplementedError."""
     config.agents.fake = []
-    with pytest.raises(NotImplementedError, match="delivery"):
-        build_agents(config, provider=RoutedLLM([], []))
+    agents = build_agents(config, provider=RoutedLLM([], []))
+    assert set(agents) == set(AgentName)
+
+
+def test_build_agents_honors_fake_list(config: AppConfig) -> None:
+    from ai_office.agents.fake import FakeDelivery
+
+    config.agents.fake = ["delivery"]
+    agents = build_agents(config, provider=RoutedLLM([], []))
+    assert isinstance(agents[AgentName.DELIVERY], FakeDelivery)
 
 
 def test_topic_to_approved_script(config: AppConfig) -> None:

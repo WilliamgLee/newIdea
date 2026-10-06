@@ -3,18 +3,18 @@
 Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
 lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
 
-> **Status: M0 (kerangka).** Semua agent masih **palsu** (simulasi). Agent asli, dashboard
-> lengkap, dan login admin menyusul di milestone berikutnya. README lengkap ditulis di M7.
+> **Status: M4.** Penulis Naskah, Penasihat Keamanan Anak, Pengisi Suara, Pembuat Animasi, dan
+> Editor sudah **asli**. Hanya Pengirim yang masih **palsu** (simulasi). README lengkap di M7.
 
 ## Instalasi (Windows 11)
 
-Prasyarat: Python 3.11+ (sudah dites dengan 3.11 dan 3.14) dan Git.
+Prasyarat: Python 3.11+ (dites dengan 3.11 dan 3.14) dan Git.
 
 ```powershell
 git clone https://github.com/WilliamgLee/newIdea.git
 cd newIdea
 py -m venv .venv
-.venv\Scripts\Activate.ps1
+.venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 copy .env.example .env
@@ -23,7 +23,77 @@ copy .env.example .env
 > Kalau PowerShell menolak menjalankan `Activate.ps1`, jalankan dulu sekali:
 > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
-Ollama dan ffmpeg **belum** diperlukan di M0.
+### Ollama (LLM lokal, gratis)
+
+1. Pasang Ollama: `winget install Ollama.Ollama` (atau unduh dari https://ollama.com/download).
+2. Tutup lalu buka PowerShell baru, unduh model default (±4,7 GB, muat di VRAM 6 GB):
+   ```powershell
+   ollama pull qwen2.5:7b
+   ```
+3. Cek: `python -m ai_office.cli doctor` → writer & safety harus `siap`.
+
+Ollama berjalan otomatis di latar (ikon di system tray). Model lain bisa dipakai dengan
+mengubah `llm.model` di `config.yaml`.
+
+**Opsional – Gemini free tier:** isi `GEMINI_API_KEY` di `.env`, lalu ubah `llm.provider: gemini`.
+
+**Mencoba tanpa Ollama:** tambahkan `writer` dan `safety` ke `agents.fake` di `config.yaml`.
+
+### ffmpeg + suara (M2)
+
+1. Pasang ffmpeg: `winget install Gyan.FFmpeg`, lalu buka PowerShell baru dan cek `ffmpeg -version`.
+2. Suara memakai **edge-tts** (gratis, sudah ada di `requirements.txt`, butuh internet).
+3. Coba suara dari naskah buatan tangan, tanpa LLM:
+   ```powershell
+   python -m ai_office.cli voice-file examples/mengenal_warna.json
+   ```
+   Hasil: `output/manual_mengenal_warna/audio/scene_*.wav` + `voice.json` (timing per kata).
+
+Pengaturan suara ada di bagian `voice:` pada `config.yaml` (suara `id-ID-GadisNeural` /
+`id-ID-ArdiNeural`, kecepatan, jeda antar-scene, target loudness). Durasi tiap scene mengikuti
+panjang suara sebenarnya + jeda. Jika total < 25 detik, jeda ditambah; jika > 35 detik, suara
+dipercepat sekali; jika tetap > 60 detik, job gagal dengan pesan "perpendek narasi".
+
+### Animasi (M3)
+
+1. Pasang browser untuk render (sekali saja, setelah `pip install`):
+   ```powershell
+   python -m playwright install chromium
+   ```
+2. Coba buat klip animasi dari naskah buatan tangan (tanpa LLM):
+   ```powershell
+   python -m ai_office.cli render-file examples/mengenal_warna.json            # dengan suara
+   python -m ai_office.cli render-file examples/mengenal_warna.json --no-voice  # tanpa suara (cepat)
+   ```
+   Hasil: `output/manual_mengenal_warna/animation.mp4` (1080x1920, 30 fps, H.264, tanpa audio) +
+   `plan.json`. Audio/subtitle/musik digabung Editor di M4.
+
+Pustaka animasi ada di `ai_office/animation/`:
+- `renderer/core.js` — inti (SVG, lip-sync, timeline); `characters/characters.js` — Kiki & Bubu;
+  `scenes/backgrounds.js`, `scenes/objects.js`, `scenes/templates.js` — latar, 29 objek, 6 template.
+- `style_guide.md` — aturan warna, font, dan gerak. `catalog.yaml` — daftar nama valid (yang
+  dilihat Penulis). Test memastikan `catalog.yaml` selalu cocok dengan pustaka JS.
+- Render **deterministik**: tiap frame = `renderFrame(plan, t)`, 30 fps, 1080x1920, lalu ffmpeg
+  menyusun PNG jadi MP4 (NVENC bila GPU NVIDIA ada, jika tidak `libx264`).
+
+### Video final (M4 - Editor)
+
+Menggabungkan klip animasi + suara + subtitle + musik jadi `video.mp4`, plus thumbnail & metadata:
+
+```powershell
+python -m ai_office.cli build-file examples/mengenal_warna.json
+```
+
+Hasil di `output/manual_mengenal_warna/`: `video.mp4` (vertikal, ±30 detik, dengan suara & subtitle
+sinkron), `thumbnail.png`, `metadata.txt`, `metadata.json`.
+
+- **Subtitle**: besar, outline tebal, **kata yang sedang diucapkan di-highlight** (pakai timing
+  per kata dari Pengisi Suara). Atur di bagian `subtitle:` pada `config.yaml`.
+- **Musik latar**: taruh file di `data/bgm/` (lihat `data/bgm/README.md`). Satu lagu dipilih
+  otomatis dan **volumenya turun saat ada narasi** (ducking). Atur di bagian `music:`.
+  Jika `data/bgm/` kosong, video dibuat tanpa musik.
+- **metadata.txt** memuat judul, deskripsi, hashtag, dan **pengingat menandai video "Made for
+  kids"** saat upload.
 
 ## Menjalankan test
 
@@ -31,17 +101,9 @@ Ollama dan ffmpeg **belum** diperlukan di M0.
 pytest -q
 ```
 
-## Mencoba M0
+Semua test LLM memakai mock, jadi tidak butuh Ollama.
 
-**Cara 1 – tanpa server (paling cepat):**
-
-```powershell
-python -m ai_office.cli demo "mengenal warna"
-```
-
-Satu job palsu dibuat, diproses semua agent, kedua gerbang disetujui otomatis, sampai `done`.
-
-**Cara 2 – dengan server + API:**
+## Cara pakai (M1)
 
 ```powershell
 # terminal 1
@@ -49,18 +111,48 @@ python run.py
 
 # terminal 2
 python -m ai_office.cli create "hewan dan suaranya"
-python -m ai_office.cli list                 # tunggu status awaiting_script_approval
+python -m ai_office.cli list            # tunggu status awaiting_script_approval
+python -m ai_office.cli review 1        # baca naskah + hasil review keamanan
 python -m ai_office.cli approve-script 1
-python -m ai_office.cli approve-final 1      # setelah status awaiting_final_approval
-Invoke-RestMethod http://127.0.0.1:8000/api/jobs/1
+python -m ai_office.cli approve-final 1 # setelah status awaiting_final_approval
 ```
 
-Buka http://127.0.0.1:8000 di browser untuk melihat status agent berubah secara real-time (SSE).
+Atau tanpa server: `python -m ai_office.cli demo "mengenal warna"` (gerbang disetujui otomatis).
 
-Perintah CLI lainnya: `show <id>` (detail + log + review keamanan), `reject <id> --reason "..."`,
-`retry <id>`, `mode semi_auto|full_auto`.
+Perintah CLI lain:
 
-## Endpoint API (M0, publik & hanya-baca)
+| Perintah | Fungsi |
+|---|---|
+| `review <id>` | naskah + hasil review keamanan per kriteria |
+| `show <id>` | detail lengkap (JSON) + log |
+| `approve-script <id> --file naskah.json` | setujui dengan naskah hasil editan (divalidasi) |
+| `reject <id> --reason "..."` | tolak di gerbang |
+| `retry <id>` | ulangi job gagal dari tahap yang gagal |
+| `mode semi_auto` / `mode full_auto` | ganti mode tanpa restart |
+| `doctor` | cek koneksi LLM, edge-tts, ffmpeg & status agent |
+| `voice-file <naskah.json>` | buat suara + timing dari naskah buatan tangan (tanpa LLM) |
+| `render-file <naskah.json> [--no-voice]` | buat klip animasi dari naskah buatan tangan (tanpa LLM) |
+| `build-file <naskah.json>` | video final lengkap (suara+animasi+subtitle+musik) tanpa LLM |
+
+## Alur naskah
+
+1. **Penulis** meminta LLM membuat `script.json`. Hanya nama template/karakter/pose/objek dari
+   `ai_office/animation/catalog.yaml` yang diterima. Output yang tidak valid dikirim balik ke LLM
+   beserta pesan error (maks. `pipeline.max_llm_retries` = 2 kali).
+2. **Penasihat Keamanan** menilai naskah per kriteria di `safety_rubric.yaml` (LLM) **ditambah**
+   pemeriksaan otomatis (kata terlarang, link, email, nomor telepon, kalimat terlalu panjang).
+   Lulus hanya jika keduanya ok.
+3. Jika `revise`, naskah + alasan + saran dikirim balik ke Penulis (maks. 2 revisi). Jika masih
+   gagal, job berhenti di Gerbang 1 menunggu admin — juga di mode `full_auto`.
+
+## Konfigurasi
+
+- `config.yaml` – semua pengaturan (mode, durasi, LLM, suara, folder tujuan, dll.).
+- `safety_rubric.yaml` – rubrik keamanan anak + daftar kata terlarang (boleh diubah).
+- `content_profile.yaml` – profil konten channel (boleh diisi belakangan).
+- `.env` – rahasia (API key opsional, secret key sesi). Jangan di-commit.
+
+## Endpoint API (publik & hanya-baca)
 
 | Endpoint | Isi |
 |---|---|
@@ -70,13 +162,4 @@ Perintah CLI lainnya: `show <id>` (detail + log + review keamanan), `reject <id>
 | `GET /api/jobs/{id}` | status satu job |
 | `GET /api/events` | stream SSE: `snapshot`, `job_created`, `job_status`, `agent_state` |
 
-Belum ada endpoint yang mengubah data. Aksi admin lewat web baru tersedia di M6, dengan login.
-
-## Konfigurasi
-
-- `config.yaml` – semua pengaturan (mode, durasi, suara, LLM, folder tujuan, dll.).
-- `.env` – rahasia (API key opsional, secret key sesi). Jangan di-commit.
-- `content_profile.yaml` – profil konten channel (boleh diisi belakangan).
-
-Ubah `pipeline.mode` ke `full_auto` (atau `python -m ai_office.cli mode full_auto`) untuk
-melewati gerbang persetujuan. Gerbang hanya dilewati **jika review keamanan lulus**.
+Endpoint yang mengubah data (aksi admin lewat web) baru tersedia di M6, dengan login.

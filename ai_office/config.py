@@ -7,12 +7,14 @@ Validasi kontrak data antar-agent memakai pydantic (lihat `ai_office/schemas.py`
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import Path
 from typing import Any, Literal, TypeVar, get_type_hints
 
 PipelineMode = Literal["semi_auto", "full_auto"]
 VALID_MODES: tuple[str, ...] = ("semi_auto", "full_auto")
+LLM_PROVIDERS: tuple[str, ...] = ("ollama", "gemini")
 
 
 class ConfigError(ValueError):
@@ -55,14 +57,31 @@ class LLMConfig:
     model: str = "qwen2.5:7b"
     base_url: str = "http://127.0.0.1:11434"
     timeout_sec: float = 180.0
-    gemini_model: str = "gemini-2.0-flash"
+    temperature: float = 0.7
+    num_ctx: int = 8192
+    # Untuk model "thinking" (mis. qwen3): false = matikan mode berpikir. null = tidak dikirim.
+    think: bool | None = None
+    gemini_model: str = "gemini-flash-latest"
+
+
+@dataclass
+class SafetyConfig:
+    rubric_file: str = "safety_rubric.yaml"
+    temperature: float = 0.2
 
 
 @dataclass
 class VoiceConfig:
     engine: str = "edge-tts"
     voice: str = "id-ID-GadisNeural"
-    rate: str = "+0%"
+    rate: str = "-5%"            # kecepatan bicara, mis. "-10%" lebih lambat
+    pitch: str = "+0Hz"
+    pause_after_sec: float = 0.6  # jeda setelah narasi tiap scene (animasi tetap berjalan)
+    min_scene_sec: float = 2.0
+    loudness_lufs: float = -16.0  # target normalisasi volume (standar platform video)
+    sample_rate: int = 48000
+    max_retries: int = 2          # retry bila TTS gagal (mis. koneksi putus)
+    speedup_percent: int = 15     # dipakai bila total durasi melebihi video.max_duration_sec
 
 
 @dataclass
@@ -77,14 +96,39 @@ class VideoConfig:
 
 
 @dataclass
+class SubtitleConfig:
+    enabled: bool = True
+    font: str = "Fredoka,Baloo 2,Comic Sans MS,Arial"
+    font_size: int = 74
+    y_offset: int = 300          # jarak subtitle dari bawah layar (px)
+    text_color: str = "FFFFFF"   # heksa RRGGBB
+    outline_color: str = "3D2C4F"
+    highlight_color: str = "FFD43B"  # warna kata yang sedang diucapkan
+    max_chars_per_line: int = 22
+
+
+@dataclass
+class MusicConfig:
+    enabled: bool = True
+    bgm_dir: str = "data/bgm"    # isi sendiri musik bebas hak cipta (.mp3/.wav/.m4a/.ogg)
+    volume: float = 0.18         # volume dasar musik (0..1)
+    duck_volume: float = 0.07    # volume musik saat ada narasi (ducking)
+    fade_sec: float = 1.0
+
+
+@dataclass
 class DeliveryConfig:
     dest_dir: str = "~/Videos/AI-Office"
     open_folder: bool = True
 
 
+AGENT_NAMES: tuple[str, ...] = ("writer", "safety", "voice", "animator", "editor", "delivery")
+
+
 @dataclass
 class AgentsConfig:
-    use_fake: bool = True
+    # Agent yang masih memakai versi palsu (simulasi). Agent asli ditambahkan per milestone.
+    fake: list[str] = field(default_factory=lambda: ["delivery"])
     fake_delay_sec: float = 1.0
 
 
@@ -95,8 +139,11 @@ class AppConfig:
     pipeline: PipelineConfig = field(default_factory=PipelineConfig)
     content: ContentConfig = field(default_factory=ContentConfig)
     llm: LLMConfig = field(default_factory=LLMConfig)
+    safety: SafetyConfig = field(default_factory=SafetyConfig)
     voice: VoiceConfig = field(default_factory=VoiceConfig)
     video: VideoConfig = field(default_factory=VideoConfig)
+    subtitle: SubtitleConfig = field(default_factory=SubtitleConfig)
+    music: MusicConfig = field(default_factory=MusicConfig)
     delivery: DeliveryConfig = field(default_factory=DeliveryConfig)
     agents: AgentsConfig = field(default_factory=AgentsConfig)
     # Folder dasar untuk path relatif (folder tempat config.yaml berada)
@@ -137,6 +184,23 @@ class AppConfig:
         if not (0 < self.video.min_duration_sec <= self.video.target_duration_sec
                 <= self.video.max_duration_sec <= 60):
             raise ConfigError("durasi video harus: 0 < min <= target <= max <= 60")
+        if not isinstance(self.agents.fake, list) or any(
+                a not in AGENT_NAMES for a in self.agents.fake):
+            raise ConfigError(f"agents.fake hanya boleh berisi: {AGENT_NAMES}")
+        if self.llm.provider not in LLM_PROVIDERS:
+            raise ConfigError(f"llm.provider harus salah satu dari {LLM_PROVIDERS}")
+        if self.llm.think is not None and not isinstance(self.llm.think, bool):
+            raise ConfigError("llm.think harus true, false, atau null")
+        if not re.fullmatch(r"[+-]\d{1,3}%", self.voice.rate):
+            raise ConfigError("voice.rate harus berformat seperti '+0%' atau '-10%'")
+        if not re.fullmatch(r"[+-]\d{1,3}Hz", self.voice.pitch):
+            raise ConfigError("voice.pitch harus berformat seperti '+0Hz' atau '-5Hz'")
+        if self.voice.pause_after_sec < 0 or self.voice.min_scene_sec <= 0:
+            raise ConfigError("voice.pause_after_sec >= 0 dan voice.min_scene_sec > 0")
+
+    def resolve(self, p: str) -> Path:
+        """Path dari config (relatif terhadap folder config.yaml)."""
+        return self._resolve(p)
 
     @property
     def full_auto(self) -> bool:

@@ -43,5 +43,7 @@ class RoutedLLM(LLMProvider):
 
     def chat(self, messages: list[Message], json_schema: dict[str, Any] | None = None,
              temperature: float | None = None) -> str:
-        target = self.safety if "Penasihat Keamanan" in messages[0].content else self.writer
+        sys = messages[0].content
+        is_safety = "Penasihat Keamanan" in sys or "Child Safety Advisor" in sys
+        target = self.safety if is_safety else self.writer
         return target.chat(messages, json_schema, temperature)

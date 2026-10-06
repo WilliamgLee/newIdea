@@ -203,3 +203,69 @@ def test_safety_retries_invalid_review(config: AppConfig, job: Job) -> None:
 def test_rubric_file_is_valid() -> None:
     assert len(RUBRIC.ids) == 7
     assert RUBRIC.max_words_per_sentence == 12
+
+
+# ------------------------------------------------------------ bahasa (EN)
+EN_RUBRIC = load_rubric(ROOT / "safety_rubric_en.yaml")
+
+
+def test_english_rubric_valid() -> None:
+    assert "simple_language" in EN_RUBRIC.ids and "facts_correct" in EN_RUBRIC.ids
+    assert len(EN_RUBRIC.ids) == 7
+
+
+def en_review(verdict: str = "pass", bad: str | None = None) -> dict[str, Any]:
+    items = [{"criterion": c, "ok": c != bad, "reason": "bad" if c == bad else "ok"}
+             for c in EN_RUBRIC.ids]
+    return {"verdict": verdict, "items": items, "suggestions": [], "summary": "ok"}
+
+
+def test_writer_uses_english_prompt(config: AppConfig) -> None:
+    import json as _json
+
+    data = _json.loads((ROOT / "examples" / "colors_en.json").read_text(encoding="utf-8"))
+    llm = ScriptedLLM([data])
+    db = Database(config.db_path)
+    db.init()
+    job = db.create_job("learn colors", "3-6", "cheerful", "en")   # language en
+    ctx, _ = ctx_for(job, config)
+    WriterAgent(config, llm, load_catalog(), profile={}).run(ctx)
+    system = llm.calls[0]["messages"][0].content
+    assert "Scriptwriter" in system and "intro" in system        # prompt English
+    assert "Topic: learn colors" in llm.calls[0]["messages"][1].content
+
+
+def test_safety_uses_english_rubric_for_en_script(config: AppConfig) -> None:
+    import json as _json
+
+    data = _json.loads((ROOT / "examples" / "colors_en.json").read_text(encoding="utf-8"))
+    db = Database(config.db_path)
+    db.init()
+    job = db.create_job("learn colors", "3-6", "cheerful", "en")
+    ctx, _ = ctx_for(job, config, artifacts={"writer": {"script": data}})
+    llm = ScriptedLLM([en_review()])
+    report = SafetyAgent(config, llm).run(ctx)       # tanpa override rubric -> pilih per bahasa
+    assert report["verdict"] == "pass"
+    system = llm.calls[0]["messages"][0].content
+    assert "Child Safety Advisor" in system
+    assert {i["criterion"] for i in report["items"]} == set(EN_RUBRIC.ids)
+
+
+def test_autofix_fills_empty_text_and_fixes_intro_outro(config: AppConfig) -> None:
+    import copy as _copy
+
+    data = _copy.deepcopy(fake_script("colors", language="en"))
+    data["scenes"][0]["template"] = "show_object"      # salah: harusnya intro
+    data["scenes"][0]["params"]["items"] = []
+    data["scenes"][-1]["template"] = "show_object"     # salah: harusnya outro
+    data["scenes"][-1]["params"]["items"] = []
+    data["scenes"][1]["on_screen_text"] = ""           # kosong -> diisi otomatis
+    llm = ScriptedLLM([data])
+    db = Database(config.db_path)
+    db.init()
+    job = db.create_job("colors", "3-6", "cheerful", "en")
+    ctx, _ = ctx_for(job, config)
+    out = WriterAgent(config, llm, load_catalog(), profile={}).run(ctx)
+    scenes = out["script"]["scenes"]
+    assert scenes[0]["template"] == "intro" and scenes[-1]["template"] == "outro"
+    assert scenes[1]["on_screen_text"]                 # tidak kosong lagi

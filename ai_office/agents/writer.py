@@ -19,6 +19,15 @@ PROMPT_DIR = Path(__file__).with_name("prompts")
 LANGUAGE_NAMES = {"id": "Bahasa Indonesia", "en": "English"}
 
 
+def load_prompt_template(prefix: str, language: str) -> Template:
+    """Pilih prompt sesuai bahasa (mis. writer_system_en.md), fallback ke English."""
+    for lang in (language, "en"):
+        path = PROMPT_DIR / f"{prefix}_{lang}.md"
+        if path.exists():
+            return Template(path.read_text(encoding="utf-8"))
+    raise FileNotFoundError(f"Prompt {prefix} tidak ditemukan untuk bahasa {language}")
+
+
 def load_content_profile(config: AppConfig) -> dict[str, Any]:
     path = config.resolve(config.content.profile_file)
     if not path.exists():
@@ -46,6 +55,28 @@ def _profile_text(profile: dict[str, Any]) -> str:
     return ("\nPROFIL CHANNEL\n" + "\n".join(lines) + "\n") if lines else ""
 
 
+def _autofix_scenes(scenes: list[Any]) -> None:
+    """Jaring pengaman untuk kesalahan kecil LLM yang aman diperbaiki otomatis:
+    - teks layar kosong -> isi dari 1-2 kata pertama narasi.
+    - scene pertama/terakhir salah template -> paksa intro/outro HANYA jika tanpa items
+      (menata objek bukan urusan intro/outro, jadi tidak merusak konten).
+    """
+    import re as _re
+
+    for i, sc in enumerate(scenes):
+        if not isinstance(sc, dict):
+            continue
+        if not str(sc.get("on_screen_text") or "").strip():
+            words = _re.findall(r"[\w'-]+", str(sc.get("narration", "")))
+            sc["on_screen_text"] = " ".join(words[:2])[:40] or "..."
+        params = sc.get("params") or {}
+        no_items = not params.get("items")
+        if i == 0 and sc.get("template") not in ("intro",) and no_items:
+            sc["template"] = "intro"
+        if i == len(scenes) - 1 and sc.get("template") not in ("outro",) and no_items:
+            sc["template"] = "outro"
+
+
 class WriterAgent(Agent):
     name = AgentName.WRITER
 
@@ -55,7 +86,6 @@ class WriterAgent(Agent):
         self.provider = provider
         self.catalog = catalog
         self.profile = profile if profile is not None else load_content_profile(config)
-        self._template = Template((PROMPT_DIR / "writer_system.md").read_text(encoding="utf-8"))
         self._schema = script_json_schema(catalog)
 
     def is_available(self) -> bool:
@@ -64,7 +94,8 @@ class WriterAgent(Agent):
     # ------------------------------------------------------------ prompt
     def system_prompt(self, ctx: AgentContext) -> str:
         v = self.config.video
-        return self._template.substitute(
+        template = load_prompt_template("writer_system", ctx.job.language)
+        return template.substitute(
             age_group=ctx.job.age_group,
             language=ctx.job.language,
             language_name=LANGUAGE_NAMES.get(ctx.job.language, ctx.job.language),
@@ -77,17 +108,31 @@ class WriterAgent(Agent):
         )
 
     def user_prompt(self, ctx: AgentContext) -> str:
-        text = (f"Topik: {ctx.job.topic}\nUsia penonton: {ctx.job.age_group} tahun\n"
-                f"Gaya: {ctx.job.style}\n\nTulis naskahnya sekarang.")
+        en = ctx.job.language == "en"
+        if en:
+            text = (f"Topic: {ctx.job.topic}\nAudience age: {ctx.job.age_group}\n"
+                    f"Style: {ctx.job.style}\n\nWrite the script now.")
+        else:
+            text = (f"Topik: {ctx.job.topic}\nUsia penonton: {ctx.job.age_group} tahun\n"
+                    f"Gaya: {ctx.job.style}\n\nTulis naskahnya sekarang.")
         if not ctx.feedback:
             return text
         previous = (ctx.artifacts.get(AgentName.WRITER.value) or {}).get("script")
         problems = [f"- [{i['criterion']}] {i['reason']}"
                     for i in ctx.feedback.get("items", []) if not i.get("ok")]
         suggestions = [f"- {s}" for s in ctx.feedback.get("suggestions", [])]
+        prev_json = json.dumps(previous, ensure_ascii=False)
+        if en:
+            return (
+                f"{text}\n\nREVISION: the previous script did not pass the child-safety review.\n"
+                f"Previous script:\n{prev_json}\n\n"
+                "Problems found:\n" + ("\n".join(problems) or "- (not detailed)") +
+                "\n\nSuggested fixes:\n" + ("\n".join(suggestions) or "- (none)") +
+                "\n\nRewrite the COMPLETE script fixing all the problems above."
+            )
         return (
             f"{text}\n\nREVISI: naskah sebelumnya belum lolos review keamanan anak.\n"
-            f"Naskah sebelumnya:\n{json.dumps(previous, ensure_ascii=False)}\n\n"
+            f"Naskah sebelumnya:\n{prev_json}\n\n"
             "Masalah yang ditemukan:\n" + ("\n".join(problems) or "- (tidak dirinci)") +
             "\n\nSaran perbaikan:\n" + ("\n".join(suggestions) or "- (tidak ada)") +
             "\n\nTulis ulang naskah LENGKAP yang sudah memperbaiki semua masalah di atas."
@@ -102,6 +147,7 @@ class WriterAgent(Agent):
             data["language"] = ctx.job.language
             scenes = data.get("scenes")
             if isinstance(scenes, list):
+                _autofix_scenes(scenes)
                 try:
                     data["total_duration_sec"] = round(
                         sum(float(s["duration_sec"]) for s in scenes), 2)

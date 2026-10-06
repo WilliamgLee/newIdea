@@ -6,7 +6,6 @@ import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from string import Template
 from typing import Any
 
 from ..config import AppConfig
@@ -190,38 +189,62 @@ class SafetyAgent(Agent):
                  rubric: Rubric | None = None) -> None:
         self.config = config
         self.provider = provider
-        self.rubric = rubric or load_rubric(config.resolve(config.safety.rubric_file))
-        self._template = Template((PROMPT_DIR / "safety_system.md").read_text(encoding="utf-8"))
+        self._rubric_override = rubric
+        self._rubric_cache: dict[str, Rubric] = {}
+
+    def _rubric_for(self, language: str) -> Rubric:
+        """Rubrik sesuai bahasa: safety_rubric_<lang>.yaml bila ada, selain itu rubric_file config.
+
+        Penting: kriteria LLM dan automated_checks diambil dari file yang sama, jadi id-nya
+        selalu konsisten (English vs Indonesia tidak akan tercampur).
+        """
+        if self._rubric_override is not None:
+            return self._rubric_override
+        if language in self._rubric_cache:
+            return self._rubric_cache[language]
+        base = self.config.resolve(self.config.safety.rubric_file)
+        lang_file = base.with_name(f"safety_rubric_{language}.yaml")
+        path = lang_file if lang_file.exists() else base
+        rubric = load_rubric(path)
+        self._rubric_cache[language] = rubric
+        return rubric
 
     def is_available(self) -> bool:
         return self.provider.is_available()
 
-    def system_prompt(self, age_group: str) -> str:
-        rubric = "\n".join(f"- {c.id}: {c.description}" for c in self.rubric.criteria)
-        return self._template.substitute(age_group=age_group, rubric=rubric)
+    def system_prompt(self, age_group: str, language: str = "en") -> str:
+        from .writer import load_prompt_template
+
+        template = load_prompt_template("safety_system", language)
+        rubric_obj = self._rubric_for(language)
+        rubric = "\n".join(f"- {c.id}: {c.description}" for c in rubric_obj.criteria)
+        return template.substitute(age_group=age_group, rubric=rubric)
 
     def run(self, ctx: AgentContext) -> dict[str, Any]:
         raw_script = (ctx.artifacts.get(AgentName.WRITER.value) or {}).get("script")
         if not raw_script:
             raise AgentError("Naskah belum ada untuk ditinjau")
         script = Script.model_validate(raw_script)
+        rubric = self._rubric_for(script.language)
 
-        flags = automated_checks(script, self.rubric)
+        flags = automated_checks(script, rubric)
         if flags:
             ctx.log(f"Pemeriksaan otomatis menemukan {len(flags)} masalah")
 
         ctx.log(f"Meninjau naskah dengan {self.provider.name}:{self.provider.model}")
-        user = ("Tinjau naskah berikut:\n"
-                + json.dumps(raw_script, ensure_ascii=False, indent=2))
+        user = ("Review the following script:\n" if script.language == "en"
+                else "Tinjau naskah berikut:\n") + json.dumps(raw_script, ensure_ascii=False,
+                                                              indent=2)
         review, attempts = generate_structured(
             self.provider,
-            [Message("system", self.system_prompt(script.age_group)), Message("user", user)],
-            parse=lambda data: parse_safety_review(data, self.rubric.ids),
+            [Message("system", self.system_prompt(script.age_group, script.language)),
+             Message("user", user)],
+            parse=lambda data: parse_safety_review(data, rubric.ids),
             max_retries=self.config.pipeline.max_llm_retries,
             temperature=self.config.safety.temperature,
             log=ctx.log,
         )
-        report = merge_review(review, flags, self.rubric)
+        report = merge_review(review, flags, rubric)
         failed = [i.criterion for i in report.items if not i.ok]
         ctx.log(f"Hasil review: {report.verdict}"
                 + (f" (belum ok: {', '.join(failed)})" if failed else "")

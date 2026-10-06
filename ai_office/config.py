@@ -81,6 +81,9 @@ class XTTSConfig:
     temperature: float = 0.7
     # Lepaskan model dari VRAM setelah tiap job agar bisa bergantian dengan Ollama di GPU 6 GB.
     unload_after_job: bool = True
+    # Pasang matplotlib tiruan agar XTTS tidak mengimpor matplotlib asli (atasi blokir
+    # Smart App Control di Windows pada DLL ft2font). Matplotlib tidak dipakai saat inference.
+    stub_matplotlib: bool = True
 
 
 @dataclass

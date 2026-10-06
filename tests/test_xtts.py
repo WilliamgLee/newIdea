@@ -63,6 +63,64 @@ def test_build_engine_selects_xtts() -> None:
     assert isinstance(build_engine(cfg.voice), XTTSEngine)
 
 
+def test_stub_matplotlib_installs_fake_when_absent(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Stub matplotlib dipasang hanya bila matplotlib asli tak bisa di-import (mis. diblokir)."""
+    import builtins
+
+    from ai_office.tts.xtts import _stub_matplotlib
+
+    for mod in ("matplotlib", "matplotlib.pyplot"):
+        monkeypatch.delitem(sys.modules, mod, raising=False)
+
+    real_import = builtins.__import__
+
+    def blocked(name, *a, **k):
+        if name == "matplotlib" or name.startswith("matplotlib."):
+            raise ImportError("Application Control policy has blocked this file")
+        return real_import(name, *a, **k)
+
+    monkeypatch.setattr(builtins, "__import__", blocked)
+    _stub_matplotlib()
+    monkeypatch.setattr(builtins, "__import__", real_import)
+
+    assert sys.modules["matplotlib"].__version__ == "0.0.0-stub"
+    import matplotlib.pyplot as plt
+
+    assert plt.plot([1, 2], [3, 4]) is None   # no-op, tidak error
+    for mod in ("matplotlib", "matplotlib.pyplot"):
+        monkeypatch.delitem(sys.modules, mod, raising=False)
+
+
+def test_load_reports_real_import_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Pesan error memuat penyebab asli, bukan selalu 'belum terpasang'."""
+    eng = XTTSEngine(XTTSConfig(stub_matplotlib=False))
+    fake_tts = types.ModuleType("TTS")
+    fake_api = types.ModuleType("TTS.api")
+
+    def boom():
+        raise ImportError("Application Control policy has blocked ft2font")
+
+    class _Loader:
+        def __getattr__(self, name):
+            boom()
+
+    monkeypatch.setitem(sys.modules, "TTS", fake_tts)
+    # buat 'from TTS.api import TTS' meledak
+    monkeypatch.setitem(sys.modules, "TTS.api", fake_api)
+    monkeypatch.setattr(fake_api, "TTS", property(lambda self: boom()), raising=False)
+
+    def fake_import(name, *a, **k):
+        if name == "TTS.api":
+            raise ImportError("Application Control policy has blocked ft2font")
+        return __import__(name, *a, **k)
+
+    import builtins
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    with pytest.raises(TTSError, match="ft2font|Gagal mengimpor"):
+        eng._load()
+
+
 def test_is_available_reflects_package(monkeypatch: pytest.MonkeyPatch) -> None:
     import importlib.util
 

@@ -48,13 +48,21 @@ XTTS berjalan lokal tanpa internet dan bisa meniru suara (voice cloning), tapi b
 ```powershell
 py -3.11 -m venv .venv-xtts
 .venv-xtts\Scripts\Activate.ps1
-pip install -r requirements.txt -r requirements-xtts.txt
-# GPU (disarankan): pasang PyTorch CUDA dulu
-pip install torch --index-url https://download.pytorch.org/whl/cu124
+pip install -r requirements.txt
+# GPU (disarankan): torch DAN torchaudio versi CUDA
+pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124
+pip install -r requirements-xtts.txt
+python -m playwright install chromium
 ```
 
 Lalu di `config.yaml` set `voice.engine: xtts`. Pengaturan ada di `voice.xtts` (bahasa,
 `speaker` bawaan, atau `speaker_wav` berisi contoh suara 6-15 detik untuk cloning, device).
+
+**Windows + Smart App Control:** DLL matplotlib (`ft2font`) kadang diblokir dan menggagalkan
+impor XTTS. Kode otomatis memasang matplotlib tiruan (`voice.xtts.stub_matplotlib: true`);
+matplotlib tidak dipakai saat membuat suara, jadi ini aman. Jika tetap bermasalah, pakai
+edge-tts. **Versi paket** yang terbukti jalan sudah dikunci di `requirements-xtts.txt`
+(transformers 4.56.2; torch+torchaudio dari index cu124).
 
 **VRAM 6 GB (RTX 4050):** Ollama (LLM) dan XTTS tidak muat bersamaan. Sistem otomatis
 melepas Ollama dari VRAM sebelum tahap suara (`keep_alive=0`), dan melepas XTTS setelah

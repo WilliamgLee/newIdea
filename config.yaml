@@ -58,6 +58,7 @@ voice:
     device: auto             # auto | cuda | cpu
     temperature: 0.7
     unload_after_job: true   # lepaskan dari VRAM tiap job agar bergantian dengan Ollama
+    stub_matplotlib: true    # hindari impor matplotlib (atasi blokir Smart App Control Windows)
 
 video:
   width: 1080

@@ -23,6 +23,45 @@ from .base import SynthResult, TTSEngine, TTSError
 log = logging.getLogger(__name__)
 
 
+def _stub_matplotlib() -> None:
+    """Pasang modul matplotlib tiruan agar XTTS tidak mengimpor matplotlib asli.
+
+    XTTS-v2 menarik matplotlib lewat modul vocoder yang TIDAK dipakai saat membuat suara.
+    Di sebagian Windows (Smart App Control), DLL matplotlib (ft2font) diblokir dan menggagalkan
+    impor TTS. Stub ini hanya aktif bila matplotlib belum ter-load, dan hanya menyediakan API
+    minimal yang disentuh XTTS (pyplot.*). Tidak memengaruhi grafik apa pun di runtime kita.
+    """
+    import sys
+    import types
+
+    if "matplotlib" in sys.modules:
+        return
+    try:
+        import matplotlib  # noqa: F401
+
+        return  # matplotlib asli bisa di-import, tidak perlu stub
+    except Exception:  # noqa: BLE001
+        log.info("matplotlib tidak bisa di-import (mungkin diblokir); memakai stub untuk XTTS")
+
+    mpl = types.ModuleType("matplotlib")
+    mpl.__version__ = "0.0.0-stub"
+    mpl.use = lambda *a, **k: None
+
+    def _noop(*a, **k):
+        return None
+
+    pyplot = types.ModuleType("matplotlib.pyplot")
+    for fn in ("plot", "figure", "subplots", "close", "savefig", "imshow", "colorbar",
+               "title", "xlabel", "ylabel", "tight_layout", "clf", "cla", "legend",
+               "scatter", "bar", "xticks", "yticks", "pcolor", "pcolormesh"):
+        setattr(pyplot, fn, _noop)
+    pyplot.gcf = lambda *a, **k: types.SimpleNamespace(canvas=types.SimpleNamespace(
+        draw=_noop, tostring_rgb=lambda: b""))
+    mpl.pyplot = pyplot
+    sys.modules["matplotlib"] = mpl
+    sys.modules["matplotlib.pyplot"] = pyplot
+
+
 def _resolve_device(pref: str) -> str:
     if pref in ("cuda", "cpu"):
         return pref
@@ -55,12 +94,18 @@ class XTTSEngine(TTSEngine):
     def _load(self):
         if self._tts is not None:
             return self._tts
+        if self.cfg.stub_matplotlib:
+            _stub_matplotlib()
         try:
             from TTS.api import TTS
+        except ModuleNotFoundError as exc:
+            raise TTSError(
+                f"Paket XTTS belum lengkap (modul hilang: {exc.name}). "
+                "Jalankan: pip install -r requirements-xtts.txt (butuh Python 3.11, lihat README)."
+            ) from exc
         except Exception as exc:
             raise TTSError(
-                "Paket XTTS belum terpasang. Jalankan: pip install -r requirements-xtts.txt "
-                "(butuh Python 3.11, lihat README)."
+                f"Gagal mengimpor XTTS: {type(exc).__name__}: {exc}. Lihat README bagian XTTS."
             ) from exc
         self._device = _resolve_device(self.cfg.device)
         log.info("Memuat XTTS (%s) di %s", self.cfg.model, self._device)

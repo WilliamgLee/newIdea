@@ -117,15 +117,37 @@ def test_ollama_not_running() -> None:
     assert p.is_available() is False
 
 
-def test_ollama_release_unloads_model() -> None:
-    seen: dict[str, Any] = {}
+def test_ollama_release_unloads_and_waits() -> None:
+    calls: list[str] = []
 
     def handler(req: httpx.Request) -> httpx.Response:
-        seen.update(path=req.url.path, body=json.loads(req.content))
-        return httpx.Response(200, json={})
+        calls.append(req.url.path)
+        if req.url.path == "/api/generate":
+            assert json.loads(req.content)["keep_alive"] == 0
+            return httpx.Response(200, json={})
+        # /api/ps: pura-pura model sudah tidak termuat
+        return httpx.Response(200, json={"models": []})
 
-    ollama_with(handler).release()
-    assert seen["path"] == "/api/generate" and seen["body"]["keep_alive"] == 0
+    ollama_with(handler).release(wait_sec=5)
+    assert "/api/generate" in calls and "/api/ps" in calls   # minta lepas lalu cek
+
+
+def test_ollama_release_waits_until_gone(monkeypatch: pytest.MonkeyPatch) -> None:
+    import ai_office.llm.ollama as mod
+
+    monkeypatch.setattr(mod.time, "sleep", lambda s: None)
+    state = {"n": 0}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/api/generate":
+            return httpx.Response(200, json={})
+        state["n"] += 1
+        # dua kali pertama model masih termuat, lalu hilang
+        models = [{"name": "qwen2.5:7b"}] if state["n"] < 3 else []
+        return httpx.Response(200, json={"models": models})
+
+    ollama_with(handler).release(wait_sec=30)
+    assert state["n"] >= 3
 
 
 def test_ollama_release_is_best_effort() -> None:

@@ -32,7 +32,7 @@ llm:
   timeout_sec: 300
   temperature: 0.7
   num_ctx: 8192
-  keep_alive: "5m"         # model tetap di VRAM antar panggilan (hindari reload saat loop revisi)
+  keep_alive: "2m"         # model tetap di VRAM antar panggilan; dilepas paksa sebelum tahap suara (XTTS)
   think: null              # untuk model "thinking" (mis. qwen3) isi false agar lebih cepat
   gemini_model: gemini-flash-latest   # hanya dipakai jika provider: gemini (butuh GEMINI_API_KEY)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import httpx
@@ -62,16 +63,26 @@ class OllamaProvider(LLMProvider):
             raise LLMError("Respons Ollama tidak berisi teks")
         return content
 
-    def release(self) -> None:
-        """Minta Ollama melepas model dari VRAM (keep_alive=0), agar GPU bisa dipakai TTS.
-
-        Berguna di GPU kecil (mis. 6 GB) saat memakai XTTS yang juga butuh VRAM.
+    def release(self, wait_sec: float = 20.0) -> None:
+        """Minta Ollama melepas model dari VRAM (keep_alive=0), lalu tunggu sampai benar-benar
+        terlepas. Penting di GPU kecil (6 GB) agar XTTS punya ruang VRAM dan tidak timeout.
         """
         try:
             self._client.post("/api/generate",
-                              json={"model": self.model, "keep_alive": 0})
+                              json={"model": self.model, "keep_alive": 0}, timeout=10.0)
         except httpx.HTTPError:
-            pass  # best-effort
+            return  # best-effort
+        # tunggu model benar-benar hilang dari daftar yang termuat
+        deadline = time.monotonic() + wait_sec
+        while time.monotonic() < deadline:
+            try:
+                resp = self._client.get("/api/ps", timeout=5.0)
+                loaded = {m.get("name", "") for m in resp.json().get("models", [])}
+            except (httpx.HTTPError, ValueError):
+                return
+            if not any(self.model in name or name in self.model for name in loaded):
+                return
+            time.sleep(1.0)
 
     def is_available(self) -> bool:
         try:

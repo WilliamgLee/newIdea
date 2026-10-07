@@ -6,7 +6,15 @@ requires-python = ">=3.11"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+filterwarnings = [
+    # peringatan internal Starlette/FastAPI TestClient, tidak memengaruhi aplikasi
+    "ignore:.*starlette.testclient.*",
+]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI memakai Depends()/Body() sebagai default argumen (idiom resmi framework)
+"ai_office/web/api.py" = ["B008"]

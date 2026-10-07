@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Office - Admin</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>AI Office - Panel Admin</h1>
+
+  <!-- Login -->
+  <section id="login-view" hidden>
+    <h2>Masuk</h2>
+    <form id="login-form">
+      <p><label>Username <input id="username" autocomplete="username" required></label></p>
+      <p><label>Password <input id="password" type="password" autocomplete="current-password" required></label></p>
+      <p><button type="submit">Masuk</button></p>
+      <p id="login-error" class="error"></p>
+    </form>
+    <p id="no-admin" class="muted" hidden>
+      Admin belum dibuat. Jalankan <code>python scripts/set_admin.py</code> di terminal dulu.
+    </p>
+  </section>
+
+  <!-- Panel -->
+  <section id="admin-view" hidden>
+    <p>
+      <button id="logout">Keluar</button>
+      Mode:
+      <select id="mode">
+        <option value="semi_auto">semi_auto (2 gerbang persetujuan)</option>
+        <option value="full_auto">full_auto (lewati gerbang jika review lulus)</option>
+      </select>
+    </p>
+
+    <h2>Buat job baru</h2>
+    <form id="create-form">
+      <input id="topic" placeholder="topik, mis. animal sounds" required>
+      <input id="age" placeholder="usia (3-6)" size="6">
+      <input id="style" placeholder="gaya (cheerful)" size="10">
+      <button type="submit">Buat</button>
+      <span id="create-msg" class="muted"></span>
+    </form>
+
+    <h2>Job</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="jobs"></tbody>
+    </table>
+
+    <div id="detail"></div>
+  </section>
+
+  <script src="/static/admin.js"></script>
+</body>
+</html>

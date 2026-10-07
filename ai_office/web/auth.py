@@ -222,6 +222,11 @@ class AuthService:
             self.limiter.reset(rate_key)
             return self.sessions.create()
         self.limiter.record_failure(rate_key)
+        import logging as _log
+        _log.getLogger(__name__).warning(
+            "Login gagal: admin_ada=%s username_cocok=%s password_cocok=%s "
+            "(username diterima panjang=%d, password diterima panjang=%d)",
+            bool(data), ok_user, ok_pass, len(username), len(password))
         raise AuthError("Username atau password salah.")
 
     def is_authenticated(self, session_token: str | None) -> bool:

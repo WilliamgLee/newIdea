@@ -1,0 +1,59 @@
+{
+  "title": "Let's Learn Colors!",
+  "age_group": "3-6",
+  "language": "en",
+  "total_duration_sec": 30,
+  "hook": "What color do you like?",
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "What color do you like? Hi, I am Kiki!",
+      "on_screen_text": "Hello!",
+      "duration_sec": 4,
+      "template": "intro",
+      "params": {"character": "kiki", "pose": "wave", "emotion": "excited", "background": "garden", "items": []}
+    },
+    {
+      "id": 2,
+      "narration": "Look, this is an apple. The apple is red. Red!",
+      "on_screen_text": "Red",
+      "duration_sec": 5,
+      "template": "show_object",
+      "params": {"character": "kiki", "pose": "point", "emotion": "happy", "background": "garden", "items": ["apel"], "color": "merah"}
+    },
+    {
+      "id": 3,
+      "narration": "This is a banana. The banana is yellow. Yellow!",
+      "on_screen_text": "Yellow",
+      "duration_sec": 5,
+      "template": "show_object",
+      "params": {"character": "kiki", "pose": "point", "emotion": "happy", "background": "garden", "items": ["pisang"], "color": "kuning"}
+    },
+    {
+      "id": 4,
+      "narration": "Let's count the blue balloons. One, two, three!",
+      "on_screen_text": "3 blue",
+      "duration_sec": 6,
+      "template": "count_objects",
+      "params": {"character": "kiki", "pose": "clap", "emotion": "excited", "background": "sky", "items": ["balon"], "count": 3, "color": "biru"}
+    },
+    {
+      "id": 5,
+      "narration": "Can you guess what is green? Yes, a frog!",
+      "on_screen_text": "Guess!",
+      "duration_sec": 6,
+      "template": "guess",
+      "params": {"character": "kiki", "pose": "think", "emotion": "thinking", "background": "garden", "items": ["katak"], "color": "hijau"}
+    },
+    {
+      "id": 6,
+      "narration": "Great job! You know your colors. See you soon!",
+      "on_screen_text": "Great!",
+      "duration_sec": 4,
+      "template": "outro",
+      "params": {"character": "kiki", "pose": "jump", "emotion": "happy", "background": "garden", "items": []}
+    }
+  ],
+  "learning_goal": "Children learn the colors red, yellow, blue, and green.",
+  "hashtags": ["#Shorts", "#LearnColors", "#KidsLearning"]
+}

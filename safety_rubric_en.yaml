@@ -1,0 +1,54 @@
+# Child Safety Advisor rubric (English content). Edit to fit your channel.
+#
+# - `criteria`: judged by the LLM one by one (ok / not ok + reason). `id` is the key; keep unique.
+# - `automated_checks`: fast, certain checks without the LLM. Words matched whole-word,
+#   case-insensitive.
+
+criteria:
+  - id: simple_language
+    description: >
+      Simple, age-appropriate language. Short sentences, everyday words, correct and natural
+      English grammar, no hard terms without explanation.
+  - id: no_violence_or_scary
+    description: >
+      No violence, demonstrated danger, or anything scary (ghosts, monsters, blood, threats,
+      creepy mood).
+  - id: no_adult_themes
+    description: >
+      No adult themes: romance, sexual content, drugs, alcohol, smoking, gambling, politics,
+      or other sensitive topics.
+  - id: no_personal_data_brands_ads
+    description: >
+      No personal data (real people's full names, addresses, phone numbers, schools), no
+      brands/products, and no hidden advertising.
+  - id: facts_correct
+    description: >
+      All factual claims are correct and not misleading. Check one by one: (1) animal sounds
+      use common English onomatopoeia (dog "woof", cat "meow", cow "moo", chicken "cluck",
+      duck "quack", bird "tweet", frog "ribbit"); (2) object color (params.color) must make
+      sense for the object; a yellow cow or purple dog is wrong; (3) any `count` matches the
+      number said in the narration.
+  - id: positive_educational
+    description: >
+      Positive, warm, educational message. There is something the child clearly learns.
+  - id: no_manipulation
+    description: >
+      No manipulative calls to action: telling kids to subscribe/like/click, buy something,
+      nag parents, scare them into watching, or emotional pressure.
+
+automated_checks:
+  max_words_per_sentence: 12
+  # criterion -> list of banned words/phrases
+  banned_words:
+    no_violence_or_scary:
+      [blood, kill, killed, ghost, demon, monster, gun, weapon, knife, fight, hit, scary,
+       creepy, dead]
+    no_adult_themes:
+      [cigarette, smoking, alcohol, beer, drunk, gambling, drugs, boyfriend, girlfriend, kiss]
+    no_personal_data_brands_ads:
+      [ad, promo, discount, sponsor]
+    no_manipulation:
+      [subscribe, "like and share", click, buy, "ask mom", "ask dad", "ask your mom",
+       "ask your dad"]
+  brands: []
+  detect_contact_info: true

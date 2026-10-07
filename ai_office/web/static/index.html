@@ -7,22 +7,29 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <!-- Tampilan status publik. Kantor 2.5D isometrik dibuat di M7. -->
-  <h1>AI Office <a href="/admin" class="muted" style="font-size:.5em">[admin]</a></h1>
-  <p id="conn" class="muted">menghubungkan…</p>
+  <header class="topbar">
+    <h1>AI Office</h1>
+    <span id="conn" class="muted">menghubungkan…</span>
+    <a href="/admin" class="admin-link">Panel Admin</a>
+  </header>
 
-  <h2>Agent</h2>
-  <ul id="agents"></ul>
+  <!-- Kantor 2.5D isometrik: tiap agent di mejanya, status real-time via SSE -->
+  <div id="office-wrap">
+    <canvas id="office"></canvas>
+  </div>
 
-  <h2>Ringkasan</h2>
-  <ul id="summary"></ul>
+  <section class="summary-bar">
+    <ul id="summary"></ul>
+  </section>
 
-  <h2>Job terbaru</h2>
-  <table>
-    <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th></tr></thead>
-    <tbody id="jobs"></tbody>
-  </table>
+  <section class="videos">
+    <h2>Video selesai</h2>
+    <table>
+      <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Durasi</th></tr></thead>
+      <tbody id="jobs"></tbody>
+    </table>
+  </section>
 
-  <script src="/static/app.js"></script>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>

@@ -1,30 +1,15 @@
-// M0: dashboard status sederhana (hanya-baca) via SSE.
+// Dashboard publik: kantor 2.5D (office.js) + ringkasan + daftar video, real-time via SSE.
 "use strict";
 
-const STATE_LABEL = {
-  working: "sedang kerja",
-  just_done: "baru selesai",
-  idle: "santai",
-  offline: "offline",
-};
+import { Office } from "/static/office.js";
 
-function el(tag, text, cls) {
+const office = new Office(document.getElementById("office"));
+office.start();
+
+function el(tag, text) {
   const e = document.createElement(tag);
   if (text !== undefined) e.textContent = text; // textContent: aman dari XSS
-  if (cls) e.className = cls;
   return e;
-}
-
-const agents = {};
-
-function renderAgents() {
-  const ul = document.getElementById("agents");
-  ul.replaceChildren();
-  Object.values(agents).forEach((a) => {
-    const li = el("li");
-    li.append(el("span", STATE_LABEL[a.state] || a.state, `state state-${a.state}`), " ", a.label);
-    ul.append(li);
-  });
 }
 
 function renderSummary(s) {
@@ -46,7 +31,12 @@ async function refreshJobs() {
   tbody.replaceChildren();
   (await res.json()).forEach((j) => {
     const tr = el("tr");
-    tr.append(el("td", String(j.id)), el("td", j.title || j.topic), el("td", j.status));
+    tr.append(
+      el("td", String(j.id)),
+      el("td", j.title || j.topic),
+      el("td", j.status),
+      el("td", j.duration_sec != null ? `${j.duration_sec}s` : "-"),
+    );
     tbody.append(tr);
   });
 }
@@ -55,8 +45,7 @@ async function refreshStatus() {
   const res = await fetch("/api/status");
   if (!res.ok) return;
   const data = await res.json();
-  data.agents.forEach((a) => (agents[a.agent] = a));
-  renderAgents();
+  office.setStates(data.agents);
   renderSummary(data.summary);
 }
 
@@ -68,15 +57,13 @@ function connect() {
 
   es.addEventListener("snapshot", (e) => {
     const { data } = JSON.parse(e.data);
-    data.agents.forEach((a) => (agents[a.agent] = a));
-    renderAgents();
+    office.setStates(data.agents);
     renderSummary(data.summary);
     refreshJobs();
   });
   es.addEventListener("agent_state", (e) => {
     const { data } = JSON.parse(e.data);
-    agents[data.agent] = data;
-    renderAgents();
+    office.setStates([data]);
   });
   ["job_status", "job_created"].forEach((type) =>
     es.addEventListener(type, () => {
@@ -86,6 +73,7 @@ function connect() {
   );
 }
 
-// status "baru selesai" berubah jadi "santai" setelah beberapa detik
 setInterval(refreshStatus, 5000);
+refreshStatus();
+refreshJobs();
 connect();

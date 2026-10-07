@@ -1,15 +1,59 @@
 # AI Office
 
-Sistem multi-agent lokal untuk membuat video YouTube Shorts edukasi anak (1080x1920, ±30 detik),
-lengkap dengan dashboard "kantor" yang menampilkan status tiap agent.
+Sistem **multi-agent lokal** untuk membuat video **YouTube Shorts edukasi anak** secara otomatis
+(vertikal 1080x1920, sekitar 30 detik), lengkap dengan **dashboard "kantor" 2.5D** yang
+menampilkan status tiap agent secara real-time.
 
-> **Status: M6.** Keenam agent asli, plus dashboard web dengan **panel admin berpassword**
-> (buat job, approve/tolak dua gerbang, lihat log & review). Tersisa M7 (kantor 2.5D + poles).
-> README lengkap di M7.
+Enam "pegawai" AI bekerja berurutan. Semua berjalan di komputermu sendiri dan **gratis**
+(pembuatan video sehari-hari tidak memanggil API berbayar):
 
-## Instalasi (Windows 11)
+```
+topik -> Penulis Naskah -> Penasihat Keamanan -> [Gerbang 1]
+      -> Pengisi Suara -> Pembuat Animasi -> Editor -> [Gerbang 2] -> Pengirim -> video.mp4
+```
 
-Prasyarat: Python 3.11+ (dites dengan 3.11 dan 3.14) dan Git.
+---
+
+## Daftar isi
+1. [Konsep singkat](#konsep-singkat)
+2. [Prasyarat](#prasyarat)
+3. [Instalasi langkah demi langkah](#instalasi-langkah-demi-langkah)
+4. [Membuat admin & menjalankan](#membuat-admin--menjalankan)
+5. [Membuat video](#membuat-video)
+6. [Pilihan suara (TTS)](#pilihan-suara-tts)
+7. [Konfigurasi](#konfigurasi)
+8. [Keamanan](#keamanan)
+9. [Membuka ke publik (opsional)](#membuka-ke-publik-opsional)
+10. [Menambah template, karakter, objek](#menambah-template-karakter-objek)
+11. [Struktur proyek](#struktur-proyek)
+12. [Testing & troubleshooting](#testing--troubleshooting)
+
+---
+
+## Konsep singkat
+
+- **Input**: sebuah topik (mis. "learn colors") + usia + gaya. Niche belum dikunci; isi
+  `content_profile.yaml` sesukamu.
+- **Proses**: LLM lokal menulis naskah → diperiksa rubrik keamanan anak → suara dibuat per scene
+  dengan timing per kata → animasi SVG dirender deterministik jadi klip → digabung dengan subtitle
+  (highlight per kata) + musik → disalin ke folder tujuan dan dibuka otomatis.
+- **Dua gerbang persetujuan** (mode `semi_auto`): setelah naskah, dan setelah video final.
+  Mode `full_auto` melewati gerbang **hanya jika** review keamanan lulus.
+- **Output**: `video.mp4` + `thumbnail.png` + `script.json` + `metadata.txt`.
+
+---
+
+## Prasyarat
+
+- **Windows 11** (dites), juga jalan di macOS/Linux.
+- **Python 3.11+** (dites 3.11 dan 3.14) dan **Git**.
+- **ffmpeg** (untuk suara, animasi, video).
+- **Ollama** (LLM lokal) — atau Gemini free tier.
+- Opsional: **GPU NVIDIA** (encoding NVENC & LLM/XTTS lebih cepat). Tanpa GPU tetap jalan di CPU.
+
+---
+
+## Instalasi langkah demi langkah
 
 ```powershell
 git clone https://github.com/WilliamgLee/newIdea.git
@@ -18,244 +62,202 @@ py -m venv .venv
 .venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+python -m playwright install chromium
 copy .env.example .env
 ```
 
-> Kalau PowerShell menolak menjalankan `Activate.ps1`, jalankan dulu sekali:
+> Jika PowerShell menolak `Activate.ps1`, jalankan sekali:
 > `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
+
+### ffmpeg
+
+```powershell
+winget install Gyan.FFmpeg
+```
+Tutup lalu buka PowerShell baru, cek: `ffmpeg -version`. (Varian "full" diperlukan agar NVENC
+tersedia; jika tidak, encoding otomatis memakai `libx264` di CPU.)
 
 ### Ollama (LLM lokal, gratis)
 
-1. Pasang Ollama: `winget install Ollama.Ollama` (atau unduh dari https://ollama.com/download).
-2. Tutup lalu buka PowerShell baru, unduh model default (±2 GB):
-   ```powershell
-   ollama pull qwen2.5:3b
-   ```
-3. Cek: `python -m ai_office.cli doctor` → writer & safety harus `siap`.
-
-> **VRAM 6 GB (RTX 4050):** `qwen2.5:3b` muat PENUH di GPU dan cepat. Hindari `qwen2.5:7b`
-> (5.4 GB) saat juga memakai XTTS: model bisa jatuh sebagian ke CPU dan membuat generate
+```powershell
+winget install Ollama.Ollama
+```
+Tutup lalu buka PowerShell baru, unduh model:
+```powershell
+ollama pull qwen2.5:3b
+```
+> **VRAM 6 GB (mis. RTX 4050):** `qwen2.5:3b` (±2 GB) muat PENUH di GPU dan cepat. Hindari
+> `qwen2.5:7b` saat juga memakai XTTS: model bisa jatuh sebagian ke CPU dan membuat generate
 > lambat/timeout. Cek beban dengan `ollama ps` (idealnya `100% GPU`).
 
-Ollama berjalan otomatis di latar (ikon di system tray). Model lain bisa dipakai dengan
-mengubah `llm.model` di `config.yaml`.
+Cek semua siap: `python -m ai_office.cli doctor`.
 
-**Opsional – Gemini free tier:** isi `GEMINI_API_KEY` di `.env`, lalu ubah `llm.provider: gemini`.
+**Opsional — Gemini free tier** (lebih pintar soal fakta, tidak memakai VRAM): isi
+`GEMINI_API_KEY` di `.env`, lalu set `llm.provider: gemini` di `config.yaml`.
 
-### Opsional: suara Coqui XTTS-v2 (lokal, kualitas tinggi)
+---
 
-> **Bahasa:** XTTS-v2 **tidak mendukung Bahasa Indonesia**. Bahasa yang didukung: en, es, fr,
-> de, it, pt, pl, tr, ru, nl, cs, ar, zh-cn, hu, ko, ja, hi. Untuk konten **English**, XTTS bagus;
-> untuk **Indonesia**, pakai edge-tts.
->
-> **Lisensi:** XTTS-v2 (CPML) **melarang penggunaan komersial**. Untuk channel yang
-> dimonetisasi, pakai edge-tts. XTTS cocok untuk pemakaian pribadi/belajar.
+## Membuat admin & menjalankan
 
-XTTS berjalan lokal tanpa internet dan bisa meniru suara (voice cloning), tapi berat
-(~2 GB model, ~4 GB VRAM) dan belum mendukung Python 3.14. Pakai venv Python 3.11 terpisah:
-
+Buat kredensial admin (interaktif; password tidak tampil, hanya **hash argon2id** disimpan):
 ```powershell
-py -3.11 -m venv .venv-xtts
-.venv-xtts\Scripts\Activate.ps1
-pip install -r requirements.txt
-# GPU (disarankan): torch DAN torchaudio versi CUDA
-pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124
-pip install -r requirements-xtts.txt
-python -m playwright install chromium
+python scripts/set_admin.py
 ```
 
-Lalu di `config.yaml` set `voice.engine: xtts` dan pastikan `content.language` serta
-`voice.xtts.language` **bukan `id`** (mis. `en`). Coba dengan naskah Inggris:
+Jalankan semuanya dengan **satu perintah**:
 ```powershell
-python -m ai_office.cli build-file examples/colors_en.json
+python run.py            # tamb. --open untuk membuka browser otomatis
 ```
-Pengaturan XTTS ada di `voice.xtts` (bahasa, `speaker` bawaan, atau `speaker_wav` berisi contoh
-suara 6-15 detik untuk voice cloning, device).
+- Dashboard publik (kantor 2.5D, hanya-baca): http://127.0.0.1:8000
+- Panel admin (wajib login): http://127.0.0.1:8000/admin
 
-**Windows + Smart App Control:** DLL matplotlib (`ft2font`) kadang diblokir dan menggagalkan
-impor XTTS. Kode otomatis memasang matplotlib tiruan (`voice.xtts.stub_matplotlib: true`);
-matplotlib tidak dipakai saat membuat suara, jadi ini aman. Jika tetap bermasalah, pakai
-edge-tts. **Versi paket** yang terbukti jalan sudah dikunci di `requirements-xtts.txt`
-(transformers 4.56.2; torch+torchaudio dari index cu124).
+---
 
-**VRAM 6 GB (RTX 4050):** Ollama (LLM) dan XTTS tidak muat bersamaan. Sistem otomatis
-melepas Ollama dari VRAM sebelum tahap suara (`keep_alive=0`), dan melepas XTTS setelah
-tiap job (`voice.xtts.unload_after_job: true`), sehingga keduanya bergantian memakai GPU.
-Jika tetap kehabisan VRAM, set `voice.xtts.device: cpu` (lebih lambat).
+## Membuat video
 
-**Mencoba tanpa Ollama:** tambahkan `writer` dan `safety` ke `agents.fake` di `config.yaml`.
+### Cara A — lewat panel admin (disarankan)
+Buka `/admin`, login, isi topik lalu **Buat**. Di mode `semi_auto`, job berhenti di dua gerbang;
+klik **Approve naskah** lalu **Approve final**. Lihat **Detail** untuk naskah + hasil review.
 
-### ffmpeg + suara (M2)
+### Cara B — lewat CLI
+```powershell
+python -m ai_office.cli demo "learn colors"      # 1 job sampai done, gerbang auto-approve
+python -m ai_office.cli create "animal sounds"   # buat job (diproses server)
+python -m ai_office.cli list
+python -m ai_office.cli review 3                 # naskah + review keamanan
+python -m ai_office.cli approve-script 3
+python -m ai_office.cli approve-final 3
+python -m ai_office.cli mode full_auto           # lewati gerbang bila review lulus
+```
 
-1. Pasang ffmpeg: `winget install Gyan.FFmpeg`, lalu buka PowerShell baru dan cek `ffmpeg -version`.
-2. Suara memakai **edge-tts** (gratis, sudah ada di `requirements.txt`, butuh internet).
-3. Coba suara dari naskah buatan tangan, tanpa LLM:
-   ```powershell
-   python -m ai_office.cli voice-file examples/mengenal_warna.json
-   ```
-   Hasil: `output/manual_mengenal_warna/audio/scene_*.wav` + `voice.json` (timing per kata).
+### Tanpa LLM (dari naskah buatan tangan)
+```powershell
+python -m ai_office.cli build-file examples/colors_en.json   # suara+animasi+video final
+python -m ai_office.cli render-file examples/colors_en.json --no-voice  # cek animasi cepat
+```
 
-Pengaturan suara ada di bagian `voice:` pada `config.yaml` (suara `id-ID-GadisNeural` /
-`id-ID-ArdiNeural`, kecepatan, jeda antar-scene, target loudness). Durasi tiap scene mengikuti
-panjang suara sebenarnya + jeda. Jika total < 25 detik, jeda ditambah; jika > 35 detik, suara
-dipercepat sekali; jika tetap > 60 detik, job gagal dengan pesan "perpendek narasi".
+> **Tips topik untuk model kecil (3B):** pilih yang konkret dan sederhana (warna, bentuk,
+> hitung 1-5, nama buah, suara hewan). Topik yang butuh fakta rumit (mis. bendera negara)
+> bisa ditolak Penasihat Keamanan karena model kecil rawan salah fakta — pakai Gemini untuk itu.
 
-### Animasi (M3)
+Hasil akhir muncul di `~/Videos/AI-Office/<tanggal>_<judul>/` dan foldernya terbuka otomatis.
 
-1. Pasang browser untuk render (sekali saja, setelah `pip install`):
-   ```powershell
-   python -m playwright install chromium
-   ```
-2. Coba buat klip animasi dari naskah buatan tangan (tanpa LLM):
-   ```powershell
-   python -m ai_office.cli render-file examples/mengenal_warna.json            # dengan suara
-   python -m ai_office.cli render-file examples/mengenal_warna.json --no-voice  # tanpa suara (cepat)
-   ```
-   Hasil: `output/manual_mengenal_warna/animation.mp4` (1080x1920, 30 fps, H.264, tanpa audio) +
-   `plan.json`. Audio/subtitle/musik digabung Editor di M4.
+---
+
+## Pilihan suara (TTS)
+
+Atur di `voice.engine` pada `config.yaml`:
+
+| Engine | Bahasa | Catatan |
+|---|---|---|
+| `edge-tts` (default) | **ID & EN** | Gratis, natural, **butuh internet**. Pilihan terbaik untuk Bahasa Indonesia. |
+| `xtts` | EN & 16 bahasa lain (**bukan ID**) | Lokal/offline, kualitas tinggi, berat (~4 GB VRAM). Lisensi **non-komersial**. Lihat `requirements-xtts.txt`. |
+
+XTTS perlu Python 3.11 + venv terpisah (`requirements-xtts.txt`). Di GPU kecil, Ollama dilepas
+dari VRAM sebelum tahap suara dan XTTS dilepas setelah job, agar bergantian memakai GPU.
+
+---
+
+## Konfigurasi
+
+- **`config.yaml`** — semua pengaturan: mode, durasi, LLM, suara, subtitle, musik, folder tujuan,
+  dan `agents.fake` (daftar agent yang disimulasikan, untuk mencoba tanpa Ollama/ffmpeg).
+- **`.env`** — rahasia: `GEMINI_API_KEY` (opsional), `AI_OFFICE_SECRET_KEY` (opsional; untuk
+  tanda tangan sesi — jika kosong dibuat otomatis di `data/`).
+- **`safety_rubric.yaml`** / **`safety_rubric_en.yaml`** — rubrik Penasihat Keamanan + daftar kata
+  terlarang, per bahasa. Boleh kamu ubah.
+- **`content_profile.yaml`** — profil channel (nama, niche, nada, frasa khas).
+
+Beralih ke **full-auto** tanpa mengubah kode: set `pipeline.mode: full_auto` di `config.yaml`,
+atau `python -m ai_office.cli mode full_auto`, atau lewat panel admin.
+
+### Musik latar
+Taruh file bebas hak cipta di `data/bgm/` (`.mp3/.wav/...`). Satu lagu dipilih otomatis dan
+volumenya **turun saat ada narasi** (ducking). Folder kosong = video tanpa musik.
+
+---
+
+## Keamanan
+
+- Password admin di-hash **argon2id**; `data/admin.json` (di-gitignore, izin 600) hanya menyimpan
+  hash. Password tidak pernah ditulis ke kode/log/repo.
+- Verifikasi login **hanya di server**. Sesi: cookie **HttpOnly + SameSite=Strict** (+`Secure`
+  saat HTTPS), session id acak **ditandatangani HMAC**, ber-kedaluwarsa.
+- **CSRF** (double-submit token) untuk semua aksi yang mengubah data.
+- **Rate-limit + lockout** login, pesan error generik, perbandingan password waktu-konstan.
+- Semua endpoint `/api/admin/*` mengecek sesi di server. Header keamanan (CSP, X-Frame-Options,
+  dll.). Server **bind ke localhost** secara default.
+
+---
+
+## Membuka ke publik (opsional)
+
+Server sengaja hanya `127.0.0.1`. Untuk akses dari luar **tanpa buka port** dan **HTTPS gratis**:
+```powershell
+winget install Cloudflare.cloudflared
+cloudflared tunnel --url http://127.0.0.1:8000
+```
+Cloudflare memberi URL `https://...trycloudflare.com`. **Laptop harus tetap menyala.** Untuk URL
+tetap + kontrol akses, buat named tunnel + Cloudflare Access. Jangan set `server.host: 0.0.0.0`
+kecuali paham risikonya.
+
+---
+
+## Menambah template, karakter, objek
 
 Pustaka animasi ada di `ai_office/animation/`:
-- `renderer/core.js` — inti (SVG, lip-sync, timeline); `characters/characters.js` — Kiki & Bubu;
-  `scenes/backgrounds.js`, `scenes/objects.js`, `scenes/templates.js` — latar, 29 objek, 6 template.
-- `style_guide.md` — aturan warna, font, dan gerak. `catalog.yaml` — daftar nama valid (yang
-  dilihat Penulis). Test memastikan `catalog.yaml` selalu cocok dengan pustaka JS.
-- Render **deterministik**: tiap frame = `renderFrame(plan, t)`, 30 fps, 1080x1920, lalu ffmpeg
-  menyusun PNG jadi MP4 (NVENC bila GPU NVIDIA ada, jika tidak `libx264`).
+- **Objek baru**: tambah `A.objects.<nama> = (ctx) => <svg>` di `scenes/objects.js`, lalu daftarkan
+  namanya di `animation/catalog.yaml` (bagian `objects`).
+- **Karakter / latar / template baru**: tambah di `characters/characters.js` /
+  `scenes/backgrounds.js` / `scenes/templates.js`, lalu daftarkan di `catalog.yaml`.
+- `style_guide.md` mengunci warna, font, dan gaya gerak.
+- Test `tests/test_animation.py` memastikan `catalog.yaml` (yang dilihat LLM) **selalu cocok**
+  dengan pustaka JS, jadi LLM tidak pernah memakai nama yang tak ada.
 
-### Video final (M4 - Editor)
+Karakter kantor 2.5D ada di `web/static/office.js` (6 agent, meja + properti per peran, animasi
+mengetik/idle/offline mengikuti status SSE).
 
-Menggabungkan klip animasi + suara + subtitle + musik jadi `video.mp4`, plus thumbnail & metadata:
+---
 
-```powershell
-python -m ai_office.cli build-file examples/mengenal_warna.json
+## Struktur proyek
+
+```
+ai-office/
+  run.py                      # satu perintah menjalankan server + worker
+  config.yaml, .env.example, content_profile.yaml, safety_rubric*.yaml
+  requirements.txt, requirements-xtts.txt
+  scripts/set_admin.py        # buat kredensial admin (argon2id)
+  examples/                   # naskah buatan tangan (colors_en.json, mengenal_warna.json)
+  ai_office/
+    orchestrator.py           # "Manajer": state machine job + worker
+    config.py, db.py, models.py, events.py, media.py, schemas.py, bootstrap.py, cli.py
+    llm/                      # provider: ollama (default), gemini
+    tts/                      # edge-tts (default), xtts
+    agents/                   # writer, safety, voice, animator, editor, delivery (+ fake)
+    animation/                # catalog + style_guide + characters/scenes/renderer (SVG->ffmpeg)
+    editor/                   # subtitle (.ass highlight), musik (ducking), metadata
+    web/                      # api.py, auth.py, static/ (dashboard 2.5D + panel admin)
+  data/                       # db, admin.json, bgm, cache (di-gitignore)
+  output/                     # hasil render sementara
+  tests/
 ```
 
-Hasil di `output/manual_mengenal_warna/`: `video.mp4` (vertikal, ±30 detik, dengan suara & subtitle
-sinkron), `thumbnail.png`, `metadata.txt`, `metadata.json`.
+---
 
-- **Subtitle**: besar, outline tebal, **kata yang sedang diucapkan di-highlight** (pakai timing
-  per kata dari Pengisi Suara). Atur di bagian `subtitle:` pada `config.yaml`.
-- **Musik latar**: taruh file di `data/bgm/` (lihat `data/bgm/README.md`). Satu lagu dipilih
-  otomatis dan **volumenya turun saat ada narasi** (ducking). Atur di bagian `music:`.
-  Jika `data/bgm/` kosong, video dibuat tanpa musik.
-- **metadata.txt** memuat judul, deskripsi, hashtag, dan **pengingat menandai video "Made for
-  kids"** saat upload.
-
-## Menjalankan test
+## Testing & troubleshooting
 
 ```powershell
 pytest -q
 ```
 
-Semua test LLM memakai mock, jadi tidak butuh Ollama.
+- **`doctor`**: `python -m ai_office.cli doctor` mengecek koneksi LLM, TTS, ffmpeg, status agent.
+- **Agent "offline"**: dependensinya tidak terbaca. Untuk suara, cek engine (XTTS perlu
+  `.venv-xtts`) dan `ffmpeg -version`.
+- **`ReadTimeout` ke Ollama**: model terlalu besar untuk VRAM (cek `ollama ps`). Pakai
+  `qwen2.5:3b`, atau set `voice.xtts.device: cpu`, atau `voice.engine: edge-tts`.
+- **Job `failed` di penulisan**: Penasihat Keamanan menolak (mis. fakta salah). Itu normal; coba
+  topik lebih sederhana atau pakai Gemini.
+- **GPU 0% saat render frame**: wajar — menggambar SVG via Chromium itu tugas CPU. GPU dipakai di
+  tahap suara (XTTS) dan encoding (NVENC bila tersedia).
 
-## Cara pakai (M1)
-
-```powershell
-# terminal 1
-python run.py
-
-# terminal 2
-python -m ai_office.cli create "hewan dan suaranya"
-python -m ai_office.cli list            # tunggu status awaiting_script_approval
-python -m ai_office.cli review 1        # baca naskah + hasil review keamanan
-python -m ai_office.cli approve-script 1
-python -m ai_office.cli approve-final 1 # setelah status awaiting_final_approval
-```
-
-Atau tanpa server: `python -m ai_office.cli demo "mengenal warna"` (gerbang disetujui otomatis).
-
-Perintah CLI lain:
-
-| Perintah | Fungsi |
-|---|---|
-| `review <id>` | naskah + hasil review keamanan per kriteria |
-| `show <id>` | detail lengkap (JSON) + log |
-| `approve-script <id> --file naskah.json` | setujui dengan naskah hasil editan (divalidasi) |
-| `reject <id> --reason "..."` | tolak di gerbang |
-| `retry <id>` | ulangi job gagal dari tahap yang gagal |
-| `mode semi_auto` / `mode full_auto` | ganti mode tanpa restart |
-| `doctor` | cek koneksi LLM, edge-tts, ffmpeg & status agent |
-| `voice-file <naskah.json>` | buat suara + timing dari naskah buatan tangan (tanpa LLM) |
-| `render-file <naskah.json> [--no-voice]` | buat klip animasi dari naskah buatan tangan (tanpa LLM) |
-| `build-file <naskah.json>` | video final lengkap (suara+animasi+subtitle+musik) tanpa LLM |
-
-## Alur naskah
-
-1. **Penulis** meminta LLM membuat `script.json`. Hanya nama template/karakter/pose/objek dari
-   `ai_office/animation/catalog.yaml` yang diterima. Output yang tidak valid dikirim balik ke LLM
-   beserta pesan error (maks. `pipeline.max_llm_retries` = 2 kali).
-2. **Penasihat Keamanan** menilai naskah per kriteria di `safety_rubric.yaml` (LLM) **ditambah**
-   pemeriksaan otomatis (kata terlarang, link, email, nomor telepon, kalimat terlalu panjang).
-   Lulus hanya jika keduanya ok.
-3. Jika `revise`, naskah + alasan + saran dikirim balik ke Penulis (maks. 2 revisi). Jika masih
-   gagal, job berhenti di Gerbang 1 menunggu admin — juga di mode `full_auto`.
-
-## Konfigurasi
-
-- `config.yaml` – semua pengaturan (mode, durasi, LLM, suara, folder tujuan, dll.).
-- `safety_rubric.yaml` – rubrik keamanan anak + daftar kata terlarang (boleh diubah).
-- `content_profile.yaml` – profil konten channel (boleh diisi belakangan).
-- `.env` – rahasia (API key opsional, secret key sesi). Jangan di-commit.
-
-## Endpoint API (publik & hanya-baca)
-
-| Endpoint | Isi |
-|---|---|
-| `GET /api/health` | cek server hidup |
-| `GET /api/status` | ringkasan + status 6 agent |
-| `GET /api/jobs` | daftar job (data publik saja) |
-| `GET /api/jobs/{id}` | status satu job |
-| `GET /api/events` | stream SSE: `snapshot`, `job_created`, `job_status`, `agent_state` |
-
-Endpoint yang mengubah data (aksi admin lewat web) baru tersedia di M6, dengan login.
-
-## Panel admin & keamanan (M6)
-
-Buat kredensial admin dulu (interaktif, password tidak tampil, hanya HASH argon2id disimpan):
-```powershell
-python scripts/set_admin.py
-```
-Lalu jalankan server dan buka panel admin:
-```powershell
-python run.py
-```
-- Dashboard publik (hanya-baca, tanpa login): http://127.0.0.1:8000
-- Panel admin (wajib login): http://127.0.0.1:8000/admin
-
-Di panel admin kamu bisa: buat job (topik/usia/gaya), approve/edit/tolak di Gerbang 1 & 2,
-lihat log + hasil review keamanan, ubah mode semi/full-auto, dan retry job gagal. CLI lama
-(`python -m ai_office.cli ...`) tetap berfungsi.
-
-**Keamanan yang diterapkan:**
-- Password di-hash **argon2id**; `data/admin.json` di-gitignore, izin file 600. Password tidak
-  pernah ditulis ke kode/log/repo.
-- Verifikasi login **hanya di server**. Sesi lewat cookie **HttpOnly + SameSite=Strict**
-  (+`Secure` saat HTTPS), session id acak **ditandatangani (HMAC)**, dengan kedaluwarsa.
-- **Proteksi CSRF** (double-submit token) untuk semua aksi yang mengubah data.
-- **Rate-limit + lockout** sementara setelah beberapa kali gagal login; pesan error generik;
-  perbandingan password **waktu-konstan**.
-- Semua endpoint `/api/admin/*` mengecek sesi di server (bukan sekadar menyembunyikan tombol).
-- Header keamanan (CSP, X-Frame-Options, dll.). Server **hanya bind ke localhost** secara default.
-
-### Membuka ke publik dengan aman (opsional) — Cloudflare Tunnel
-
-Server sengaja hanya di `127.0.0.1`. Untuk mengaksesnya dari luar **tanpa membuka port router**
-dan **dengan HTTPS gratis**, pakai Cloudflare Tunnel:
-```powershell
-winget install Cloudflare.cloudflared
-cloudflared tunnel --url http://127.0.0.1:8000
-```
-Cloudflare memberi URL `https://...trycloudflare.com` yang meneruskan ke laptopmu lewat HTTPS.
-Catatan: **laptop harus tetap menyala** selama tunnel aktif. Untuk URL tetap + kontrol akses,
-buat named tunnel dan tambahkan Cloudflare Access di dashboard Cloudflare. Jangan set
-`server.host: 0.0.0.0` kecuali kamu paham risikonya.
-
-## Pengiriman hasil (M5)
-
-Setelah video final disetujui (Gerbang 2) atau di mode `full_auto`, Pengirim menyalin hasil ke
-`delivery.dest_dir` (default `~/Videos/AI-Office/<tanggal>_<judul-slug>/`): `video.mp4`,
-`thumbnail.png`, `script.json`, `metadata.txt`. Lalu folder itu **dibuka otomatis** di file
-explorer (bisa dimatikan dengan `delivery.open_folder: false`). Semua agent kini asli; untuk
-mencoba sebagian tanpa Ollama/ffmpeg, isi `agents.fake` di `config.yaml` (mis. `[voice, animator,
-editor]`).
+Lisensi aset: XTTS-v2 (CPML, non-komersial). Untuk channel yang dimonetisasi, pakai edge-tts.

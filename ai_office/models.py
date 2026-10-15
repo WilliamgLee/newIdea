@@ -9,6 +9,7 @@ from typing import Any
 
 
 class JobStatus(StrEnum):
+    SCHEDULED = "scheduled"    # menunggu dilepas Penjadwal (tidak runnable, tidak terminal)
     QUEUED = "queued"
     WRITING = "writing"
     SAFETY_REVIEW = "safety_review"
@@ -18,6 +19,7 @@ class JobStatus(StrEnum):
     EDITING = "editing"
     AWAITING_FINAL_APPROVAL = "awaiting_final_approval"
     DELIVERING = "delivering"
+    UPLOADING = "uploading"    # unggah ke YouTube (hanya bila youtube.enabled)
     DONE = "done"
     FAILED = "failed"
     REJECTED = "rejected"
@@ -30,6 +32,18 @@ class AgentName(StrEnum):
     ANIMATOR = "animator"
     EDITOR = "editor"
     DELIVERY = "delivery"
+    UPLOADER = "uploader"
+
+
+# 6 agent pipeline inti (urut). Uploader opsional, tidak termasuk.
+PIPELINE_AGENTS: tuple[AgentName, ...] = (
+    AgentName.WRITER,
+    AgentName.SAFETY,
+    AgentName.VOICE,
+    AgentName.ANIMATOR,
+    AgentName.EDITOR,
+    AgentName.DELIVERY,
+)
 
 
 class AgentState(StrEnum):
@@ -47,6 +61,7 @@ AGENT_LABELS: dict[AgentName, str] = {
     AgentName.ANIMATOR: "Pembuat Animasi",
     AgentName.EDITOR: "Editor",
     AgentName.DELIVERY: "Pengirim",
+    AgentName.UPLOADER: "Pengunggah YouTube",
 }
 
 # Status tahap kerja -> agent yang mengerjakannya
@@ -57,7 +72,19 @@ STAGE_AGENT: dict[JobStatus, AgentName] = {
     JobStatus.ANIMATING: AgentName.ANIMATOR,
     JobStatus.EDITING: AgentName.EDITOR,
     JobStatus.DELIVERING: AgentName.DELIVERY,
+    JobStatus.UPLOADING: AgentName.UPLOADER,
 }
+
+# Urutan tahap kerja agent (dipakai Progres_Job dan Timing_Tahap)
+PIPELINE_STAGES: tuple[JobStatus, ...] = (
+    JobStatus.WRITING,
+    JobStatus.SAFETY_REVIEW,
+    JobStatus.VOICING,
+    JobStatus.ANIMATING,
+    JobStatus.EDITING,
+    JobStatus.DELIVERING,
+    JobStatus.UPLOADING,
+)
 
 GATE_STATUSES: frozenset[JobStatus] = frozenset(
     {JobStatus.AWAITING_SCRIPT_APPROVAL, JobStatus.AWAITING_FINAL_APPROVAL}
@@ -70,6 +97,8 @@ RUNNABLE_STATUSES: frozenset[JobStatus] = frozenset({JobStatus.QUEUED, *STAGE_AG
 
 _S = JobStatus
 ALLOWED_TRANSITIONS: dict[JobStatus, frozenset[JobStatus]] = {
+    # dilepas Penjadwal ke antrean
+    _S.SCHEDULED: frozenset({_S.QUEUED}),
     _S.QUEUED: frozenset({_S.WRITING, _S.FAILED}),
     _S.WRITING: frozenset({_S.SAFETY_REVIEW, _S.FAILED}),
     # revise -> kembali ke writing; pass / habis putaran -> gerbang 1
@@ -79,7 +108,9 @@ ALLOWED_TRANSITIONS: dict[JobStatus, frozenset[JobStatus]] = {
     _S.ANIMATING: frozenset({_S.EDITING, _S.FAILED}),
     _S.EDITING: frozenset({_S.AWAITING_FINAL_APPROVAL, _S.FAILED}),
     _S.AWAITING_FINAL_APPROVAL: frozenset({_S.DELIVERING, _S.REJECTED}),
-    _S.DELIVERING: frozenset({_S.DONE, _S.FAILED}),
+    # uploading hanya dipilih orchestrator bila youtube.enabled
+    _S.DELIVERING: frozenset({_S.DONE, _S.UPLOADING, _S.FAILED}),
+    _S.UPLOADING: frozenset({_S.DONE, _S.FAILED}),
     _S.DONE: frozenset(),
     _S.REJECTED: frozenset(),
     # retry: lanjut lagi dari tahap yang gagal
@@ -114,6 +145,7 @@ class Job:
     artifacts: dict[str, Any] = field(default_factory=dict)
     started_at: float | None = None
     finished_at: float | None = None
+    processing_sec: float = 0.0
 
     @classmethod
     def from_row(cls, row: Any) -> Job:
@@ -134,13 +166,13 @@ class Job:
             artifacts=json.loads(row["artifacts"] or "{}"),
             started_at=row["started_at"],
             finished_at=row["finished_at"],
+            processing_sec=row["processing_sec"] or 0.0,
         )
 
     def public_dict(self) -> dict[str, Any]:
         """Data aman untuk dashboard publik: tanpa path lokal, error internal, atau log."""
-        duration = None
-        if self.started_at and self.finished_at:
-            duration = round(self.finished_at - self.started_at, 1)
+        # waktu kerja agent saja (tanpa waktu menunggu persetujuan admin)
+        duration = round(self.processing_sec, 1) if self.processing_sec else None
         return {
             "id": self.id,
             "title": self.title,

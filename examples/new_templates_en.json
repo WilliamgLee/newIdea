@@ -1,0 +1,59 @@
+{
+  "title": "Find, Guess, and Sing!",
+  "age_group": "3-6",
+  "language": "en",
+  "total_duration_sec": 30,
+  "hook": "Can you find the odd one?",
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Can you find the odd one? Hi, I am Kiki!",
+      "on_screen_text": "Hello!",
+      "duration_sec": 4,
+      "template": "intro",
+      "params": {"character": "kiki", "pose": "wave", "emotion": "excited", "background": "garden", "items": []}
+    },
+    {
+      "id": 2,
+      "narration": "Three apples and one banana. Which one is different? The banana!",
+      "on_screen_text": "Odd one?",
+      "duration_sec": 6,
+      "template": "find_odd",
+      "params": {"character": "kiki", "pose": "think", "emotion": "thinking", "background": "garden", "items": ["apel", "pisang"], "color": "merah"}
+    },
+    {
+      "id": 3,
+      "narration": "Star, heart, star, heart. What comes next? A star!",
+      "on_screen_text": "Next?",
+      "duration_sec": 6,
+      "template": "pattern",
+      "params": {"character": "kiki", "pose": "think", "emotion": "thinking", "background": "sky", "items": ["bintang", "hati"], "color": "kuning"}
+    },
+    {
+      "id": 4,
+      "narration": "Look at the balloon! Red, yellow, blue, green!",
+      "on_screen_text": "Colors!",
+      "duration_sec": 6,
+      "template": "color_change",
+      "params": {"character": "kiki", "pose": "point", "emotion": "excited", "background": "sky", "items": ["balon"], "color": "merah"}
+    },
+    {
+      "id": 5,
+      "narration": "Now clap your hands and jump with me!",
+      "on_screen_text": "Clap! Jump!",
+      "duration_sec": 4,
+      "template": "sing_along",
+      "params": {"character": "kiki", "pose": "jump", "emotion": "excited", "background": "room", "items": []}
+    },
+    {
+      "id": 6,
+      "narration": "Great job! You are so smart. See you soon!",
+      "on_screen_text": "Great!",
+      "duration_sec": 4,
+      "template": "outro",
+      "params": {"character": "kiki", "pose": "jump", "emotion": "happy", "background": "room", "items": []}
+    }
+  ],
+  "learning_goal": "Children practice finding differences, simple patterns, and colors.",
+  "hashtags": ["#Shorts", "#KidsLearning", "#Patterns"]
+}

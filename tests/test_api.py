@@ -53,4 +53,19 @@ def test_no_mutating_endpoints_in_m0(client: TestClient) -> None:
 
 def test_index_served(client: TestClient) -> None:
     r = client.get("/")
-    assert r.status_code == 200 and "AI Office" in r.text
+    assert r.status_code == 200 and "Kiki Classroom" in r.text
+
+
+def test_office_canvas_and_module_served(client: TestClient) -> None:
+    """M7: dashboard publik memuat kantor 2.5D (canvas + modul office.js)."""
+    index = client.get("/").text
+    assert '<canvas id="office">' in index
+    assert 'type="module"' in index
+    office = client.get("/static/office.js")
+    assert office.status_code == 200 and "class Office" in office.text
+
+
+def test_ui_assets_not_cached_stale(client: TestClient) -> None:
+    """Aset UI wajib divalidasi ulang agar tampilan baru langsung terpakai."""
+    for path in ("/", "/admin", "/static/office.js", "/static/style.css"):
+        assert client.get(path).headers.get("cache-control") == "no-cache"

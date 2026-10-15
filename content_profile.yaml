@@ -1,15 +1,15 @@
-# Profil konten channel. Niche belum final, jadi isi belakangan.
-# Penulis Naskah akan memakai profil ini sebagai konteks tambahan (mulai M1).
+# Channel content profile. Niche not final yet, fill in later.
+# The Scriptwriter uses this as extra context.
 
-channel_name: ""            # mis. "Dunia Ceria"
-niche: ""                   # mis. "pengenalan dasar untuk balita"
+channel_name: ""            # e.g. "Happy World"
+niche: ""                   # e.g. "basic learning for toddlers"
 target_age_group: "3-6"
-language: id
-tone: "ceria, hangat, sabar"
-recurring_phrases: []       # mis. ["Ayo kita belajar!", "Hebat sekali!"]
-avoid_topics: []            # topik tambahan yang ingin dihindari
+language: en                # en = English | id = Bahasa Indonesia
+tone: "cheerful, warm, patient"
+recurring_phrases: []       # e.g. ["Let's learn!", "Great job!"]
+avoid_topics: []            # extra topics to avoid
 
-# Contoh topik untuk testing
+# Example topics for testing
 example_topics:
-  - mengenal warna
-  - hewan dan suaranya
+  - learn colors
+  - animal sounds

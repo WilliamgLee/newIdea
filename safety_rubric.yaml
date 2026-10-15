@@ -1,0 +1,62 @@
+# Rubrik Penasihat Keamanan Anak. Boleh diubah sesuai kebutuhan channel.
+#
+# - `criteria`: dinilai oleh LLM satu per satu (ok / tidak ok + alasan).
+#   `id` dipakai sebagai kunci, jadi jangan ada yang sama.
+# - `automated_checks`: pemeriksaan otomatis tanpa LLM (cepat & pasti).
+#   Kata/frasa dicocokkan per kata utuh, tidak peka huruf besar/kecil.
+
+criteria:
+  - id: bahasa_sederhana
+    description: >
+      Bahasa sederhana dan sesuai usia penonton. Kalimat pendek, kata sehari-hari,
+      tata bahasa Indonesia yang benar dan alami, tidak ada istilah sulit tanpa penjelasan.
+  - id: tanpa_kekerasan_menakutkan
+    description: >
+      Tidak ada kekerasan, bahaya yang dicontohkan, atau hal yang menakutkan
+      (hantu, monster, darah, ancaman, suasana seram).
+  - id: tanpa_tema_dewasa
+    description: >
+      Tidak ada tema dewasa: romansa, seksual, obat-obatan, alkohol, rokok, judi,
+      politik, atau topik sensitif lain.
+  - id: tanpa_data_pribadi_merek_iklan
+    description: >
+      Tidak ada data pribadi (nama lengkap orang nyata, alamat, nomor telepon, sekolah),
+      tidak menyebut merek/produk, dan tidak ada iklan terselubung.
+  - id: fakta_benar
+    description: >
+      Semua klaim fakta benar dan tidak menyesatkan. Periksa SATU PER SATU: (1) tiruan bunyi
+      hewan harus versi Bahasa Indonesia yang umum dikenal anak (anjing "guk guk", kucing
+      "meong", sapi "mooo", ayam "kukuruyuk"/"petok", bebek "kwek kwek", kambing "mbeek",
+      katak "kwok kwok"); bunyi versi bahasa Inggris seperti "woof" atau "moo" yang ditulis
+      aneh dianggap salah. (2) Warna objek (params.color) harus masuk akal untuk objek itu;
+      sapi kuning atau anjing ungu dianggap salah. (3) Angka `count` sama dengan yang
+      dihitung di narasi.
+  - id: pesan_positif_edukatif
+    description: >
+      Pesan positif, hangat, dan edukatif. Ada hal yang jelas dipelajari anak.
+  - id: tanpa_manipulasi
+    description: >
+      Tidak ada ajakan manipulatif: menyuruh subscribe/like/klik, membeli sesuatu,
+      merayu orang tua, menakut-nakuti agar menonton, atau tekanan emosional.
+
+automated_checks:
+  max_words_per_sentence: 12
+  # kriteria -> daftar kata/frasa terlarang
+  banned_words:
+    tanpa_kekerasan_menakutkan:
+      [darah, bunuh, membunuh, hantu, setan, pocong, kuntilanak, monster, pistol,
+       senjata, pisau, berkelahi, memukul, seram, menyeramkan]
+    tanpa_tema_dewasa:
+      [rokok, merokok, alkohol, bir, mabuk, judi, narkoba, pacar, pacaran, ciuman]
+    tanpa_data_pribadi_merek_iklan:
+      [iklan, promo, diskon, sponsor]
+    # tiruan bunyi hewan versi bahasa Inggris (anak Indonesia mengenal "guk guk", "meong", dst.)
+    fakta_benar:
+      [woof, meow, quack, oink, cluck, ribbit, tweet, baa]
+    tanpa_manipulasi:
+      [subscribe, langganan, klik, beli, belikan, "like dan share", "minta mama",
+       "minta papa", "minta ayah", "minta ibu"]
+  # merek yang tidak boleh disebut (isi sendiri)
+  brands: []
+  # deteksi otomatis: URL, email, nomor telepon, @mention
+  detect_contact_info: true

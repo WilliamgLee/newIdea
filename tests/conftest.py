@@ -10,6 +10,25 @@ from ai_office.db import Database
 from ai_office.events import EventBus
 from ai_office.orchestrator import Orchestrator
 
+# Profil Hypothesis untuk semua property test: 100 contoh, tanpa batas waktu
+# per contoh (render/IO bisa lambat di mesin CI).
+# Import dijaga agar test non-property tetap jalan bila Hypothesis gagal dimuat
+# (mis. ekstensi native diblokir kebijakan Windows Application Control).
+try:
+    from hypothesis import settings
+except ImportError:  # pragma: no cover - bergantung lingkungan
+    settings = None
+
+if settings is not None:
+    settings.register_profile("ci", max_examples=100, deadline=None)
+    settings.load_profile("ci")
+
+
+@pytest.fixture(autouse=True)
+def _no_file_explorer(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tes tidak boleh membuka jendela File Explorer sungguhan."""
+    monkeypatch.setattr("ai_office.agents.delivery.open_in_file_manager", lambda path: True)
+
 
 @pytest.fixture
 def config(tmp_path: Path) -> AppConfig:

@@ -1,0 +1,59 @@
+{
+  "title": "Ayo Kenal Warna!",
+  "age_group": "3-6",
+  "language": "id",
+  "total_duration_sec": 30,
+  "hook": "Warna apa yang kamu suka?",
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Warna apa yang kamu suka? Hai, aku Kiki!",
+      "on_screen_text": "Halo!",
+      "duration_sec": 4,
+      "template": "intro",
+      "params": {"character": "kiki", "pose": "wave", "emotion": "excited", "background": "garden", "items": []}
+    },
+    {
+      "id": 2,
+      "narration": "Lihat, ini apel. Apel warnanya merah. Merah!",
+      "on_screen_text": "Merah",
+      "duration_sec": 5,
+      "template": "show_object",
+      "params": {"character": "kiki", "pose": "point", "emotion": "happy", "background": "garden", "items": ["apel"], "color": "merah"}
+    },
+    {
+      "id": 3,
+      "narration": "Ini pisang. Pisang warnanya kuning. Kuning!",
+      "on_screen_text": "Kuning",
+      "duration_sec": 5,
+      "template": "show_object",
+      "params": {"character": "kiki", "pose": "point", "emotion": "happy", "background": "garden", "items": ["pisang"], "color": "kuning"}
+    },
+    {
+      "id": 4,
+      "narration": "Ayo hitung balon biru. Satu, dua, tiga!",
+      "on_screen_text": "3 balon biru",
+      "duration_sec": 6,
+      "template": "count_objects",
+      "params": {"character": "kiki", "pose": "clap", "emotion": "excited", "background": "sky", "items": ["balon"], "count": 3, "color": "biru"}
+    },
+    {
+      "id": 5,
+      "narration": "Coba tebak, apa yang hijau? Ya, katak!",
+      "on_screen_text": "Tebak!",
+      "duration_sec": 6,
+      "template": "guess",
+      "params": {"character": "kiki", "pose": "think", "emotion": "thinking", "background": "garden", "items": ["katak"], "color": "hijau"}
+    },
+    {
+      "id": 6,
+      "narration": "Hebat! Kamu kenal warna. Sampai jumpa!",
+      "on_screen_text": "Hebat!",
+      "duration_sec": 4,
+      "template": "outro",
+      "params": {"character": "kiki", "pose": "jump", "emotion": "happy", "background": "garden", "items": []}
+    }
+  ],
+  "learning_goal": "Anak mengenal warna merah, kuning, biru, dan hijau.",
+  "hashtags": ["#Shorts", "#BelajarWarna", "#BelajarAnak"]
+}

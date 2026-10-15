@@ -1,0 +1,101 @@
+# Kamus fakta untuk pemeriksaan otomatis Penasihat Keamanan (tanpa LLM, hasilnya pasti).
+# Nama objek & warna memakai nama katalog animasi (animation/catalog.yaml).
+# Boleh ditambah/diubah. Semua kata dicocokkan per kata utuh, huruf besar/kecil diabaikan.
+
+# Warna yang WAJAR untuk tiap objek. Objek yang tidak tercantum (bola, balon, mobil, ikan,
+# bunga, payung, topi, bentuk) boleh berwarna apa saja.
+object_colors:
+  apel: [merah, hijau, kuning]
+  pisang: [kuning, hijau]
+  jeruk: [oranye, hijau, kuning]
+  semangka: [hijau, merah]
+  anggur: [ungu, hijau]
+  stroberi: [merah]
+  kucing: [oranye, kuning, putih, hitam, cokelat]
+  anjing: [cokelat, putih, hitam, kuning]
+  sapi: [putih, hitam, cokelat]
+  ayam: [putih, cokelat, kuning, merah]
+  bebek: [kuning, putih]
+  kambing: [putih, cokelat, hitam]
+  kuda: [cokelat, hitam, putih]
+  katak: [hijau, cokelat]
+  matahari: [kuning, oranye, merah]
+  bulan: [kuning, putih]
+
+# Nama warna di narasi -> nama warna katalog.
+color_words:
+  merah: [red, merah]
+  kuning: [yellow, kuning]
+  biru: [blue, biru]
+  hijau: [green, hijau]
+  oranye: [orange, oranye, jingga]
+  ungu: [purple, violet, ungu]
+  merah_muda: [pink, "merah muda"]
+  cokelat: [brown, cokelat, coklat]
+  hitam: [black, hitam]
+  putih: [white, putih]
+
+# Nama hewan di narasi (en + id) -> nama objek katalog.
+animal_names:
+  anjing: [dog, dogs, puppy, anjing]
+  kucing: [cat, cats, kitten, kitty, kucing]
+  sapi: [cow, cows, sapi]
+  ayam: [chicken, chickens, hen, rooster, ayam]
+  bebek: [duck, ducks, bebek]
+  kambing: [goat, goats, kambing]
+  kuda: [horse, horses, kuda]
+  burung: [bird, birds, burung]
+  ikan: [fish, ikan]
+  katak: [frog, frogs, katak, kodok]
+
+# Bunyi hewan yang benar (en + id). Huruf berulang dianggap sama ("mooo" = "moo").
+# Hewan dengan daftar kosong dianggap tidak bersuara.
+animal_sounds:
+  anjing: [woof, bark, arf, guk]
+  kucing: [meow, mew, purr, meong]
+  sapi: [moo, mooo, emoh]
+  ayam: [cluck, "cock-a-doodle-doo", bawk, kukuruyuk, petok, kotek]
+  bebek: [quack, kwek]
+  kambing: [baa, maa, bleat, mbek, embek]
+  kuda: [neigh, hiii]
+  burung: [tweet, chirp, cheep, cuit, cit]
+  katak: [ribbit, croak, kwok, kwak]
+  ikan: []
+
+# Bentuk: jumlah sisi/sudut/ujung yang benar.
+shapes:
+  segitiga:
+    names: [triangle, triangles, segitiga]
+    sides: 3
+    corners: 3
+  persegi:
+    names: [square, squares, persegi, kotak]
+    sides: 4
+    corners: 4
+  lingkaran:
+    names: [circle, circles, lingkaran]
+    sides: 0
+    corners: 0
+  bintang:
+    names: [star, stars, bintang]
+    points: 5
+
+# Kata yang menandai jenis hitungan pada kalimat bentuk.
+shape_parts:
+  sides: [side, sides, sisi]
+  corners: [corner, corners, sudut]
+  points: [point, points, ujung]
+
+# Angka dalam kata (en + id).
+number_words:
+  0: [zero, "no", none, nol]
+  1: [one, satu]
+  2: [two, dua]
+  3: [three, tiga]
+  4: [four, empat]
+  5: [five, lima]
+  6: [six, enam]
+  7: [seven, tujuh]
+  8: [eight, delapan]
+  9: [nine, sembilan]
+  10: [ten, sepuluh]

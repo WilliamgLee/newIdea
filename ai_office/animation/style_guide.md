@@ -1,4 +1,4 @@
-# Panduan Gaya Animasi "AI Office"
+# Panduan Gaya Animasi "Kiki Classroom"
 
 Dokumen ini mengunci gaya visual agar semua video terasa dari satu channel. Nilai yang mengikat
 ada di kode: `renderer/core.js` (`A.PAL`, `A.COLORS`, `A.FONT`), `characters/characters.js`,

@@ -1,4 +1,4 @@
-# AI Office - dependensi (semua gratis / open source)
+# Kiki Classroom - dependensi (semua gratis / open source)
 # Versi minimum dipilih agar mendukung Python 3.11 s.d. 3.14.
 
 # --- Web / API ---

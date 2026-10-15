@@ -1,4 +1,7 @@
-# AI Office
+# Kiki Classroom
+
+Video belajar untuk anak, dibuat oleh "kantor" berisi enam agent AI. (Dulu bernama AI Office;
+paket Python-nya tetap `ai_office`.)
 
 Sistem **multi-agent lokal** untuk membuat video **YouTube Shorts edukasi anak** secara otomatis
 (vertikal 1080x1920, sekitar 30 detik), lengkap dengan **dashboard "kantor" 2.5D** yang

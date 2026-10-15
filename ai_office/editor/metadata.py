@@ -13,7 +13,7 @@ def build_metadata(job_id: int, script: Script, duration: float, width: int, hei
         script.learning_goal,
         "",
         f"Video edukasi untuk anak usia {script.age_group} tahun.",
-        "Dibuat otomatis oleh AI Office.",
+        "Dibuat otomatis oleh Kiki Classroom.",
         "",
         " ".join(script.hashtags),
     ]

@@ -53,7 +53,7 @@ def test_no_mutating_endpoints_in_m0(client: TestClient) -> None:
 
 def test_index_served(client: TestClient) -> None:
     r = client.get("/")
-    assert r.status_code == 200 and "AI Office" in r.text
+    assert r.status_code == 200 and "Kiki Classroom" in r.text
 
 
 def test_office_canvas_and_module_served(client: TestClient) -> None:

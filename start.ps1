@@ -1,4 +1,4 @@
-# AI Office - satu perintah untuk menyalakan semuanya (Windows PowerShell).
+# Kiki Classroom - satu perintah untuk menyalakan semuanya (Windows PowerShell).
 #
 #   .\start.ps1               cek semua kebutuhan, lalu jalankan server + buka browser
 #   .\start.ps1 -NoBrowser    tanpa membuka browser
@@ -27,7 +27,7 @@ function AskYes($question) {
 }
 
 Say ""
-Say "=== AI OFFICE ===" "Cyan"
+Say "=== KIKI CLASSROOM ===" "Cyan"
 
 # ---------------------------------------------------------------- 1. venv Python
 Say "`n1. Python"
@@ -131,12 +131,12 @@ $port = & $py -c "from ai_office.config import load_config; print(load_config().
 $url = "http://127.0.0.1:$port"
 $busy = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
 if ($busy) {
-    Warn "Port $port sudah dipakai. Mungkin AI Office sudah jalan di jendela lain."
+    Warn "Port $port sudah dipakai. Mungkin Kiki Classroom sudah jalan di jendela lain."
     if (-not $NoBrowser) { Start-Process $url }
     exit 0
 }
 
-Say "`n6. Menjalankan AI Office di $url  (Ctrl+C untuk berhenti)" "Cyan"
+Say "`n6. Menjalankan Kiki Classroom di $url  (Ctrl+C untuk berhenti)" "Cyan"
 if ($NoBrowser) {
     & $py run.py
 } else {

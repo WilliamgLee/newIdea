@@ -80,7 +80,7 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
             backups.stop()
             orchestrator.stop_worker()
 
-    app = FastAPI(title="AI Office", lifespan=lifespan, docs_url=None, redoc_url=None,
+    app = FastAPI(title="Kiki Classroom", lifespan=lifespan, docs_url=None, redoc_url=None,
                   openapi_url=None)
     app.state.orchestrator = orchestrator
     app.state.auth = auth

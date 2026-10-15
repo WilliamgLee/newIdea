@@ -244,7 +244,7 @@ def write_wav(path: Path, samples: np.ndarray) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Buat 3 musik latar orisinal untuk AI Office")
+    parser = argparse.ArgumentParser(description="Buat 3 musik latar orisinal untuk Kiki Classroom")
     parser.add_argument("--out", default=None, help="folder tujuan (default: music.bgm_dir di config)")
     parser.add_argument("--config", default=None, help="path config.yaml")
     parser.add_argument("--force", action="store_true", help="timpa file yang sudah ada")

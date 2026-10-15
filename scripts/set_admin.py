@@ -1,4 +1,4 @@
-"""Buat / perbarui kredensial admin AI Office.
+"""Buat / perbarui kredensial admin Kiki Classroom.
 
 Menanyakan username dan password secara INTERAKTIF (password tidak tampil), lalu menyimpan
 username + HASH argon2id ke data/admin.json (di-gitignore, izin dibatasi).
@@ -27,7 +27,7 @@ MIN_LEN = 8
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Set kredensial admin AI Office")
+    parser = argparse.ArgumentParser(description="Set kredensial admin Kiki Classroom")
     parser.add_argument("--config", default=None, help="path config.yaml")
     args = parser.parse_args(argv)
 

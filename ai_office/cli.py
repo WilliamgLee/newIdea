@@ -260,7 +260,7 @@ def cmd_demo(orch: Orchestrator, topic: str) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="ai_office.cli", description="CLI admin AI Office")
+    parser = argparse.ArgumentParser(prog="ai_office.cli", description="CLI admin Kiki Classroom")
     parser.add_argument("--config", default=None, help="path config.yaml")
     sub = parser.add_subparsers(dest="cmd", required=True)
 

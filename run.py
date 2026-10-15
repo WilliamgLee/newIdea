@@ -1,4 +1,4 @@
-"""Jalankan AI Office (server web + worker) dengan satu perintah:
+"""Jalankan Kiki Classroom (server web + worker) dengan satu perintah:
 
     python run.py
     python run.py --config config.yaml
@@ -14,7 +14,7 @@ from ai_office.config import load_config
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="AI Office")
+    parser = argparse.ArgumentParser(description="Kiki Classroom")
     parser.add_argument("--config", default=None, help="path config.yaml")
     parser.add_argument("--log-level", default="INFO")
     parser.add_argument("--open", action="store_true", help="buka dashboard di browser otomatis")
@@ -40,7 +40,7 @@ def main() -> None:
                     "(panel admin butuh login).")
 
     url = f"http://{config.server.host}:{config.server.port}"
-    print(f"AI Office berjalan di {url}")
+    print(f"Kiki Classroom berjalan di {url}")
     print(f"  Dashboard publik : {url}")
     print(f"  Panel admin      : {url}/admin")
     if args.open:

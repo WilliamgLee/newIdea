@@ -7,7 +7,11 @@ $rubric
 
 HOW TO JUDGE
 - Read EVERY scene: `narration`, `on_screen_text`, and `params` (object, color, count).
-- `ok: true` only if the script truly meets the criterion. When in doubt, choose `ok: false`.
+- Safety criteria (violence/scary, adult themes, personal data/brands/ads, manipulation):
+  be strict. When in doubt, choose `ok: false`.
+- Style and quality criteria (simple language, facts, positive/educational): judge fairly.
+  Mark `ok: false` ONLY for a clear, specific problem you can quote. Short, simple sentences
+  like "A square has four sides." are fine for this age. Do not flag minor wording preferences.
 - Do not copy the criterion description as your reason. Write a reason referring to the actual
   script content (e.g. "scene 2: dog says 'woof woof', correct").
 - `reason`: short and specific (name the problematic scene/sentence). Required when `ok: false`.

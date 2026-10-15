@@ -18,6 +18,7 @@ from ai_office.schemas import (
     OutputInvalid,
     VideoMetadata,
     WordTiming,
+    normalize_age_group,
     parse_safety_review,
     parse_script,
     script_json_schema,
@@ -191,13 +192,23 @@ def test_safety_review_valid() -> None:
     assert r.verdict == "pass"
 
 
-def test_safety_review_missing_unknown_duplicate() -> None:
+def test_safety_review_missing_unknown() -> None:
     with pytest.raises(OutputInvalid) as exc:
         parse_safety_review({"verdict": "pass", "items": [
             {"criterion": "a", "ok": True}, {"criterion": "a", "ok": True},
             {"criterion": "z", "ok": True}]}, IDS)
     msg = " ".join(exc.value.errors)
-    assert "belum menilai" in msg and "tidak dikenal" in msg and "lebih dari sekali" in msg
+    assert "belum menilai" in msg and "tidak dikenal" in msg
+    assert "lebih dari sekali" not in msg
+
+
+def test_safety_review_duplicates_merged_conservatively() -> None:
+    r = parse_safety_review({"verdict": "revise", "items": [
+        {"criterion": "a", "ok": True, "reason": "baik"},
+        {"criterion": "a", "ok": False, "reason": "scene 2 seram"},
+        {"criterion": "b", "ok": True}]}, IDS)
+    assert [i.criterion for i in r.items] == ["a", "b"]
+    assert r.items[0].ok is False and r.items[0].reason == "scene 2 seram"
 
 
 def test_safety_review_not_ok_needs_reason() -> None:
@@ -230,3 +241,17 @@ def test_metadata_limits() -> None:
         VideoMetadata(job_id=1, title="x", description="", hashtags=[], duration_sec=61,
                       age_group="3-6", language="id", learning_goal="x",
                       created_at=datetime.now(UTC))
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("3-6", "3-6"), ("6", "6-6"), (" 3 - 6 ", "3-6"), ("3–6", "3-6"),
+    ("3 to 6", "3-6"), ("3-6 tahun", "3-6"), ("5 years", "5-5"), ("6-3", "3-6"),
+])
+def test_normalize_age_group(raw: str, expected: str) -> None:
+    assert normalize_age_group(raw) == expected
+
+
+@pytest.mark.parametrize("raw", ["", "anak", "3-6-9", "100"])
+def test_normalize_age_group_rejects_garbage(raw: str) -> None:
+    with pytest.raises(ValueError):
+        normalize_age_group(raw)

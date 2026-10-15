@@ -35,10 +35,12 @@ ada di kode: `renderer/core.js` (`A.PAL`, `A.COLORS`, `A.FONT`), `characters/cha
   Lihat `fonts/README.md` untuk memasang Fredoka agar hasil konsisten lintas OS.
 - Teks putih besar dengan **outline ink tebal** + bayangan lembut; otomatis dipecah 1-2 baris.
 
-## Template scene (6)
+## Template scene (10)
 `intro` (sapaan + kilau), `show_object` (1 objek besar, karakter menunjuk), `count_objects`
 (objek muncul satu per satu + lencana angka), `compare` (2 objek + "vs"), `guess` (objek di balik
-tanda tanya lalu terungkap dengan kilau), `outro` (pujian + konfeti).
+tanda tanya lalu terungkap dengan kilau), `find_odd` (3 objek sama + 1 beda, yang beda menyala),
+`pattern` (pola A-B-A-B-? lalu terungkap), `color_change` (benda berganti 4 warna cerah),
+`sing_along` (karakter menari & tepuk tangan dengan not musik), `outro` (pujian + konfeti).
 
 ## Menambah aset
 - **Objek baru**: tambahkan `A.objects.<nama> = (ctx) => <svg>` di `scenes/objects.js`, lalu

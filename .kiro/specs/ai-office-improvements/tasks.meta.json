@@ -1,0 +1,1320 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Tambahkan Hypothesis ke dependensi test dan profil `ci`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573298946
+      },
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573327138
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373141
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573408205
+      }
+    ],
+    "1.2 Perluas `_build()` di `ai_office/config.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299075
+      },
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573327211
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373253
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573408810
+      }
+    ],
+    "1.3 Tambahkan dataclass config baru dan validasinya di `ai_office/config.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299164
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373371
+      }
+    ],
+    "1.4 Tulis property test penggabungan `safety.llm`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299272
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373507
+      }
+    ],
+    "1.5 Tulis property test penolakan nilai config tidak valid": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299385
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373603
+      }
+    ],
+    "1.6 Tulis unit test kompatibilitas config lama dan nilai default": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299507
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373702
+      }
+    ],
+    "2.1 Perbarui `ai_office/models.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299602
+      },
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573328168
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373814
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573409651
+      }
+    ],
+    "2.2 Tulis unit test transisi baru": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299725
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573373936
+      }
+    ],
+    "3.1 Buat `ai_office/redact.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299809
+      },
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573332517
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374041
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573410999
+      }
+    ],
+    "3.2 Tulis property test penyamaran rahasia": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573299959
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374164
+      }
+    ],
+    "3.3 Buat `ai_office/topics.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300060
+      },
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573333108
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374287
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573412398
+      },
+      {
+        "executionId": "6f4a3518-75ab-486c-baf5-fc1e55e4baac",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791716325304
+      }
+    ],
+    "3.4 Tulis property test idempotensi normalisasi": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300225
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374398
+      }
+    ],
+    "3.5 Tulis property test klasifikasi batch": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300348
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374521
+      }
+    ],
+    "3.6 Tulis property test metamorfik jumlah job batch": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300506
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374617
+      }
+    ],
+    "4.1 Ubah `Database._migrate` di `ai_office/db.py` menjadi migrasi berversi": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300631
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374733
+      }
+    ],
+    "4.2 Tambahkan API timing dan log di `ai_office/db.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300770
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374835
+      }
+    ],
+    "4.3 Tulis property test ringkasan timing": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573300889
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573374941
+      }
+    ],
+    "4.4 Tulis unit test migrasi DB lama": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301019
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375045
+      }
+    ],
+    "5.1 Tambahkan `AgentContext.log_once(key, msg, level)` di `ai_office/agents/base.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301178
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375144
+      }
+    ],
+    "5.2 Perbarui `ai_office/orchestrator.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301297
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375300
+      }
+    ],
+    "5.3 Tambahkan `FakeUploader` di `ai_office/agents/fake.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301456
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375445
+      }
+    ],
+    "5.4 Tulis property test invarian Timing_Tahap vs `processing_sec`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301649
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375535
+      }
+    ],
+    "6. Checkpoint - Fondasi": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301779
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375629
+      }
+    ],
+    "7.1 Perbarui `ai_office/agents/delivery.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573301901
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375714
+      }
+    ],
+    "7.2 Tulis property test format dan keunikan nama folder": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302049
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375800
+      }
+    ],
+    "7.3 Tulis property test alokasi folder": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302182
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573375923
+      }
+    ],
+    "7.4 Tulis unit test skenario pengiriman": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302310
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376048
+      }
+    ],
+    "8.1 Perbarui `ai_office/agents/voice.py` dan engine edge-tts": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302439
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376213
+      }
+    ],
+    "8.2 Perbarui perintah CLI `voice-file`/`build-file` di `ai_office/cli.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302552
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376337
+      }
+    ],
+    "8.3 Tulis property test resolusi suara": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302689
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376428
+      }
+    ],
+    "8.4 Tulis unit test blokir XTTS dan log fallback": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302813
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376545
+      }
+    ],
+    "9.1 Buat `ai_office/profile.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573302944
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376672
+      }
+    ],
+    "9.2 Buat `content_profile.example.yaml`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303095
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573376919
+      }
+    ],
+    "9.3 Hubungkan profil ke `ai_office/agents/writer.py` dan startup (`run.py`)": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303232
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377065
+      }
+    ],
+    "9.4 Tulis property test validasi profil per field": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303369
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377182
+      }
+    ],
+    "9.5 Tulis property test round-trip profil": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303564
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377317
+      }
+    ],
+    "9.6 Tulis unit test profil": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303662
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377531
+      }
+    ],
+    "10.1 Perbarui `ai_office/editor/music.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303766
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377635
+      }
+    ],
+    "10.2 Perbarui `ai_office/editor/editor.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573303875
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377765
+      }
+    ],
+    "10.3 Buat `ai_office/status.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304012
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377877
+      }
+    ],
+    "10.4 Perbarui `cmd_doctor` di `ai_office/cli.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304155
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573377985
+      }
+    ],
+    "10.5 Tulis property test peringatan BGM kosong": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304270
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378094
+      }
+    ],
+    "10.6 Tulis unit test doctor dan peringatan lisensi": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304393
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378190
+      }
+    ],
+    "11. Checkpoint - Pengiriman, suara, profil, peringatan": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304548
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378320
+      }
+    ],
+    "12.1 Buat `ai_office/facts.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304696
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378441
+      }
+    ],
+    "12.2 Perbarui `ai_office/agents/safety.py` dan `SafetyReport` di `ai_office/schemas.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573304854
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378576
+      }
+    ],
+    "12.3 Pisahkan provider safety di `build_agents` (`ai_office/agents/__init__.py`)": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305134
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378680
+      }
+    ],
+    "12.4 Tulis property test round-trip Daftar_Fakta": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305266
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378790
+      }
+    ],
+    "12.5 Tulis property test pencocokan fakta": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305366
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573378912
+      }
+    ],
+    "12.6 Tulis property test pemuatan fakta tanpa exception": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305476
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379069
+      }
+    ],
+    "12.7 Tulis unit test Penasihat Keamanan": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305598
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379207
+      }
+    ],
+    "13.1 Tambahkan operasi batch dan rilis di `ai_office/db.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305745
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379311
+      }
+    ],
+    "13.2 Buat `ai_office/batch.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573305851
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379421
+      }
+    ],
+    "13.3 Buat `ai_office/scheduler.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306013
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379545
+      }
+    ],
+    "13.4 Hubungkan Penjadwal ke worker di `ai_office/orchestrator.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306114
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379663
+      }
+    ],
+    "13.5 Tambahkan perintah `batch <file> [--allow-duplicates]` di `ai_office/cli.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306215
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379773
+      }
+    ],
+    "13.6 Tambahkan `POST /api/admin/batch` di `ai_office/web/api.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306348
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379874
+      }
+    ],
+    "13.7 Tulis property test kuota Penjadwal": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306472
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573379975
+      }
+    ],
+    "13.8 Tulis unit test edge case batch CLI dan API": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306573
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380107
+      }
+    ],
+    "14.1 Buat `ai_office/youtube/__init__.py`, `client.py`, dan `upload.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573306708
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380237
+      }
+    ],
+    "14.2 Tambahkan `reserve_publish_slot(job_id, base, interval, now)` di `ai_office/db.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573307057
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380351
+      }
+    ],
+    "14.3 Buat `ai_office/agents/uploader.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573307490
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380483
+      }
+    ],
+    "14.4 Buat `ai_office/youtube/google_client.py`, `requirements-youtube.txt`, dan perintah CLI `youtube-auth`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573307653
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380589
+      }
+    ],
+    "14.5 Hubungkan uploader ke `build_agents` dan orchestrator": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573307751
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380693
+      }
+    ],
+    "14.6 Tulis property test body unggah": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573307868
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380855
+      }
+    ],
+    "14.7 Tulis property test slot publikasi": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308040
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573380970
+      }
+    ],
+    "14.8 Tulis property test satu job satu video": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308147
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381069
+      }
+    ],
+    "14.9 Tulis unit test uploader dengan `FakeYouTubeClient`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308261
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381187
+      }
+    ],
+    "14.10 Tulis property test gerbang persetujuan": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308375
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381279
+      }
+    ],
+    "15. Checkpoint - Keamanan, batch, YouTube": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308479
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381385
+      }
+    ],
+    "16.1 Perbarui `catalog.yaml`, `catalog.py`, dan `schemas.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308644
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381498
+      }
+    ],
+    "16.2 Tambahkan karakter dan latar baru di Pustaka_JS": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573308892
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381591
+      }
+    ],
+    "16.3 Tambahkan objek baru di `scenes/objects.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309031
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381686
+      }
+    ],
+    "16.4 Tambahkan template `T.sequence` dan `T.match` di `scenes/templates.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309126
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381787
+      }
+    ],
+    "16.5 Tulis property test validator naskah": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309228
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573381894
+      }
+    ],
+    "16.6 Tulis unit test struktur katalog dan sinkronisasi Katalog/JS": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309421
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382020
+      }
+    ],
+    "16.7 Tulis test Node untuk `sequence`, `match`, dan `validatePlan`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309536
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382141
+      }
+    ],
+    "17.1 Buat `ai_office/animation/scene_render.py` (bagian murni)": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309670
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382260
+      }
+    ],
+    "17.2 Buat `ai_office/animation/cache.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309778
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382360
+      }
+    ],
+    "17.3 Perbarui `renderer/render.py` dan `renderer/encode.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573309893
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382455
+      }
+    ],
+    "17.4 Tambahkan `ParallelSceneRenderer` di `ai_office/animation/scene_render.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310000
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382613
+      }
+    ],
+    "17.5 Perbarui `ai_office/agents/animator.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310138
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382724
+      }
+    ],
+    "17.6 Tambahkan perintah `timings [--last N]` di `ai_office/cli.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310277
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382823
+      }
+    ],
+    "17.7 Tulis property test Kunci_Scene": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310386
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573382923
+      }
+    ],
+    "17.8 Tulis property test pembagian frame": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310500
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383044
+      }
+    ],
+    "17.9 Tulis property test round-trip cache dan pemakaian ulang": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310625
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383161
+      }
+    ],
+    "17.10 Tulis property test eviksi LRU": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310751
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383267
+      }
+    ],
+    "17.11 Tulis property test konfluensi render paralel": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310856
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383357
+      }
+    ],
+    "17.12 Tulis unit test edge case cache, render, dan CLI timings": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573310997
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383458
+      }
+    ],
+    "18. Checkpoint - Animasi dan performa": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311111
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383557
+      }
+    ],
+    "19.1 Tambahkan data dan endpoint baru di `ai_office/web/api.py`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311211
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383656
+      }
+    ],
+    "19.2 Tambahkan font pixel dan ikon lokal di `web/static/`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311325
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383757
+      }
+    ],
+    "19.3 Tulis ulang `web/static/style.css`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311479
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383879
+      }
+    ],
+    "19.4 Buat `web/static/common.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311628
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573383988
+      }
+    ],
+    "19.5 Buat `web/static/sprites.js` dan `web/static/office_model.js` (murni)": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311732
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384100
+      }
+    ],
+    "19.6 Buat `web/static/office.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311828
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384212
+      }
+    ],
+    "19.7 Tulis ulang `web/static/index.html` dan `web/static/app.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573311925
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384382
+      }
+    ],
+    "19.8 Tulis ulang `web/static/admin.html` dan `web/static/admin.js`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312017
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384487
+      }
+    ],
+    "19.9 Tulis property test data publik": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312108
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384579
+      }
+    ],
+    "19.10 Tulis unit test API": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312217
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384689
+      }
+    ],
+    "19.11 Tulis test statis web": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312324
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384781
+      }
+    ],
+    "19.12 Tulis test JS murni web via Node": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312432
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573384885
+      }
+    ],
+    "20.1 Perbarui `config.yaml`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312531
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573385055
+      }
+    ],
+    "20.2 Perbarui `README.md` dan `data/bgm/README.md`": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312629
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573385324
+      }
+    ],
+    "21. Final checkpoint": [
+      {
+        "executionId": "2d001f9e-6b20-44c8-8d42-17de89d89216",
+        "chatSessionId": "sess_81a50db8-f5fe-481e-a836-e97604ea0666",
+        "timestamp": 1791573312847
+      },
+      {
+        "executionId": "232b2170-4799-41b2-b52e-ba9be8203d37",
+        "chatSessionId": "sess_ce26dc82-2a1c-45e5-9ff7-0c390131dc62",
+        "timestamp": 1791573385732
+      }
+    ]
+  }
+}

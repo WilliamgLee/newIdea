@@ -207,3 +207,42 @@ def test_login_when_no_admin_configured(orch: Orchestrator) -> None:
         assert client.get("/api/auth/status").json()["admin_configured"] is False
         # tidak bisa login (verifikasi tetap waktu-konstan, tidak crash)
         assert do_login(client).status_code == 401
+
+
+# ------------------------------------------------------------ video job di panel admin
+def _job_with_video(orch: Orchestrator, video_name: str = "video.mp4") -> int:
+    job = orch.create_job("learn colors")
+    wd = orch.config.output_dir / f"job_{job.id}"
+    wd.mkdir(parents=True, exist_ok=True)
+    (wd / "video.mp4").write_bytes(b"MP4DATA")
+    (wd / "thumbnail.png").write_bytes(b"PNGDATA")
+    orch.db.set_artifact(job.id, "editor", {"video_file": video_name,
+                                            "thumbnail_file": "thumbnail.png"})
+    return job.id
+
+
+def test_job_video_requires_login(client: TestClient, orch: Orchestrator) -> None:
+    job_id = _job_with_video(orch)
+    assert client.get(f"/api/admin/jobs/{job_id}/video").status_code == 401
+
+
+def test_job_video_and_thumbnail_served_to_admin(client: TestClient, orch: Orchestrator) -> None:
+    job_id = _job_with_video(orch)
+    do_login(client)
+    video = client.get(f"/api/admin/jobs/{job_id}/video")
+    assert video.status_code == 200 and video.content == b"MP4DATA"
+    assert video.headers["content-type"] == "video/mp4"
+    thumb = client.get(f"/api/admin/jobs/{job_id}/thumbnail")
+    assert thumb.status_code == 200 and thumb.content == b"PNGDATA"
+
+
+def test_job_video_cannot_escape_job_folder(client: TestClient, orch: Orchestrator) -> None:
+    job_id = _job_with_video(orch, video_name="../../data/admin.json")
+    do_login(client)
+    assert client.get(f"/api/admin/jobs/{job_id}/video").status_code == 404
+
+
+def test_job_without_video_returns_404(client: TestClient, orch: Orchestrator) -> None:
+    job = orch.create_job("no video yet")
+    do_login(client)
+    assert client.get(f"/api/admin/jobs/{job.id}/video").status_code == 404

@@ -104,12 +104,17 @@ Buat kredensial admin (interaktif; password tidak tampil, hanya **hash argon2id*
 python scripts/set_admin.py
 ```
 
-Jalankan semuanya dengan **satu perintah**:
+Jalankan semuanya dengan **satu perintah** (disarankan):
 ```powershell
-python run.py            # tamb. --open untuk membuka browser otomatis
+.\start.ps1              # tamb. -NoBrowser atau -SkipDoctor
 ```
-- Dashboard publik (kantor 2.5D, hanya-baca): http://127.0.0.1:8000
-- Panel admin (wajib login): http://127.0.0.1:8000/admin
+`start.ps1` otomatis memakai `.venv-xtts` (atau `.venv`), mengecek ffmpeg, menyalakan Ollama bila
+belum jalan, mengecek model, menawarkan membuat admin bila belum ada, menjalankan
+`doctor --quick`, lalu `run.py --open`. Tanpa script: aktifkan venv lalu `python run.py --open`.
+
+- Dashboard publik (kantor pixel 2.5D, hanya-baca): http://127.0.0.1:8000
+  (tambahkan `?demo` untuk simulasi satu job; klik ruangan/kucing; tombol **M** = suara on/off)
+- Panel admin (wajib login): http://127.0.0.1:8000/admin (video hasil bisa diputar di **Detail**)
 
 ---
 
@@ -174,6 +179,14 @@ atau `python -m ai_office.cli mode full_auto`, atau lewat panel admin.
 ### Musik latar
 Taruh file bebas hak cipta di `data/bgm/` (`.mp3/.wav/...`). Satu lagu dipilih otomatis dan
 volumenya **turun saat ada narasi** (ducking). Folder kosong = video tanpa musik.
+`python scripts/make_bgm.py` membuat 3 lagu orisinal (sunny_steps, bubble_garden, little_stars)
+yang dikomposisi dengan numpy, jadi 100% bebas hak cipta.
+
+### Backup otomatis
+Saat server jalan, database + `admin.json` di-backup sekali sehari ke `data/backups/<tanggal>/`
+(14 terbaru disimpan, atur di bagian `backup:` pada `config.yaml`). Manual:
+`python -m ai_office.cli backup`, lihat daftar: `... backup --list`. Memulihkan: matikan server,
+salin isi folder backup ke `data/`.
 
 ---
 
@@ -250,7 +263,11 @@ ai-office/
 pytest -q
 ```
 
-- **`doctor`**: `python -m ai_office.cli doctor` mengecek koneksi LLM, TTS, ffmpeg, status agent.
+- **`doctor`**: `python -m ai_office.cli doctor` mengecek Python/venv, paket, PyTorch+CUDA, XTTS,
+  ffmpeg, NVENC, GPU, Chromium, Ollama + model, akun admin, musik latar, font, backup, ruang disk,
+  dan status agent. `--quick` melewati tes NVENC & Chromium.
+- **Kamus fakta**: `ai_office/agents/facts.yaml` (warna wajar objek, bunyi hewan, sisi bentuk,
+  hitungan) diperiksa otomatis tanpa LLM; kesalahannya dikirim ke Penulis untuk direvisi.
 - **Agent "offline"**: dependensinya tidak terbaca. Untuk suara, cek engine (XTTS perlu
   `.venv-xtts`) dan `ffmpeg -version`.
 - **`ReadTimeout` ke Ollama**: model terlalu besar untuk VRAM (cek `ollama ps`). Pakai

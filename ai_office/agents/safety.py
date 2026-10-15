@@ -22,6 +22,7 @@ from ..schemas import (
     word_count,
 )
 from .base import Agent, AgentContext, AgentError
+from .facts import fact_issues
 
 PROMPT_DIR = Path(__file__).with_name("prompts")
 
@@ -48,6 +49,15 @@ class _PhoneDetector:
 _PHONE = _PhoneDetector()
 _MENTION = re.compile(r"(?<!\w)@\w{2,}")
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+# id kriteria untuk pemeriksaan otomatis, per bahasa rubrik (Indonesia, English)
+_LANGUAGE_CRITERIA = ("bahasa_sederhana", "simple_language")
+_BRAND_CRITERIA = ("tanpa_data_pribadi_merek_iklan", "no_personal_data_brands_ads")
+_FACT_CRITERIA = ("fakta_benar", "facts_correct")
+
+
+def _criterion_id(ids: set[str], candidates: tuple[str, ...]) -> str:
+    return next((c for c in candidates if c in ids), candidates[0])
 
 
 @dataclass
@@ -129,7 +139,8 @@ def automated_checks(script: Script, rubric: Rubric) -> list[AutomatedFlag]:
                 if rx.search(text.lower()):
                     flag(criterion, f"{where}: mengandung kata terlarang '{word}'")
 
-    brand_criterion = "tanpa_data_pribadi_merek_iklan"
+    brand_criterion = _criterion_id(ids, _BRAND_CRITERIA)
+    language_criterion = _criterion_id(ids, _LANGUAGE_CRITERIA)
     for brand in rubric.brands:
         rx = _phrase_regex(brand)
         for where, text in texts:
@@ -149,9 +160,14 @@ def automated_checks(script: Script, rubric: Rubric) -> list[AutomatedFlag]:
         for sentence in _SENTENCE_SPLIT.split(s.narration):
             n = word_count(sentence)
             if n > rubric.max_words_per_sentence:
-                flag("bahasa_sederhana",
+                flag(language_criterion,
                      f"scene {s.id}: kalimat {n} kata (maks {rubric.max_words_per_sentence}): "
                      f"\"{sentence[:60]}\"")
+
+    # kamus fakta (facts.yaml): warna wajar, bunyi hewan, sisi bentuk, hitungan
+    fact_criterion = _criterion_id(ids, _FACT_CRITERIA)
+    for issue in fact_issues(script):
+        flag(fact_criterion, issue)
     return flags
 
 

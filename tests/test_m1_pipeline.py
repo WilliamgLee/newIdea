@@ -21,7 +21,7 @@ from ai_office.bootstrap import make_script_validator
 from ai_office.config import AppConfig
 from ai_office.db import Database
 from ai_office.events import EventBus
-from ai_office.models import AgentName, JobStatus
+from ai_office.models import PIPELINE_AGENTS, AgentName, JobStatus
 from ai_office.orchestrator import Orchestrator
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -72,7 +72,7 @@ def test_build_agents_all_real_by_default(config: AppConfig) -> None:
     """Semua 6 agent sudah asli (M5): tidak ada yang NotImplementedError."""
     config.agents.fake = []
     agents = build_agents(config, provider=RoutedLLM([], []))
-    assert set(agents) == set(AgentName)
+    assert set(agents) == set(PIPELINE_AGENTS)
 
 
 def test_build_agents_honors_fake_list(config: AppConfig) -> None:

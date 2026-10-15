@@ -269,3 +269,15 @@ def test_autofix_fills_empty_text_and_fixes_intro_outro(config: AppConfig) -> No
     scenes = out["script"]["scenes"]
     assert scenes[0]["template"] == "intro" and scenes[-1]["template"] == "outro"
     assert scenes[1]["on_screen_text"]                 # tidak kosong lagi
+
+
+def test_automated_checks_use_english_rubric_ids() -> None:
+    from ai_office.agents.safety import automated_checks, load_rubric
+
+    rubric = load_rubric(ROOT / "safety_rubric_en.yaml")
+    data = json.loads((ROOT / "examples" / "colors_en.json").read_text(encoding="utf-8"))
+    data["scenes"][1]["narration"] = "Visit www.example.com now."
+    data["scenes"][2]["narration"] = ("This is a very long sentence that has far too many words "
+                                      "for a small child to follow.")
+    crits = {f.criterion for f in automated_checks(Script.model_validate(data), rubric)}
+    assert {"no_personal_data_brands_ads", "simple_language"} <= crits

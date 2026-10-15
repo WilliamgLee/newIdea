@@ -7,7 +7,11 @@ $rubric
 
 CARA MENILAI
 - Baca SETIAP scene: `narration`, `on_screen_text`, dan `params` (objek, warna, jumlah).
-- `ok: true` hanya jika naskah benar-benar memenuhi kriteria. Jika ragu, pilih `ok: false`.
+- Kriteria keamanan (kekerasan/seram, tema dewasa, data pribadi/merek/iklan, manipulasi):
+  nilai dengan ketat. Jika ragu, pilih `ok: false`.
+- Kriteria gaya & kualitas (bahasa sederhana, fakta, positif/edukatif): nilai secara wajar.
+  Pilih `ok: false` HANYA untuk masalah yang jelas dan bisa dikutip. Kalimat pendek seperti
+  "Persegi punya empat sisi." sudah cocok untuk usia ini. Jangan menandai soal selera kata.
 - Jangan menyalin deskripsi kriteria sebagai alasan. Tulis alasan yang merujuk isi naskah
   (contoh: "scene 2: anjing berbunyi 'guk guk', benar").
 - `reason`: alasan singkat dan spesifik (sebut scene/kalimat yang bermasalah). Wajib diisi jika `ok: false`.

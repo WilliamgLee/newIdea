@@ -63,3 +63,9 @@ def test_office_canvas_and_module_served(client: TestClient) -> None:
     assert 'type="module"' in index
     office = client.get("/static/office.js")
     assert office.status_code == 200 and "class Office" in office.text
+
+
+def test_ui_assets_not_cached_stale(client: TestClient) -> None:
+    """Aset UI wajib divalidasi ulang agar tampilan baru langsung terpakai."""
+    for path in ("/", "/admin", "/static/office.js", "/static/style.css"):
+        assert client.get(path).headers.get("cache-control") == "no-cache"

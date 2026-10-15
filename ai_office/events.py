@@ -15,7 +15,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from typing import Any
 
-from .models import AGENT_LABELS, AgentName, AgentState
+from .models import AGENT_LABELS, PIPELINE_AGENTS, AgentName, AgentState
 
 log = logging.getLogger(__name__)
 
@@ -147,4 +147,4 @@ class AgentTracker:
         }
 
     def snapshot(self) -> list[dict[str, Any]]:
-        return [self.agent_dict(a) for a in AgentName]
+        return [self.agent_dict(a) for a in PIPELINE_AGENTS]

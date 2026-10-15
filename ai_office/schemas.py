@@ -245,6 +245,41 @@ class SafetyReview(BaseModel):
         return "" if v is None else v
 
 
+def _merge_duplicate_items(items: list[CriterionResult]) -> list[CriterionResult]:
+    """Model kecil kadang menilai satu kriteria dua kali. Gabungkan jadi satu (konservatif):
+    ok hanya jika SEMUA penilaiannya ok; alasan yang tidak ok tetap dibawa."""
+    merged: dict[str, CriterionResult] = {}
+    for item in items:
+        prev = merged.get(item.criterion)
+        if prev is None:
+            merged[item.criterion] = item
+            continue
+        ok = prev.ok and item.ok
+        reasons = [i.reason for i in (prev, item) if i.reason and (ok or not i.ok)]
+        merged[item.criterion] = CriterionResult(
+            criterion=item.criterion, ok=ok, reason=" | ".join(dict.fromkeys(reasons))[:600])
+    return list(merged.values())
+
+
+_AGE_RANGE = re.compile(r"^(\d{1,2})\s*(?:-|–|—|to|sampai|s/d)\s*(\d{1,2})$", re.IGNORECASE)
+_AGE_SINGLE = re.compile(r"^(\d{1,2})$")
+
+
+def normalize_age_group(value: str) -> str:
+    """Rapikan input usia admin ke format "min-max" yang diminta skema naskah.
+
+    "6" -> "6-6", "3 - 6" / "3–6" / "3 to 6" / "3-6 tahun" -> "3-6". Selain itu ValueError.
+    """
+    text = re.sub(r"\s*(tahun|thn|years?|yrs?|y\.?o\.?)\s*$", "", str(value).strip(),
+                  flags=re.IGNORECASE)
+    if m := _AGE_SINGLE.match(text):
+        return f"{m[1]}-{m[1]}"
+    if m := _AGE_RANGE.match(text):
+        lo, hi = sorted((int(m[1]), int(m[2])))
+        return f"{lo}-{hi}"
+    raise ValueError(f"Usia tidak valid: {value!r}. Contoh: 3-6 atau 5")
+
+
 def parse_safety_review(data: Any, criteria_ids: list[str]) -> SafetyReview:
     if not isinstance(data, dict):
         raise OutputInvalid(["output harus berupa objek JSON"])
@@ -252,17 +287,15 @@ def parse_safety_review(data: Any, criteria_ids: list[str]) -> SafetyReview:
         review = SafetyReview.model_validate(data)
     except ValidationError as exc:
         raise OutputInvalid(format_validation_error(exc)) from exc
+    review.items = _merge_duplicate_items(review.items)
     got = [i.criterion for i in review.items]
     errors = []
     missing = [c for c in criteria_ids if c not in got]
     unknown = [c for c in got if c not in criteria_ids]
-    dupes = sorted({c for c in got if got.count(c) > 1})
     if missing:
         errors.append(f"items belum menilai kriteria: {missing}")
     if unknown:
         errors.append(f"items berisi kriteria tidak dikenal: {unknown}. Gunakan: {criteria_ids}")
-    if dupes:
-        errors.append(f"kriteria dinilai lebih dari sekali: {dupes}")
     if any(not i.ok and not i.reason for i in review.items):
         errors.append("setiap kriteria yang tidak ok wajib punya reason")
     if errors:

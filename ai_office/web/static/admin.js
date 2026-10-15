@@ -4,6 +4,7 @@
 
 const GATE_SCRIPT = "awaiting_script_approval";
 const GATE_FINAL = "awaiting_final_approval";
+const STATUS_KIND = { done: "ok", failed: "bad", rejected: "bad", [GATE_SCRIPT]: "warn", [GATE_FINAL]: "warn" };
 
 function csrfToken() {
   const m = document.cookie.match(/(?:^|;\s*)ai_office_csrf=([^;]+)/);
@@ -104,7 +105,7 @@ document.getElementById("create-form").addEventListener("submit", async (e) => {
         style: document.getElementById("style").value,
       },
     });
-    msg.textContent = `Job #${job.id} dibuat`;
+    msg.textContent = `Job #${job.id} dibuat. Lihat agentnya bekerja di halaman Kantor.`;
     document.getElementById("topic").value = "";
     await refreshJobs();
   } catch (ex) {
@@ -123,25 +124,30 @@ async function refreshJobs() {
   tbody.replaceChildren();
   jobs.forEach((j) => {
     const tr = el("tr");
-    tr.append(el("td", String(j.id)), el("td", j.title || j.topic), el("td", j.status));
+    const status = el("td");
+    status.append(el("span", j.status, `tag tag-${STATUS_KIND[j.status] || "info"}`));
+    tr.append(el("td", `#${j.id}`, "mono"), el("td", j.title || j.topic), status);
     const actions = el("td");
     if (j.status === GATE_SCRIPT) {
-      actions.append(btn("Approve naskah", () => act(j.id, "approve-script")));
-      actions.append(btn("Tolak", () => act(j.id, "reject")));
+      actions.append(btn("Approve naskah", () => act(j.id, "approve-script"), "btn-green", "handoff"));
+      actions.append(btn("Tolak", () => act(j.id, "reject"), "btn-red", "reject"));
     } else if (j.status === GATE_FINAL) {
-      actions.append(btn("Approve final", () => act(j.id, "approve-final")));
-      actions.append(btn("Tolak", () => act(j.id, "reject")));
+      actions.append(btn("Approve final", () => act(j.id, "approve-final"), "btn-green", "handoff"));
+      actions.append(btn("Tolak", () => act(j.id, "reject"), "btn-red", "reject"));
     } else if (j.status === "failed") {
-      actions.append(btn("Retry", () => act(j.id, "retry")));
+      actions.append(btn("Retry", () => act(j.id, "retry"), "btn-yellow"));
     }
-    actions.append(btn("Detail", () => showDetail(j.id)));
+    actions.append(btn("Detail", () => showDetail(j.id), "btn-tan"));
     tr.append(actions);
     tbody.append(tr);
   });
 }
 
-function btn(label, onClick) {
-  const b = el("button", label);
+// Tombol pixel. Bunyi kliknya diputar otomatis oleh sfx.js (data-sfx memilih bunyi lain).
+function btn(label, onClick, variant = "", sound = "") {
+  const b = el("button", label, `btn-sm ${variant}`.trim());
+  b.type = "button";
+  if (sound) b.dataset.sfx = sound;
   b.addEventListener("click", onClick);
   return b;
 }
@@ -159,14 +165,39 @@ async function showDetail(id) {
   const d = document.getElementById("detail");
   const job = await api(`/api/admin/jobs/${id}`);
   d.replaceChildren();
-  d.append(el("h3", `Job #${job.id}: ${job.title || job.topic}`));
+  d.hidden = false;
+  const head = el("div", undefined, "panel-head");
+  head.append(el("h3", `Job #${job.id}: ${job.title || job.topic}`));
+  head.append(btn("Tutup", () => (d.hidden = true)));
+  d.append(head);
   if (job.error) d.append(el("p", `Error: ${job.error}`, "error"));
+
+  // pemutar video hasil Editor (file dilayani endpoint admin, butuh login)
+  const editor = job.artifacts && job.artifacts.editor;
+  if (editor && editor.video_file) {
+    d.append(el("h4", "Video"));
+    const video = el("video", undefined, "job-video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    if (editor.thumbnail_file) video.poster = `/api/admin/jobs/${job.id}/thumbnail`;
+    video.src = `/api/admin/jobs/${job.id}/video`;
+    const meta = el("p", [
+      editor.duration_sec != null ? `${editor.duration_sec} detik` : null,
+      editor.bgm ? `musik: ${editor.bgm}` : "tanpa musik",
+      editor.encoder ? `encoder: ${editor.encoder}` : null,
+    ].filter(Boolean).join(" · "), "muted small");
+    d.append(video, meta);
+  }
 
   (job.safety_reviews || []).forEach((r) => {
     d.append(el("h4", `Review keamanan putaran ${r.round}: ${r.verdict.toUpperCase()}`));
-    const ul = el("ul");
+    const ul = el("ul", undefined, "review-list");
     (r.review.items || []).forEach((it) => {
-      ul.append(el("li", `${it.ok ? "OK" : "XX"} ${it.criterion}: ${it.reason}`));
+      const li = el("li");
+      li.append(el("span", it.ok ? "OK" : "X", `tag tag-${it.ok ? "ok" : "bad"}`),
+        el("span", `${it.criterion}: ${it.reason}`));
+      ul.append(li);
     });
     d.append(ul);
   });

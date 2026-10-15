@@ -237,28 +237,28 @@ def test_real_ffmpeg_assembles_playable_video(config: AppConfig, tmp_path: Path)
     from ai_office.media import MediaTools
 
     tools = MediaTools()
-    # klip warna 3 detik tanpa audio
+    # klip warna 8 detik tanpa audio
     clip = tmp_path / "clip.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
-                    "-i", "color=c=blue:s=216x384:d=3:r=10", "-pix_fmt", "yuv420p", str(clip)],
+                    "-i", "color=c=blue:s=216x384:d=8:r=10", "-pix_fmt", "yuv420p", str(clip)],
                    check=True)
     wd = config.output_dir / "job_1"
     (wd / "audio").mkdir(parents=True)
     shutil.copy(clip, wd / "animation.mp4")
-    # audio 1 detik per scene (pakai 2 scene pendek)
-    for i in (1, 2):
+    # audio 1 detik per scene (pakai 4 scene pendek, minimum skema)
+    for i in (1, 2, 3, 4):
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi",
                         "-i", "sine=frequency=330:duration=1", "-ar", "48000", "-ac", "1",
                         str(wd / f"audio/scene_{i}.wav")], check=True)
 
     small = json.loads(json.dumps(EXAMPLE))
-    small["scenes"] = small["scenes"][:2]
-    small["scenes"][0]["duration_sec"] = 1.5
-    small["scenes"][1]["duration_sec"] = 1.5
-    small["scenes"][1]["template"] = "outro"
-    small["scenes"][1]["params"] = {"character": "kiki", "pose": "jump", "emotion": "happy",
+    small["scenes"] = small["scenes"][:4]
+    for s in small["scenes"]:
+        s["duration_sec"] = 2.0
+    small["scenes"][3]["template"] = "outro"
+    small["scenes"][3]["params"] = {"character": "kiki", "pose": "jump", "emotion": "happy",
                                     "background": "garden", "items": []}
-    small["total_duration_sec"] = 3
+    small["total_duration_sec"] = 8
     script = Script.model_validate(small)
     voice = make_voice(small)
 
@@ -268,5 +268,5 @@ def test_real_ffmpeg_assembles_playable_video(config: AppConfig, tmp_path: Path)
                                                  log=lambda m: None)
     video = wd / out["video_file"]
     assert video.exists() and video.stat().st_size > 0
-    assert tools.probe_duration(video) == pytest.approx(3.0, abs=0.5)
+    assert tools.probe_duration(video) == pytest.approx(8.0, abs=0.5)
     assert (wd / "thumbnail.png").exists()

@@ -187,10 +187,14 @@ def cmd_build_file(orch: Orchestrator, path: Path) -> int:
     return 0
 
 
-def cmd_doctor(orch: Orchestrator) -> int:
+def cmd_doctor(orch: Orchestrator, quick: bool = False) -> int:
+    from .doctor import print_report, run_checks
+
+    print("Memeriksa lingkungan" + (" (cepat)" if quick else "") + "...")
+    env_fails = print_report(run_checks(orch.config, deep=not quick))
     cfg = orch.config.llm
     model = cfg.model if cfg.provider == "ollama" else cfg.gemini_model
-    print(f"Provider LLM: {cfg.provider} (model: {model})")
+    print(f"\nAgent (provider LLM: {cfg.provider}, model: {model})")
     ok_all = True
     for name, agent in orch.agents.items():
         fake = name.value in orch.config.agents.fake
@@ -216,7 +220,24 @@ def cmd_doctor(orch: Orchestrator) -> int:
         if v.xtts.language not in XTTS_LANGUAGES:
             print(f"\nPERINGATAN: voice.engine=xtts tapi voice.xtts.language='{v.xtts.language}' "
                   "tidak didukung XTTS. Untuk Bahasa Indonesia pakai engine: edge-tts.")
-    return 0 if ok_all else 1
+    print("\nSemua siap." if ok_all and not env_fails else
+          f"\nAda {env_fails} masalah lingkungan / agent yang belum siap (lihat [XX] di atas).")
+    return 0 if ok_all and not env_fails else 1
+
+
+def cmd_backup(orch: Orchestrator, list_only: bool) -> int:
+    from .backup import backup_time, list_backups, make_backup
+
+    if not list_only:
+        dest = make_backup(orch.config)
+        print(f"Backup dibuat: {dest}")
+    backups = list_backups(orch.config)
+    print(f"\n{len(backups)} backup (maks {orch.config.backup.keep}):")
+    for b in reversed(backups):
+        files = ", ".join(sorted(p.name for p in b.iterdir()))
+        print(f"  {backup_time(b):%d-%m-%Y %H:%M:%S}  {b.name}  [{files}]")
+    print("\nMemulihkan: matikan server, salin isi folder backup ke folder data/.")
+    return 0
 
 
 def cmd_demo(orch: Orchestrator, topic: str) -> int:
@@ -253,7 +274,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("approve-script", help="setujui naskah (opsional: --file naskah editan)")
     p.add_argument("job_id", type=int)
     p.add_argument("--file", default=None, help="path script.json hasil edit")
-    sub.add_parser("doctor", help="cek koneksi LLM & status agent")
+    p = sub.add_parser("doctor", help="cek lingkungan (Python, ffmpeg, GPU, Ollama, ...) & agent")
+    p.add_argument("--quick", action="store_true", help="lewati tes NVENC & Chromium (lebih cepat)")
+    p = sub.add_parser("backup", help="backup database + admin.json sekarang")
+    p.add_argument("--list", action="store_true", help="hanya tampilkan daftar backup")
     p = sub.add_parser("voice-file", help="buat suara dari script.json buatan tangan (tanpa LLM)")
     p.add_argument("script_file")
     p = sub.add_parser("render-file",
@@ -296,7 +320,9 @@ def main(argv: list[str] | None = None) -> int:
                     edited = json.loads(Path(args.file).read_text(encoding="utf-8"))
                 print(f"Status: {orch.approve_script(args.job_id, edited).status.value}")
             case "doctor":
-                return cmd_doctor(orch)
+                return cmd_doctor(orch, quick=args.quick)
+            case "backup":
+                return cmd_backup(orch, list_only=args.list)
             case "voice-file":
                 return cmd_voice_file(orch, Path(args.script_file))
             case "render-file":

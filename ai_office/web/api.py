@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -19,6 +20,7 @@ from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request, Respo
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
+from ..backup import BackupScheduler
 from ..events import Event, EventBus
 from ..models import InvalidTransition
 from ..orchestrator import Orchestrator
@@ -66,12 +68,16 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
                auth: AuthService | None = None) -> FastAPI:
     auth = auth or build_auth(orchestrator)
 
+    backups = BackupScheduler(orchestrator.config)
+
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         if start_worker:
             orchestrator.start_worker()
+            backups.start()  # backup otomatis database + admin.json
         yield
         if start_worker:
+            backups.stop()
             orchestrator.stop_worker()
 
     app = FastAPI(title="AI Office", lifespan=lifespan, docs_url=None, redoc_url=None,
@@ -84,6 +90,11 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
         response = await call_next(request)
         for key, value in SECURITY_HEADERS.items():
             response.headers.setdefault(key, value)
+        # halaman & aset UI: browser wajib cek ulang (dapat 304 bila tidak berubah), supaya
+        # versi baru langsung terpakai tanpa harus hard refresh
+        path = request.url.path
+        if path in ("/", "/admin") or path.startswith("/static/"):
+            response.headers.setdefault("Cache-Control", "no-cache")
         return response
 
     # ---------------------------------------------------- dependency auth
@@ -142,9 +153,9 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
             raise HTTPException(status_code=401, detail=str(exc)) from exc
         csrf = auth.sessions.new_csrf()
         response.set_cookie(SESSION_COOKIE, token, httponly=True, samesite="strict",
-                            secure=secure_cookie, max_age=int(auth.sessions.ttl_sec), path="/")
+                            secure=secure_cookie, max_age=math.ceil(auth.sessions.ttl_sec), path="/")
         response.set_cookie(CSRF_COOKIE, csrf, httponly=False, samesite="strict",
-                            secure=secure_cookie, max_age=int(auth.sessions.ttl_sec), path="/")
+                            secure=secure_cookie, max_age=math.ceil(auth.sessions.ttl_sec), path="/")
         return {"ok": True, "csrf_token": csrf}
 
     @app.post("/api/auth/logout")
@@ -158,6 +169,28 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
     @app.get("/api/admin/jobs", dependencies=[Depends(require_admin)])
     def admin_jobs(limit: int = Query(50, ge=1, le=200)) -> list[dict[str, Any]]:
         return [j.admin_dict() for j in orchestrator.db.list_jobs(limit=limit)]
+
+    def _job_media(job_id: int, key: str) -> Path:
+        """File hasil Editor (video/thumbnail) milik job, dijaga tetap di dalam folder job."""
+        job = orchestrator.db.get_job(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="Job tidak ditemukan")
+        name = (job.artifacts.get("editor") or {}).get(key)
+        if not name:
+            raise HTTPException(status_code=404, detail="Video belum dibuat untuk job ini")
+        workdir = (orchestrator.config.output_dir / f"job_{job_id}").resolve()
+        path = (workdir / str(name)).resolve()
+        if workdir not in path.parents or not path.is_file():
+            raise HTTPException(status_code=404, detail="File tidak ditemukan")
+        return path
+
+    @app.get("/api/admin/jobs/{job_id}/video", dependencies=[Depends(require_admin)])
+    def admin_job_video(job_id: int) -> FileResponse:
+        return FileResponse(_job_media(job_id, "video_file"), media_type="video/mp4")
+
+    @app.get("/api/admin/jobs/{job_id}/thumbnail", dependencies=[Depends(require_admin)])
+    def admin_job_thumbnail(job_id: int) -> FileResponse:
+        return FileResponse(_job_media(job_id, "thumbnail_file"), media_type="image/png")
 
     @app.get("/api/admin/jobs/{job_id}", dependencies=[Depends(require_admin)])
     def admin_job(job_id: int) -> dict[str, Any]:
@@ -180,10 +213,9 @@ def create_app(orchestrator: Orchestrator, start_worker: bool = True,
         topic = str(payload.get("topic", "")).strip()
         if not topic:
             raise HTTPException(status_code=400, detail="Topik wajib diisi")
-        job = orchestrator.create_job(
+        return _guard(lambda: orchestrator.create_job(
             topic, age_group=payload.get("age_group") or None,
-            style=payload.get("style") or None, language=payload.get("language") or None)
-        return job.admin_dict()
+            style=payload.get("style") or None, language=payload.get("language") or None))
 
     @app.post("/api/admin/jobs/{job_id}/approve-script",
               dependencies=[Depends(require_admin), Depends(require_csrf)])

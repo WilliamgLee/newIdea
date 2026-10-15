@@ -4,20 +4,20 @@ from __future__ import annotations
 
 from ..config import AppConfig
 from ..llm.base import LLMProvider
-from ..models import AgentName
+from ..models import PIPELINE_AGENTS, AgentName
 from .base import Agent, AgentContext, AgentError
 from .fake import build_fake_agents
 
 __all__ = ["Agent", "AgentContext", "AgentError", "build_agents"]
 
 # Agent asli yang sudah tersedia (bertambah per milestone)
-IMPLEMENTED: frozenset[AgentName] = frozenset(AgentName)  # semua agent sudah asli (M5)
+IMPLEMENTED: frozenset[AgentName] = frozenset(PIPELINE_AGENTS)  # semua agent pipeline asli (M5)
 
 
 def build_agents(config: AppConfig, provider: LLMProvider | None = None) -> dict[AgentName, Agent]:
     """Bangun agent sesuai config: agent di `agents.fake` memakai versi palsu."""
     agents = build_fake_agents(config.agents.fake_delay_sec)
-    real = set(AgentName) - {AgentName(a) for a in config.agents.fake}
+    real = set(PIPELINE_AGENTS) - {AgentName(a) for a in config.agents.fake}
 
     missing = real - IMPLEMENTED
     if missing:

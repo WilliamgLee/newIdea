@@ -91,6 +91,12 @@ delivery:
   dest_dir: ~/Videos/AI-Office
   open_folder: true
 
+backup:
+  enabled: true            # backup otomatis database + admin.json saat server jalan
+  dir: data/backups        # tiap backup = satu folder bertanggal (data/ di-gitignore)
+  interval_hours: 24       # sekali sehari (dan saat server start bila backup terakhir sudah lama)
+  keep: 14                 # simpan 14 backup terbaru
+
 agents:
   # Agent yang masih "palsu" (simulasi). Agent asli ditambahkan per milestone.
   # Pilihan: writer, safety, voice, animator, editor, delivery

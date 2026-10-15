@@ -4,31 +4,63 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Office</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%231b1d20'/%3E%3Crect x='5' y='2' width='6' height='5' fill='%23e8a0bf'/%3E%3Crect x='6' y='4' width='4' height='3' fill='%23f0c8a0'/%3E%3Crect x='4' y='8' width='8' height='5' fill='%237fc28a'/%3E%3Crect x='5' y='13' width='2' height='2' fill='%23f1f0ec'/%3E%3Crect x='9' y='13' width='2' height='2' fill='%23f1f0ec'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <header class="topbar">
-    <h1>AI Office</h1>
-    <span id="conn" class="muted">menghubungkan…</span>
-    <a href="/admin" class="admin-link">Panel Admin</a>
+    <a href="/" class="brand" aria-label="AI Office">AI OFFICE</a>
+    <span id="conn" class="pill">MENGHUBUNGKAN</span>
+    <span class="spacer"></span>
+    <button id="sound-toggle" class="btn btn-sm" type="button" aria-pressed="true">SOUND: ON</button>
+    <a href="/admin" class="btn btn-sm btn-yellow">ADMIN</a>
   </header>
 
-  <!-- Kantor 2.5D isometrik: tiap agent di mejanya, status real-time via SSE -->
-  <div id="office-wrap">
-    <canvas id="office"></canvas>
-  </div>
+  <main class="layout">
+    <section class="panel stage-panel">
+      <div class="panel-head">
+        <h2 class="panel-title">KANTOR</h2>
+        <span class="muted small">Klik ruangan untuk lihat agentnya, klik kucingnya juga.</span>
+      </div>
+      <!-- Kantor pixel 2.5D: tiap agent punya ruangan, status real-time via SSE -->
+      <div id="office-wrap" class="stage">
+        <canvas id="office"></canvas>
+      </div>
+      <div class="msgbox" aria-live="polite">
+        <span id="msg-tag" class="tag tag-info">READY</span>
+        <span id="msg">Menunggu kabar dari kantor…</span>
+      </div>
+    </section>
 
-  <section class="summary-bar">
-    <ul id="summary"></ul>
-  </section>
+    <aside class="side">
+      <section class="panel">
+        <h2 class="panel-title">STATUS</h2>
+        <div id="summary" class="stats"></div>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">AGENT</h2>
+        <ul id="agent-list" class="agent-list"></ul>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">LOG KANTOR</h2>
+        <ol id="feed" class="feed"><li class="muted">Belum ada kejadian.</li></ol>
+      </section>
+    </aside>
 
-  <section class="videos">
-    <h2>Video selesai</h2>
-    <table>
-      <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Durasi</th></tr></thead>
-      <tbody id="jobs"></tbody>
-    </table>
-  </section>
+    <section class="panel videos">
+      <h2 class="panel-title">VIDEO TERBARU</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Durasi</th></tr></thead>
+          <tbody id="jobs"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Tombol M: suara on/off. Tambahkan <code>?demo</code> di URL untuk melihat simulasi satu job.
+  </footer>
 
   <script type="module" src="/static/app.js"></script>
 </body>

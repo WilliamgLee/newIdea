@@ -7,7 +7,13 @@ import pytest
 
 from ai_office.agents.base import Agent, AgentContext
 from ai_office.agents.fake import FakeSafety
-from ai_office.models import AgentName, AgentState, InvalidTransition, JobStatus
+from ai_office.models import (
+    PIPELINE_AGENTS,
+    AgentName,
+    AgentState,
+    InvalidTransition,
+    JobStatus,
+)
 from ai_office.orchestrator import Orchestrator
 
 S = JobStatus
@@ -57,7 +63,7 @@ def test_semi_auto_full_flow_reaches_done(orch: Orchestrator) -> None:
     job = orch.process_job(job.id)
     assert job.status == S.DONE
     assert job.started_at and job.finished_at and job.finished_at >= job.started_at
-    assert set(job.artifacts) == {a.value for a in AgentName}
+    assert set(job.artifacts) == {a.value for a in PIPELINE_AGENTS}
 
     logs = [entry["message"] for entry in orch.db.get_logs(job.id)]
     assert any("awaiting_final_approval -> delivering" in m for m in logs)

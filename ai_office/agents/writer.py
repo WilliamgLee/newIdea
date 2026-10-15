@@ -14,6 +14,7 @@ from ..llm.structured import generate_structured
 from ..models import AgentName
 from ..schemas import Script, parse_script, script_json_schema
 from .base import Agent, AgentContext
+from .facts import load_facts
 
 PROMPT_DIR = Path(__file__).with_name("prompts")
 LANGUAGE_NAMES = {"id": "Bahasa Indonesia", "en": "English"}
@@ -37,6 +38,14 @@ def load_content_profile(config: AppConfig) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh) or {}
     return data if isinstance(data, dict) else {}
+
+
+def _color_hints() -> str:
+    """Warna wajar tiap objek dari kamus fakta, supaya Penulis tidak memberi warna aneh."""
+    facts = load_facts()
+    pairs = "; ".join(f"{obj}: {'/'.join(sorted(colors))}"
+                      for obj, colors in facts.object_colors.items())
+    return f"\nWARNA WAJAR OBJEK (color harus salah satu ini): {pairs}"
 
 
 def _profile_text(profile: dict[str, Any]) -> str:
@@ -103,7 +112,7 @@ class WriterAgent(Agent):
             target=f"{v.target_duration_sec:g}",
             min_dur=f"{v.min_duration_sec:g}",
             max_dur=f"{v.max_duration_sec:g}",
-            catalog=self.catalog.prompt_listing(),
+            catalog=self.catalog.prompt_listing() + _color_hints(),
             profile=_profile_text(self.profile),
         )
 

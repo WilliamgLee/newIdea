@@ -3,19 +3,32 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI Office - Admin</title>
+  <title>AI Office - Panel Admin</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%231b1d20'/%3E%3Crect x='5' y='2' width='6' height='5' fill='%239aa0a8'/%3E%3Crect x='6' y='4' width='4' height='3' fill='%23f0c8a0'/%3E%3Crect x='4' y='8' width='8' height='5' fill='%235a6270'/%3E%3Crect x='7' y='8' width='2' height='4' fill='%23d9776b'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>AI Office - Panel Admin</h1>
+  <header class="topbar">
+    <a href="/" class="brand">AI OFFICE</a>
+    <span class="pill">Panel Admin</span>
+    <span class="spacer"></span>
+    <button id="sound-toggle" class="btn btn-sm" type="button" aria-pressed="true">SOUND: ON</button>
+    <a href="/" class="btn btn-sm">KANTOR</a>
+  </header>
 
   <!-- Login -->
-  <section id="login-view" hidden>
-    <h2>Masuk</h2>
+  <section id="login-view" class="panel login-box" hidden>
+    <h2 class="panel-title">MASUK</h2>
     <form id="login-form">
-      <p><label>Username <input id="username" autocomplete="username" required></label></p>
-      <p><label>Password <input id="password" type="password" autocomplete="current-password" required></label></p>
-      <p><button type="submit">Masuk</button></p>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-green">▶ Masuk</button>
       <p id="login-error" class="error"></p>
     </form>
     <p id="no-admin" class="muted" hidden>
@@ -24,34 +37,46 @@
   </section>
 
   <!-- Panel -->
-  <section id="admin-view" hidden>
-    <p>
-      <button id="logout">Keluar</button>
-      Mode:
-      <select id="mode">
-        <option value="semi_auto">semi_auto (2 gerbang persetujuan)</option>
-        <option value="full_auto">full_auto (lewati gerbang jika review lulus)</option>
-      </select>
-    </p>
+  <main id="admin-view" class="admin-main" hidden>
+    <section class="panel">
+      <div class="panel-head">
+        <h2 class="panel-title">PENGATURAN</h2>
+        <button id="logout" class="btn-sm" type="button">Keluar</button>
+      </div>
+      <div class="row">
+        <label for="mode">Mode</label>
+        <select id="mode">
+          <option value="semi_auto">SEMI AUTO (2 gerbang persetujuan)</option>
+          <option value="full_auto">FULL AUTO (lewati gerbang jika review lulus)</option>
+        </select>
+      </div>
+    </section>
 
-    <h2>Buat job baru</h2>
-    <form id="create-form">
-      <input id="topic" placeholder="topik, mis. animal sounds" required>
-      <input id="age" placeholder="usia (3-6)" size="6">
-      <input id="style" placeholder="gaya (cheerful)" size="10">
-      <button type="submit">Buat</button>
-      <span id="create-msg" class="muted"></span>
-    </form>
+    <section class="panel">
+      <h2 class="panel-title">BUAT JOB BARU</h2>
+      <form id="create-form" class="row">
+        <input id="topic" placeholder="topik, mis. animal sounds" required>
+        <input id="age" placeholder="usia (3-6)">
+        <input id="style" placeholder="gaya (cheerful)">
+        <button type="submit" class="btn-green" data-sfx="coin">+ Buat</button>
+      </form>
+      <p id="create-msg" class="muted small"></p>
+    </section>
 
-    <h2>Job</h2>
-    <table>
-      <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Aksi</th></tr></thead>
-      <tbody id="jobs"></tbody>
-    </table>
+    <section class="panel">
+      <h2 class="panel-title">JOB</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Judul / Topik</th><th>Status</th><th>Aksi</th></tr></thead>
+          <tbody id="jobs"></tbody>
+        </table>
+      </div>
+    </section>
 
-    <div id="detail"></div>
-  </section>
+    <section id="detail" class="panel" hidden></section>
+  </main>
 
+  <script type="module" src="/static/sfx.js"></script>
   <script src="/static/admin.js"></script>
 </body>
 </html>

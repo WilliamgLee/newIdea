@@ -45,7 +45,7 @@ class DeliveryAgent(Agent):
     name = AgentName.DELIVERY
 
     def __init__(self, config: AppConfig, open_folder: bool | None = None,
-                 opener=open_in_file_manager) -> None:
+                 opener=None) -> None:
         self.config = config
         self.open_folder = config.delivery.open_folder if open_folder is None else open_folder
         self._opener = opener
@@ -67,7 +67,7 @@ class DeliveryAgent(Agent):
 
         opened = False
         if self.open_folder:
-            opened = self._opener(dest)
+            opened = (self._opener or open_in_file_manager)(dest)
             ctx.log("Membuka folder tujuan" if opened else
                     "Tidak bisa membuka file explorer (lewati)")
 

@@ -50,6 +50,21 @@ templates:
     description: objek tersembunyi di balik tanda tanya, lalu terungkap (tebak-tebakan)
     items: [1, 1]
     color: optional
+  find_odd:
+    description: tiga objek sama dan satu objek beda, penonton mencari yang beda lalu terungkap (items[0] = objek yang sama, items[1] = objek yang beda)
+    items: [2, 2]
+    color: optional       # bila diisi, berlaku untuk objek yang sama
+  pattern:
+    description: pola berulang A-B-A-B lalu tanda tanya, ternyata A (melatih pola; items[0] = A, items[1] = B)
+    items: [2, 2]
+    color: optional       # bila diisi, berlaku untuk objek A
+  color_change:
+    description: satu benda (bola, balon, mobil, payung, topi, atau bentuk) berganti-ganti 4 warna cerah, cocok untuk topik warna; color = warna awal
+    items: [1, 1]
+    color: optional
+  sing_along:
+    description: karakter menari dan bertepuk tangan dengan not musik beterbangan, cocok untuk lagu atau ajakan bergerak (clap, jump)
+    items: [0, 0]
   outro:
     description: karakter memuji penonton dan mengajak menonton lagi
     items: [0, 0]

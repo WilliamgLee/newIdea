@@ -7,6 +7,8 @@ menurunkan volumenya saat ada narasi (ducking).
 Folder ini di-gitignore (lihat `.gitignore`), jadi file musikmu tidak ikut ter-commit.
 Kalau folder ini kosong, video tetap dibuat tanpa musik.
 
+Buat 3 lagu orisinal otomatis: `python scripts/make_bgm.py` (pakai `--force` untuk menimpa).
+
 Sumber musik gratis yang aman untuk anak, mis.:
 - YouTube Audio Library (filter: bebas royalti, "no attribution")
 - Pixabay Music, Incompetech (Kevin MacLeod, cek lisensinya)

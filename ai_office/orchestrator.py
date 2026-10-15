@@ -22,7 +22,9 @@ from .agents.base import Agent, AgentContext
 from .config import VALID_MODES, AppConfig
 from .db import Database
 from .events import AgentTracker, EventBus
+from .schemas import normalize_age_group
 from .models import (
+    PIPELINE_AGENTS,
     STAGE_AGENT,
     TERMINAL_STATUSES,
     AgentName,
@@ -62,7 +64,7 @@ class Orchestrator:
     ) -> None:
         """`script_validator`: validasi naskah hasil edit admin di Gerbang 1.
         Menerima dict, mengembalikan dict yang sudah dinormalisasi, atau raise ValueError."""
-        missing = set(AgentName) - set(agents)
+        missing = set(PIPELINE_AGENTS) - set(agents)
         if missing:
             raise ValueError(f"Agent belum terdaftar: {sorted(m.value for m in missing)}")
         self.config = config
@@ -97,7 +99,7 @@ class Orchestrator:
         c = self.config.content
         job = self.db.create_job(
             topic=topic,
-            age_group=age_group or c.age_group,
+            age_group=normalize_age_group(age_group or c.age_group),
             style=style or c.style,
             language=language or c.language,
         )

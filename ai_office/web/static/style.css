@@ -192,6 +192,100 @@ button:disabled { opacity: .5; cursor: not-allowed; }
   image-rendering: crisp-edges;
   max-width: 100%;
 }
+#office3d {
+  display: block;
+  max-width: 100%;
+  touch-action: none; /* seret = putar kamera, bukan menggulir halaman */
+}
+.stage canvas[hidden] { display: none; }
+
+/* ------------------------------------------------------------ overlay mode jelajah 3D */
+.stage { position: relative; }
+.o3d-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: var(--pixel);
+  color: #fffaf0;
+  letter-spacing: .06em;
+}
+.o3d-overlay[hidden] { display: none; }
+.o3d-cross {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+}
+.o3d-cross::before, .o3d-cross::after {
+  content: "";
+  position: absolute;
+  background: #fffaf0;
+  box-shadow: 0 0 0 1px rgba(27, 29, 32, .7);
+}
+.o3d-cross::before { left: 7px; top: 0; width: 2px; height: 16px; }
+.o3d-cross::after { left: 0; top: 7px; width: 16px; height: 2px; }
+.o3d-start, .o3d-label, .o3d-mode, .o3d-help { position: absolute; background: rgba(27, 29, 32, .78); }
+.o3d-start {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, 24px);
+  padding: .6rem .9rem;
+  font-size: .8rem;
+  box-shadow: 0 0 0 2px var(--yellow);
+  color: var(--yellow);
+}
+.o3d-label {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -48px);
+  padding: .3rem .6rem;
+  font-size: .68rem;
+}
+.o3d-mode { right: 8px; top: 8px; padding: .3rem .6rem; font-size: .68rem; color: var(--green); }
+.o3d-help {
+  left: 8px;
+  bottom: 8px;
+  padding: .45rem .6rem;
+  font-size: .58rem;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+.o3d-start:empty, .o3d-label:empty, .o3d-mode:empty { display: none; }
+@media (max-width: 640px) { .o3d-help { display: none; } }
+
+/* banner job di tampilan 3D (JOB BARU / SELESAI / GAGAL) */
+.o3d-banner {
+  --banner: var(--blue, #82a0bd);
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-family: var(--pixel);
+  font-size: .9rem;
+  letter-spacing: .1em;
+  padding: .5rem 1rem;
+  background: #1b1d20;
+  color: var(--banner);
+  box-shadow: 0 0 0 2px var(--banner), 0 4px 0 2px rgba(0, 0, 0, .35);
+  white-space: nowrap;
+}
+.o3d-banner[hidden] { display: none; }
+.o3d-banner-in { animation: o3d-drop .35s steps(5) both; }
+@keyframes o3d-drop {
+  from { transform: translate(-50%, -40px); }
+  to { transform: translate(-50%, 0); }
+}
+
+.view-toggle { display: flex; gap: 6px; margin-left: auto; }
+.view-toggle [hidden] { display: none; }
+.view-toggle .btn[aria-pressed="true"] {
+  background: var(--green);
+  color: #14301b;
+  box-shadow: inset -3px -3px 0 #4f8f5a, inset 3px 3px 0 #b3e2ba, 0 0 0 2px var(--edge-lo);
+}
 
 .msgbox {
   margin-top: 12px;

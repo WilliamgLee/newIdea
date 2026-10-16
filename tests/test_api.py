@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import pytest
 
 pytest.importorskip("fastapi")
@@ -63,6 +65,19 @@ def test_office_canvas_and_module_served(client: TestClient) -> None:
     assert 'type="module"' in index
     office = client.get("/static/office.js")
     assert office.status_code == 200 and "class Office" in office.text
+
+
+def test_office3d_served_with_local_three(client: TestClient) -> None:
+    """Kantor 3D: modul office3d.js + Three.js lokal (CSP melarang CDN) + lisensinya."""
+    index = client.get("/").text
+    assert 'id="office3d"' in index and 'id="view-3d"' in index
+    office3d = client.get("/static/office3d.js")
+    assert office3d.status_code == 200 and "class Office3D" in office3d.text
+    imports = re.findall(r'from\s+"([^"]+)"', office3d.text)
+    assert imports and all(p.startswith("/static/") for p in imports)
+    three = client.get("/static/vendor/three.module.min.js")
+    assert three.status_code == 200 and 'const t="160"' in three.text[:400]
+    assert "MIT License" in client.get("/static/vendor/three.LICENSE.txt").text
 
 
 def test_ui_assets_not_cached_stale(client: TestClient) -> None:

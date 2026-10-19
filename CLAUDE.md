@@ -114,7 +114,9 @@ sementara, `agents.fake: [semua]`, `delivery.open_folder: false`) lalu `python r
     + pendar (lampu jalan, balkon, lampu lantai, lampu meja), kaca toko `SHOP_GLASS` berpendar.
     Layar monitor beranimasi (port `_drawScreen`), partikel balok (simbol kerja, kilau, asap gagal,
     debu langkah), banner job DOM `.o3d-banner`. Kucing voxel di lorong (`_buildCat`, hover "cat",
-    klik = meow) juga sudah ada. Belum: pejalan kaki di jalan.
+    klik = meow) juga sudah ada. Pejalan kaki voxel (`_buildWalkers`, warna dari `STREET_PEOPLE`
+    office.js) lewat di jalur `STREET_LANES`, kadang mampir menatap toko; jumlah per waktu `WALKERS_MAX`,
+    klik = disapa.
   - Uji di server terpisah (port lain, agent fake) dan `?demo`; jangan sentuh data user.
 - Rencana berikutnya (hanya jika ada budget): fine-tuning model kecil dari naskah yang sudah
   di-approve, atau pindah ke API hosted + n8n sebagai orkestrator agar tidak jalan di laptop.

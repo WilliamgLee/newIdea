@@ -5,7 +5,7 @@
 "use strict";
 
 import * as THREE from "/static/vendor/three.module.min.js";
-import { AGENTS, ROOMS, RUGS, drawText, planJobEvent, skyKey } from "/static/office.js";
+import { AGENTS, ROOMS, RUGS, STREET_PEOPLE, drawText, planJobEvent, skyKey } from "/static/office.js";
 import { sfx } from "/static/sfx.js";
 
 // ------------------------------------------------------------------ dunia
@@ -43,6 +43,14 @@ const SKY3D = {
   night: { bg: "#141a33", hemiSky: "#5a6aa8", hemiGround: "#2a2630", hemi: 0.5, sun: "#a9bcff", sunI: 0.4,
     sunPos: [-8, 20, 14], body: "#e8ecff", lamps: 1, stars: true, skyGlass: "#3a4a7a", shop: 1 },
 };
+// jalur pejalan kaki di jalan berbatu (x, z): a = muncul, b = hilang; shop = x tempat mampir
+const STREET_LANES = [
+  { a: [-13, 14.6], b: [31, 14.6], shop: [9] },
+  { a: [31, 15.6], b: [-13, 15.6], shop: [9] },
+  { a: [21.8, -11], b: [21.8, 21] },
+  { a: [22.6, 21], b: [22.6, -11] },
+];
+const WALKERS_MAX = { day: 3, dusk: 2, night: 1 }; // malam hari jalanan lebih sepi
 const SHOP_GLASS = "glass:#c8e6f0"; // kaca fasad toko: berpendar hangat di malam hari
 const BANNER_COLOR = { blue: "#82a0bd", green: "#7fc28a", red: "#d9776b" };
 const GLYPH = { voice: "@", animator: "*", writer: ".", safety: "?" };
@@ -532,6 +540,8 @@ function makeCharacter(def, mat) {
   } else if (def.acc === "cap") {
     part(0.32, 0.08, 0.32, a, 0, 0.33, 0, head);
     part(0.3, 0.025, 0.14, a, 0, 0.3, 0.21, head);
+  } else if (def.acc === "bun") {
+    part(0.14, 0.12, 0.12, def.hair, 0, 0.34, -0.08, head); // sanggul
   }
   return { root, legs, arms, head };
 }
@@ -580,6 +590,7 @@ export class Office3D {
     this._buildSky();
     this._buildAgents();
     this._buildCat();
+    this._buildWalkers();
     this._buildHighlights();
     this._buildOverlay();
     this.raycaster = new THREE.Raycaster();
@@ -828,6 +839,7 @@ export class Office3D {
   _click() {
     this._pick();
     if (this.hover === "cat") this._meow();
+    else if (this.hover === "walker") this._greet(this.hoverWalker);
     else if (this.hover) this.select(this.hover);
   }
 
@@ -841,6 +853,10 @@ export class Office3D {
       this.raycaster.far = this.explore ? 4 : Infinity;
       const hit = this.raycaster.intersectObjects(this.pickables, false).find((h) => isVisible(h.object));
       if (hit && hit.object.userData.cat) room = "cat";
+      else if (hit && hit.object.userData.walker) {
+        room = "walker";
+        this.hoverWalker = hit.object.userData.walker;
+      }
       else if (hit && hit.object.userData.agent) room = hit.object.userData.agent;
       else if (hit && hit.point.y > -0.05 && hit.point.y < WALL_H + 0.1) room = roomAt(hit.point.x, hit.point.z);
     }
@@ -876,6 +892,7 @@ export class Office3D {
     this._updateHighlights();
     this._updateAgents(dt);
     this._updateCat(dt);
+    this._updateWalkers(dt);
     this._updateFlyers(dt);
     this._ambientFx(dt);
     this._updateFx(dt);
@@ -1346,6 +1363,144 @@ export class Office3D {
     this._sparkle(new THREE.Vector3(c.gx, 0.45, c.gy), "#e8a0bf", 5);
   }
 
+  // ---------------------------------------------------------------- pejalan kaki
+  // Warga balok (warna sama dengan STREET_PEOPLE di 2D) yang lewat di jalan; kadang mampir
+  // melihat toko. Satu karakter per warga dipakai ulang (muncul/hilang di ujung jalan).
+  _buildWalkers() {
+    this.walkers = Object.entries(STREET_PEOPLE).map(([key, def]) => {
+      const c = makeCharacter(def, (hex) => this._mat(`flat:${hex}`));
+      const w = {
+        ...c, key, active: false, gx: 0, gy: 0, yaw: 0, path: [], walkDist: 0, speed: 1.2,
+        mode: "walk", waitUntil: 0, after: null, onArrive: null, grow: 0, leaving: false,
+        waveUntil: 0, jumpUntil: 0, phase: key.charCodeAt(0) * 0.9, bubble: null, bubbleY: 1.42,
+      };
+      c.root.traverse((m) => {
+        if (!m.isMesh) return;
+        m.userData.walker = w;
+        this.pickables.push(m);
+      });
+      c.root.visible = false;
+      this.scene.add(c.root);
+      return w;
+    });
+    this.nextWalker = 1.5;
+  }
+
+  _spawnWalker() {
+    const free = this.walkers.filter((w) => !w.active);
+    if (!free.length) return;
+    const w = free[Math.floor(Math.random() * free.length)];
+    const lane = STREET_LANES[Math.floor(Math.random() * STREET_LANES.length)];
+    Object.assign(w, { active: true, leaving: false, grow: 0, gx: lane.a[0], gy: lane.a[1],
+      speed: 1.0 + Math.random() * 0.5, mode: "walk", waitUntil: 0, after: null, waveUntil: 0 });
+    w.yaw = Math.atan2(lane.b[0] - lane.a[0], lane.b[1] - lane.a[1]);
+    w.root.rotation.y = w.yaw;
+    w.root.visible = true;
+    const end = { gx: lane.b[0], gy: lane.b[1] };
+    const leave = () => (w.leaving = true);
+    if (lane.shop && Math.random() < 0.45) {
+      // mampir sebentar di depan toko: menghadap gedung, kadang melambai
+      w.path = [{ gx: lane.shop[0] + (Math.random() - 0.5) * 3, gy: lane.a[1] }];
+      w.onArrive = () => {
+        w.mode = "stand";
+        w.yaw = Math.PI;
+        if (Math.random() < 0.5) {
+          this._say(w, ["KIKI!", "WAH!", "@"][Math.floor(Math.random() * 3)], 1.6);
+          w.waveUntil = this.time + 1.4;
+        }
+        w.waitUntil = this.time + 2 + Math.random() * 1.5;
+        w.after = () => {
+          w.mode = "walk";
+          w.path = [end];
+          w.onArrive = leave;
+        };
+      };
+    } else {
+      w.path = [end];
+      w.onArrive = leave;
+    }
+  }
+
+  _greet(w) {
+    if (!w || !w.active) return;
+    sfx.play("jump");
+    this._say(w, ["HALO!", "HAI!", "DAH!"][Math.floor(Math.random() * 3)], 1.5);
+    w.waveUntil = this.time + 1.2;
+    w.jumpUntil = this.time + 0.4;
+  }
+
+  _updateWalkers(dt) {
+    const max = WALKERS_MAX[this.sky] ?? 3;
+    if (this.time > this.nextWalker) {
+      this.nextWalker = this.time + 3 + Math.random() * 6;
+      if (this.walkers.filter((w) => w.active).length < max) this._spawnWalker();
+    }
+    const k = 1 - Math.exp(-dt * 12);
+    for (const w of this.walkers) {
+      if (!w.active) continue;
+      if (w.bubble && this.time > w.bubble.until) {
+        w.root.remove(w.bubble.sprite);
+        w.bubble.sprite.material.dispose();
+        w.bubble = null;
+      }
+      if (w.leaving) {
+        w.grow -= dt / 0.4;
+        if (w.grow <= 0) {
+          w.active = false;
+          w.root.visible = false;
+          if (w.bubble) {
+            w.root.remove(w.bubble.sprite);
+            w.bubble.sprite.material.dispose();
+            w.bubble = null;
+          }
+          continue;
+        }
+      } else {
+        w.grow = Math.min(1, w.grow + dt / 0.4);
+      }
+      if (w.waitUntil <= this.time) {
+        if (w.after) {
+          const fn = w.after;
+          w.after = null;
+          fn();
+        }
+        if (w.path.length) {
+          this._stepAlong(w, dt, w.speed);
+          if (!w.path.length && w.onArrive) {
+            const fn = w.onArrive;
+            w.onArrive = null;
+            fn();
+          }
+        }
+      }
+      const t = this.time + w.phase;
+      const walking = w.mode === "walk" && !w.leaving && w.path.length > 0;
+      let leg = [0, 0];
+      let arm = [-0.12, -0.12];
+      let lift = 0;
+      if (walking) {
+        const sw = Math.sin(w.walkDist * 9) * 0.6;
+        leg = [sw, -sw];
+        arm = [-sw * 0.8, sw * 0.8];
+        lift = Math.abs(Math.cos(w.walkDist * 9)) * 0.025;
+      }
+      if (w.waveUntil > this.time) arm[1] = -2.9 + Math.sin(t * 12) * 0.25;
+      const rem = w.jumpUntil - this.time;
+      if (rem > 0 && rem <= 0.4) lift += Math.sin((rem / 0.4) * Math.PI) * 0.2;
+      const kl = walking ? 1 : k;
+      for (let i = 0; i < 2; i++) {
+        w.legs[i].rotation.x += (leg[i] - w.legs[i].rotation.x) * kl;
+        w.arms[i].rotation.x += (arm[i] - w.arms[i].rotation.x) * kl;
+      }
+      w.head.rotation.y += ((walking ? 0 : Math.sin(t * 0.8) * 0.3) - w.head.rotation.y) * k;
+      const g = w.grow * w.grow * (3 - 2 * w.grow); // muncul/hilang halus di ujung jalan
+      w.root.scale.setScalar(Math.max(0.001, g));
+      w.root.position.set(w.gx, -GF + lift, w.gy);
+      const turn = Math.atan2(Math.sin(w.yaw - w.root.rotation.y), Math.cos(w.yaw - w.root.rotation.y));
+      w.root.rotation.y += turn * (1 - Math.exp(-dt * 10));
+    }
+  }
+
   // ---------------------------------------------------------------- barang & efek
   _deskTop(id) {
     const dk = ROOMS[id].desk;
@@ -1446,6 +1601,7 @@ export class Office3D {
     const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
     o.start.textContent = locked ? "" : touch ? "SERET UNTUK MELIHAT SEKITAR" : "KLIK UNTUK MULAI JELAJAH";
     o.label.textContent = this.hover === "cat" ? "KUCING KANTOR - KLIK UNTUK ELUS"
+      : this.hover === "walker" ? "PEJALAN KAKI - KLIK UNTUK SAPA"
       : this.hover ? `${AGENTS[this.hover].name.toUpperCase()} - KLIK UNTUK SAPA` : "";
     o.mode.textContent = this.player?.fly ? "MODE TERBANG" : "";
   }
@@ -1489,6 +1645,7 @@ export class Office3D {
   _interact() {
     this._pick();
     if (this.hover === "cat") this._meow();
+    else if (this.hover === "walker") this._greet(this.hoverWalker);
     else if (this.hover) this.select(this.hover);
   }
 

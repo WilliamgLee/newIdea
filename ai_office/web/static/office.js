@@ -180,7 +180,7 @@ export const ROOMS = {
   },
 };
 
-const STREET_PEOPLE = {
+export const STREET_PEOPLE = {
   a: { hair: "#3b2b2b", shirt: "#e58fa6", pants: "#f5f0e6", acc: "bun" },
   b: { hair: "#c99a52", shirt: "#7fb6d9", pants: "#3f4b6b" },
   c: { hair: "#5a3a2a", shirt: "#f2d47a", pants: "#6d5b4a", skin: "#c9946c" },

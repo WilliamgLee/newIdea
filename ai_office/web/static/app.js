@@ -20,7 +20,7 @@ const agentStates = {};
 const VIEW_KEY = "kiki.officeView";
 const HINT = {
   "2d": "Klik ruangan untuk lihat agentnya, klik kucingnya juga.",
-  "3d": "Seret: putar. Klik kanan/Shift+seret: geser. Scroll: zoom. Klik ruangan: lihat agent, klik kucingnya juga.",
+  "3d": "Seret: putar. Klik kanan/Shift+seret: geser. Scroll: zoom. Klik ruangan: lihat agent; kucing & pejalan kaki juga bisa diklik.",
 };
 const views = {};
 let office = null; // tampilan yang sedang aktif (Office 2D atau Office3D, API-nya sama)

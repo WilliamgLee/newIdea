@@ -29,7 +29,7 @@ topik -> Penulis Naskah (LLM) -> Penasihat Keamanan (LLM + cek kode) -> [Gerbang
   dengan PyTorch 2.6 cu124 + coqui-tts + semua requirements. **Server harus jalan dari `.venv-xtts`**
   karena `voice.engine: xtts`. Prompt tanpa `(.venv-xtts)` = Python sistem (tanpa argon2 dll.).
 - Dashboard http://127.0.0.1:8000 (`?demo` = simulasi job), admin http://127.0.0.1:8000/admin.
-- Reset password admin: `python scripts/set_admin.py` (username `william`, interaktif; jangan
+- Reset password admin: `python scripts/set_admin.py` (interaktif; jangan
   pernah mengetikkan password untuk user).
 
 ## Perintah penting
@@ -78,7 +78,7 @@ sementara, `agents.fake: [semua]`, `delivery.open_folder: false`) lalu `python r
 - Setelah ubah kode jalankan pytest; setelah ubah UI cek di browser (atau `?demo`).
   Setelah ubah static file, user cukup refresh (no-cache); perubahan Python butuh restart server.
 - Upload YouTube ditunda (user masih ragu). Saringan topik berbahaya di awal belum dibuat
-  (topik "kids porn" di DB adalah tes sengaja dari user). Mesin suara Piper sengaja TIDAK dibuat
+  (ada topik tes berbahaya di DB yang sengaja dibuat user untuk menguji). Mesin suara Piper sengaja TIDAK dibuat
   (user menunda). Proyek sengaja tidak dimonetisasi (lisensi XTTS non-komersial).
 - Cerita portofolio (bahasa Inggris) ada di `docs/kiki-classroom-story.md`, disusun sebagai
   "Four rules the office follows" — sengaja tidak meniru kerangka jomontolalu.com/work. Latar

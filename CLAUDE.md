@@ -29,7 +29,7 @@ topik -> Penulis Naskah (LLM) -> Penasihat Keamanan (LLM + cek kode) -> [Gerbang
   dengan PyTorch 2.6 cu124 + coqui-tts + semua requirements. **Server harus jalan dari `.venv-xtts`**
   karena `voice.engine: xtts`. Prompt tanpa `(.venv-xtts)` = Python sistem (tanpa argon2 dll.).
 - Dashboard http://127.0.0.1:8000 (`?demo` = simulasi job), admin http://127.0.0.1:8000/admin.
-- Reset password admin: `python scripts/set_admin.py` (username `william`, interaktif; jangan
+- Reset password admin: `python scripts/set_admin.py` (interaktif; jangan
   pernah mengetikkan password untuk user).
 
 ## Perintah penting
@@ -60,8 +60,10 @@ sementara, `agents.fake: [semua]`, `delivery.open_folder: false`) lalu `python r
 - `web/api.py` FastAPI: CSP ketat (`default-src 'self'` — jangan pakai CDN/Google Fonts),
   `Cache-Control: no-cache` untuk UI, endpoint admin video `/api/admin/jobs/{id}/video|thumbnail`.
   `web/auth.py` argon2id, sesi HMAC, CSRF double-submit, rate-limit.
-- `web/static/`: `office.js` (kantor pixel isometrik di kanvas 288x184, animasi serah-terima,
-  font pixel 3x5 sendiri), `app.js` (dashboard + `?demo`), `sfx.js` (suara chiptune WebAudio,
+- `web/static/`: `office.js` (kantor pixel isometrik cutaway di kanvas 400x264: jalan berbatu,
+  fasad toko "KIKI CLASSROOM", wallpaper/parket/karpet, balkon hijau + papan nama; latar & lapisan
+  depan di-cache, mode malam otomatis dari jam asli; animasi serah-terima, font pixel 3x5 sendiri;
+  desain acuannya ada di kanvas https://claude.ai/artifact/73hwzewdivRnzpvtVA9EGv), `app.js` (dashboard + `?demo`), `sfx.js` (suara chiptune WebAudio,
   klik semua tombol, toggle M), `admin.js/html`, `style.css` (tema pixel, font Silkscreen lokal
   di `static/fonts/`, lisensi OFL).
 - `backup.py` BackupScheduler (start bersama worker), `doctor.py` pemeriksaan lingkungan.
@@ -76,11 +78,46 @@ sementara, `agents.fake: [semua]`, `delivery.open_folder: false`) lalu `python r
 - Setelah ubah kode jalankan pytest; setelah ubah UI cek di browser (atau `?demo`).
   Setelah ubah static file, user cukup refresh (no-cache); perubahan Python butuh restart server.
 - Upload YouTube ditunda (user masih ragu). Saringan topik berbahaya di awal belum dibuat
-  (topik "kids porn" di DB adalah tes sengaja dari user). Mesin suara Piper sengaja TIDAK dibuat
+  (ada topik tes berbahaya di DB yang sengaja dibuat user untuk menguji). Mesin suara Piper sengaja TIDAK dibuat
   (user menunda). Proyek sengaja tidak dimonetisasi (lisensi XTTS non-komersial).
 - Cerita portofolio (bahasa Inggris) ada di `docs/kiki-classroom-story.md`, disusun sebagai
   "Four rules the office follows" — sengaja tidak meniru kerangka jomontolalu.com/work. Latar
   cerita lengkap ada di memori `kiki-classroom-story`.
+- **Pekerjaan berikutnya yang sudah disetujui (2026-10-17): tampilan 3D voxel ala Minecraft** untuk
+  kantor di dashboard. Keputusan user:
+  - Boleh mengunduh **Three.js** (MIT) dan menyimpannya lokal di `ai_office/web/static/vendor/`
+    (CSP melarang CDN). Simpan juga file lisensinya. Pakai versi rilis stabil yang pasti, bukan "latest".
+  - **Versi 2D (`office.js`) tetap ada**; tambah tombol **2D / 3D** di dashboard (pilihan diingat di
+    localStorage, try/catch). Versi 3D di modul terpisah (mis. `office3d.js`) dengan API yang sama
+    dengan `Office` (`setStates`, `jobEvent`, `select`, `start`) supaya `app.js` cukup memilih kelas.
+  - Kamera: **bisa diputar & di-zoom bebas** dengan mouse, plus tombol kembali ke sudut isometrik.
+  - **Tekstur dibuat sendiri lewat kode** (pixel 16x16: kayu, wallpaper, batu, daun, dll.), JANGAN
+    pakai tekstur/aset Minecraft (hak cipta Mojang) — sesuai aturan "Nothing borrowed".
+  - Pakai ulang logika yang sama dari `office.js`: ROOMS (seat/spot/door/hall/inner/roam), antrean
+    tugas agent, GATE_ITEM/STAGE_ROOM, inbox admin + `_inboxReady`, event `jobEvent` & teks log.
+  - Kerjakan bertahap: (1) ruangan voxel statis + kamera, (2) karakter kotak duduk/bekerja sesuai
+    status, (3) animasi jalan & serah-terima barang, (4) siang/malam, efek, suara (`sfx.js`).
+  - **Tahap 1 selesai (2026-10-17):** `office3d.js` (kelas `Office3D`, Three.js r160 di
+    `static/vendor/`, kontrol kamera ditulis sendiri, dinding disembunyikan bila kamera di baliknya).
+    Teks log & rencana animasi sama untuk 2D/3D lewat `planJobEvent()` di `office.js`. Di 3D kursi
+    ada tepat di depan monitor (`seatOf()`), beda dengan `ROOMS.seat` 2D yang digeser diagonal.
+  - **Tahap 2 + mode jelajah (2026-10-17):** karakter balok per agent (pose kerja/santai/tidur/
+    sorak, lampu status), barang terbang antar meja + tumpukan inbox admin, konfeti. Tombol
+    JELAJAH = orang pertama (pointer lock, WASD, Spasi lompat, Shift lari, F terbang, R respawn),
+    tabrakan AABB dari `Builder.solids`, tangga luar + pintu samping di ruang pengirim.
+  - **Tahap 3 (2026-10-17):** agent 3D berjalan antar ruangan saat serah-terima (antrean tugas,
+    `_inboxReady`, rute door/hall/spot dari `ROOMS` — port dari office.js), membawa barang di atas
+    kepala, balon kata (sprite), jalan-jalan santai saat idle (titik roam yang menabrak perabot
+    3D dibuang otomatis). Kursi kuning admin di 3D digeser dari ambang pintu.
+  - **Tahap 4 (2026-10-17):** siang/senja/malam dari `skyKey()` (jam asli; `?sky=day|dusk|night`
+    memaksa, berlaku juga di 2D), `SKY3D` = langit/kabut/matahari-bulan kotak/bintang, 14 point light
+    + pendar (lampu jalan, balkon, lampu lantai, lampu meja), kaca toko `SHOP_GLASS` berpendar.
+    Layar monitor beranimasi (port `_drawScreen`), partikel balok (simbol kerja, kilau, asap gagal,
+    debu langkah), banner job DOM `.o3d-banner`. Kucing voxel di lorong (`_buildCat`, hover "cat",
+    klik = meow) juga sudah ada. Pejalan kaki voxel (`_buildWalkers`, warna dari `STREET_PEOPLE`
+    office.js) lewat di jalur `STREET_LANES`, kadang mampir menatap toko; jumlah per waktu `WALKERS_MAX`,
+    klik = disapa.
+  - Uji di server terpisah (port lain, agent fake) dan `?demo`; jangan sentuh data user.
 - Rencana berikutnya (hanya jika ada budget): fine-tuning model kecil dari naskah yang sudah
   di-approve, atau pindah ke API hosted + n8n sebagai orkestrator agar tidak jalan di laptop.
 - Batasan yang tidak bisa diselesaikan lewat kode (VRAM 6 GB/RTX 4050, NVENC gagal di laptop ini,

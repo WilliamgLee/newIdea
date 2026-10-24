@@ -20,11 +20,18 @@
     <section class="panel stage-panel">
       <div class="panel-head">
         <h2 class="panel-title">KANTOR</h2>
-        <span class="muted small">Klik ruangan untuk lihat agentnya, klik kucingnya juga.</span>
+        <span id="office-hint" class="muted small">Klik ruangan untuk lihat agentnya, klik kucingnya juga.</span>
+        <div class="view-toggle" role="group" aria-label="Tampilan kantor">
+          <button id="view-2d" class="btn btn-sm" type="button" aria-pressed="true">2D</button>
+          <button id="view-3d" class="btn btn-sm" type="button" aria-pressed="false">3D</button>
+          <button id="view-explore" class="btn btn-sm" type="button" aria-pressed="false" title="Jalan-jalan di dalam kantor (WASD + mouse)" hidden>JELAJAH</button>
+          <button id="view-reset" class="btn btn-sm" type="button" title="Kembali ke sudut isometrik" hidden>SUDUT AWAL</button>
+        </div>
       </div>
-      <!-- Kantor pixel 2.5D: tiap agent punya ruangan, status real-time via SSE -->
+      <!-- Kantor: pixel 2.5D (office.js) atau voxel 3D (office3d.js); status real-time via SSE -->
       <div id="office-wrap" class="stage">
         <canvas id="office"></canvas>
+        <canvas id="office3d" hidden></canvas>
       </div>
       <div class="msgbox" aria-live="polite">
         <span id="msg-tag" class="tag tag-info">READY</span>

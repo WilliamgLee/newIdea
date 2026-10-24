@@ -17,8 +17,74 @@ const STATUS_KIND = { done: "ok", failed: "bad", rejected: "bad", awaiting_scrip
   awaiting_final_approval: "warn" };
 
 const agentStates = {};
-const office = new Office(document.getElementById("office"), { onSelect: showAgent });
-office.start();
+const VIEW_KEY = "kiki.officeView";
+const HINT = {
+  "2d": "Klik ruangan untuk lihat agentnya, klik kucingnya juga.",
+  "3d": "Seret: putar. Klik kanan/Shift+seret: geser. Scroll: zoom. Klik ruangan: lihat agent; kucing & pejalan kaki juga bisa diklik.",
+};
+const views = {};
+let office = null; // tampilan yang sedang aktif (Office 2D atau Office3D, API-nya sama)
+
+// Modul 3D (Three.js) baru dimuat saat pertama kali tombol 3D dipakai.
+async function makeView(kind) {
+  if (!views[kind]) {
+    if (kind === "3d") {
+      const { Office3D } = await import("/static/office3d.js");
+      views[kind] = new Office3D(document.getElementById("office3d"), { onSelect: showAgent, onExplore: showExplore });
+    } else {
+      views[kind] = new Office(document.getElementById("office"), { onSelect: showAgent });
+    }
+  }
+  return views[kind];
+}
+
+async function useView(kind) {
+  let next;
+  try {
+    next = await makeView(kind);
+  } catch (err) {
+    if (kind !== "3d") throw err;
+    console.error(err);
+    useView("2d");
+    setMessage("3D", "bad", "Tampilan 3D tidak bisa dibuka di browser ini (WebGL mati?). Kembali ke 2D.");
+    return;
+  }
+  if (office && office !== next) office.stop();
+  office = next;
+  document.getElementById("office").hidden = kind !== "2d";
+  document.getElementById("office3d").hidden = kind !== "3d";
+  document.getElementById("view-2d").setAttribute("aria-pressed", String(kind === "2d"));
+  document.getElementById("view-3d").setAttribute("aria-pressed", String(kind === "3d"));
+  document.getElementById("view-reset").hidden = kind !== "3d";
+  document.getElementById("view-explore").hidden = kind !== "3d";
+  document.getElementById("office-hint").textContent = HINT[kind];
+  office.setStates(Object.values(agentStates));
+  office.start();
+  try {
+    localStorage.setItem(VIEW_KEY, kind);
+  } catch { /* penyimpanan diblokir: pilihan cukup berlaku sampai halaman ditutup */ }
+}
+
+function savedView() {
+  try {
+    return localStorage.getItem(VIEW_KEY) === "3d" ? "3d" : "2d";
+  } catch {
+    return "2d";
+  }
+}
+
+document.getElementById("view-2d").addEventListener("click", () => useView("2d"));
+document.getElementById("view-3d").addEventListener("click", () => useView("3d"));
+document.getElementById("view-reset").addEventListener("click", () => office.resetView?.());
+document.getElementById("view-explore").addEventListener("click", () => office.setExplore?.(!office.explore));
+
+function showExplore(on) {
+  const btn = document.getElementById("view-explore");
+  btn.setAttribute("aria-pressed", String(on));
+  btn.textContent = on ? "KELUAR JELAJAH" : "JELAJAH";
+  document.getElementById("office-hint").textContent = on
+    ? "Mode jelajah: klik kantor untuk mulai, Esc untuk melepas mouse." : HINT["3d"];
+}
 
 function el(tag, text, cls) {
   const e = document.createElement(tag);
@@ -263,6 +329,7 @@ function runDemo() {
 }
 
 // ------------------------------------------------------------------ mulai
+await useView(savedView());
 renderAgents();
 if (new URLSearchParams(window.location.search).has("demo")) {
   window.aiOffice = office; // memudahkan inspeksi di console saat demo
